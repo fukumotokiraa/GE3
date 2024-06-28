@@ -44,8 +44,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Object3D.VS.hlsl" />
-    <FxCompile Include="Object3D.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Object3D.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Object3D.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector4.h">
@@ -94,6 +94,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Object3d.hlsli" />
+    <None Include="resources\shaders\Object3d.hlsli" />
   </ItemGroup>
 </Project>
