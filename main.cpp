@@ -12,6 +12,7 @@
 #include"Matrix3x3.h"
 #include"Matrix4x4.h"
 #include<wrl.h>
+#include"Input.h"
 #include"externals/imgui/imgui.h"
 #include"externals/imgui/imgui_impl_dx12.h"
 #include"externals/imgui/imgui_impl_win32.h"
