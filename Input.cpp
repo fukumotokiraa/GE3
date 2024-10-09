@@ -1,8 +1,17 @@
 #include "Input.h"
 #include "cassert"
+#include<wrl.h>
+//#define DIRECTINPUT_VERSION 0x0800;
+#include<dinput.h>
 
-void Input::Initialize()
+using namespace Microsoft::WRL;
+
+#pragma comment(lib,"dinput8.lib")
+#pragma comment(lib,"dxguid.lib")
+
+void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
 {
+	HRESULT result;
 	//DirectInputのインスタンス生成
 	ComPtr<IDirectInput8>directInput = nullptr;
 	result = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);

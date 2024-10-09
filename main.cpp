@@ -31,7 +31,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
-#pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"dxcompiler.lib")
 
 struct Transform {
@@ -643,6 +642,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	OutputDebugStringA("Hello,DirectX!\n");
 
+	Input* input = nullptr;
+
+
+
 	bool isChecked = true;
 
 	const uint32_t kSubdivision = 16;
@@ -681,6 +684,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif // DEBUG
 
 	ShowWindow(hwnd, SW_SHOW);
+
+	input = new Input();
+	input->Initialize(wc.hInstance, hwnd);
 
 	//IDXGIFactory7* dxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
@@ -1408,7 +1414,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CoUninitialize();
 	CloseWindow(hwnd);
 
-
+	delete input;
 
 	return 0;
 }
