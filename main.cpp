@@ -1244,6 +1244,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::End();
 
 			input->Update();
+			if (input->PushKey(DIK_RIGHT))
+			{
+				transform.translate.x += 0.01f;
+			}
+			if (input->PushKey(DIK_LEFT))
+			{
+				transform.translate.x -= 0.01f;
+			}
+			if (input->PushKey(DIK_UP))
+			{
+				transform.translate.y += 0.01f;
+			}
+			if (input->PushKey(DIK_DOWN))
+			{
+				transform.translate.y -= 0.01f;
+			}
 
 			//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
 			//ImGui::ShowDemoWindow();
