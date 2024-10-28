@@ -17,9 +17,9 @@ public:
 public:
 	void Initialize();
 
-	void Update();
-
 	void Finalize();
+
+	bool ProcessMessage();
 
 	HWND GetHwnd()const { return hwnd; }
 
