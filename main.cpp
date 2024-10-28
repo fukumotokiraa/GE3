@@ -13,12 +13,13 @@
 #include"Matrix4x4.h"
 #include<wrl.h>
 #include"Input.h"
+#include"WinApp.h"
 #include"externals/imgui/imgui.h"
 #include"externals/imgui/imgui_impl_dx12.h"
 #include"externals/imgui/imgui_impl_win32.h"
 #include"externals/DirectXTex/d3dx12.h"
 #include"externals/DirectXTex/DirectXTex.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 #include<format>
 #include<cstdint>
@@ -631,19 +632,12 @@ struct D3DResourceLeakChecker {
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakChecker leakCheck;
-	CoInitializeEx(0, COINIT_MULTITHREADED);
-
-	WNDCLASS wc{};
-	wc.lpfnWndProc = WindowProc;
-	wc.lpszClassName = L"CG2WindowClass";
-	wc.hInstance = GetModuleHandle(nullptr);
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	RegisterClass(&wc);
 
 	OutputDebugStringA("Hello,DirectX!\n");
 
-	Input* input = nullptr;
+	WinApp* winApp = nullptr;
 
+	Input* input = nullptr;
 
 
 	bool isChecked = true;
@@ -652,25 +646,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
 
 	
+	winApp = new WinApp();
+	winApp->Initialize();
 
-	const int32_t kClientWidth = 1280;
-	const int32_t kClientHeight = 720;
-	RECT wrc = { 0,0,kClientWidth,kClientHeight };
-	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
+	input = new Input();
+	input->Initialize(wc.hInstance, hwnd);
 
-	HWND hwnd = CreateWindow(
-		wc.lpszClassName,
-		L"CG2",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		wrc.right - wrc.left,
-		wrc.bottom - wrc.top,
-		nullptr,
-		nullptr,
-		wc.hInstance,
-		nullptr
-	);
+
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr < ID3D12Debug1> debugController = nullptr;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -683,10 +665,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 #endif // DEBUG
 
-	ShowWindow(hwnd, SW_SHOW);
 
-	input = new Input();
-	input->Initialize(wc.hInstance, hwnd);
+
+
 
 	//IDXGIFactory7* dxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
@@ -1432,6 +1413,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CloseWindow(hwnd);
 
 	delete input;
+	delete winApp;
 
 	return 0;
 }
