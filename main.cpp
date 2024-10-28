@@ -650,7 +650,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	winApp->Initialize();
 
 	input = new Input();
-	input->Initialize(winApp->GetHinstance(), winApp->GetHwnd());
+	input->Initialize(winApp);
 
 
 #ifdef _DEBUG
@@ -1406,8 +1406,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	vertexShaderBlob->Release();
 
 	CloseHandle(fennceEvent);
-	CoUninitialize();
-	CloseWindow(winApp->GetHwnd());
+
+	winApp->Finalize();
 
 	delete input;
 	delete winApp;
