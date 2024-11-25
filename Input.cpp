@@ -5,8 +5,10 @@
 
 void Input::Initialize(WinApp* winApp)
 {
+	//NULL検出
+	assert(winApp);
 	//借りてきたWinAppのインスタンスを記録
-	this->winApp = winApp;
+	winApp_ = winApp;
 	HRESULT result;
 	result = DirectInput8Create(winApp->GetHinstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
 	assert(SUCCEEDED(result));

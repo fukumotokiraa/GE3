@@ -1,8 +1,7 @@
 #pragma once
-#include <dinput.h>
 #include <Windows.h>
 #include<wrl.h>
-//#define DIRECTINPUT_VERSION 0x0800;
+#define DIRECTINPUT_VERSION 0x0800
 #include<dinput.h>
 #include"WinApp.h"
 
@@ -36,6 +35,6 @@ private:
 	//DirectInputのインスタンス生成
 	ComPtr<IDirectInput8>directInput;
 
-	WinApp* winApp = nullptr;
+	WinApp* winApp_ = nullptr;
 };
 
