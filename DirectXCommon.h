@@ -1,11 +1,12 @@
 #pragma once
 #include<d3d12.h>
+#include<dxcapi.h>
 #include<dxgi1_6.h>
 #include<wrl.h>
 #include"WinApp.h"
-#include<dxcapi.h>
 #include <format>
 #include <array>
+#include"externals/DirectXTex/DirectXTex.h"
 
 //DirectX基盤
 class DirectXCommon
@@ -15,6 +16,16 @@ public://メンバ関数
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 	//DepthStencilTextureResource
 	Microsoft::WRL::ComPtr < ID3D12Resource> CreateDepthStencilTextureResource(Microsoft::WRL::ComPtr < ID3D12Device>device, int32_t width, int32_t height);
+	//シェーダーのコンパイル
+	IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile);
+	//バッファリソースの生成
+	Microsoft::WRL::ComPtr < ID3D12Resource> CreateBufferResource(size_t sizeInBytes);
+	//テクスチャリソースの生成
+	Microsoft::WRL::ComPtr < ID3D12Resource> CreateTextureResorce(Microsoft::WRL::ComPtr < ID3D12Device> device, const DirectX::TexMetadata& metadata);
+	//テクスチャリソースの転送
+	void UploadTextureData(Microsoft::WRL::ComPtr < ID3D12Resource>texture, const DirectX::ScratchImage& mipImages);
+	//テクスチャファイルの読み込み
+	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
 	//初期化
 	void Initialize(WinApp* winApp);
 	//デバイスの初期化
@@ -48,17 +59,28 @@ public://メンバ関数
 	//SRV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
+	uint32_t GetDesriptorSizeSRV() { return desriptorSizeSRV; };
+	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetSRVDescriptorHeap() { return srvDescriptorHeap; };
 	//RTV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetRTVGPUDescriptorHandle(uint32_t index);
+	uint32_t GetDesriptorSizeRTV() { return desriptorSizeRTV; };
+	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetRTVDescriptorHeap() { return rtvDescriptorHeap; };
 	//DSV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUDescriptorHandle(uint32_t index);
-
-private:
+	uint32_t GetDesriptorSizeDSV() { return desriptorSizeDSV; };
+	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetDSVDescriptorHeap() { return dsvDescriptorHeap; };
+	//getter
+	ID3D12Device* GetDevice()const { return device.Get(); }
+	ID3D12GraphicsCommandList* GetCommandlist()const { return commandList.Get(); }
 	//デスクリプタハンドル取得関数
 	static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);
 	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);
+	//Fence
+	HANDLE GetFenceEvent() { return fennceEvent; }
+
+private:
 	Microsoft::WRL::ComPtr < ID3D12Debug1> debugController = nullptr;
 	Microsoft::WRL::ComPtr < IDXGIAdapter4> useAdapter = nullptr;
 	Microsoft::WRL::ComPtr < ID3D12InfoQueue> infoQueue = nullptr;
