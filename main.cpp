@@ -956,47 +956,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		////開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
 		////ImGui::ShowDemoWindow();
 
-		//UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
-
-		////TransitionBarrierの設定
-		//D3D12_RESOURCE_BARRIER barrier{};
-		////今回のバリアはTransition
-		//barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		////Noneにしておく
-		//barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		////バリアを張る対象のリソース。現在のバックアップに対して行う
-		//barrier.Transition.pResource = swapChainResources[backBufferIndex].Get();
-		////遷移前（現在）のResourceState
-		//barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		////遷移後のResourceState
-		//barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		////TransitionBarrierを張る
-		//commandList->ResourceBarrier(1, &barrier);
-
 		//Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite.scale);
 		//uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransformSprite.rotate.z));
 		//uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransformSprite.translate));
 		//materialDataSprite->uvTransform = uvTransformMatrix;
 
-		//commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
+		//描画前処理
+		dxCommon->PreDraw();
 
-		////描画先のRTVとDSVを設定する
-		//::D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		//commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
-
-		//float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };
-		//commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
 
 
 
 		////ImGuiの内部コマンドを生成する
 		//ImGui::Render();
 
-		////描画用のDescriptorHeapの設定
-		//Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> descriptorHeaps[] = { srvDescriptorHeap};
-		//commandList->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
-		//commandList->RSSetViewports(1, &viewport);//Viewportを設定
-		//commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
+
+
+
 		////RootSignatureを設定。PSOに設定しているけど別途設定が必要
 		//commandList->SetGraphicsRootSignature(rootSignature.Get());
 		//commandList->SetPipelineState(graphicsPipelineState.Get());//PSOを設定
@@ -1025,8 +1001,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		////描画（DrawCall/ドローコール）。３頂点で１つのインスタンス。インスタンスについては今後
 		////commandList->DrawInstanced(6, 1, 0, 0);
 		//commandList->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
-		////指定した深度で画面全体をクリアする
-		//commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
 		//////マテリアルCBufferの場所を設定
 		////commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
 		////spriteの描画
@@ -1050,10 +1025,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		////実際のcommandListのImGuiの描画コマンドを積む
 		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.Get());
 
-		//barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		//barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-		////TransitionBarrierを張る
-		//commandList->ResourceBarrier(1, &barrier);
+
 
 
 
@@ -1075,34 +1047,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 		//transformationMatrixData->WVP = worldViewProjectionMatrix;
 
-		//hr = commandList->Close();
-		//assert(SUCCEEDED(hr));
 
-		//Microsoft::WRL::ComPtr < ID3D12CommandList> commandLists[] = { commandList};
-		//commandQueue->ExecuteCommandLists(1, commandLists->GetAddressOf());
-		//swapChain->Present(1, 0);
-
-
-
-		////Fenceの値を更新
-		//fenceValue++;
-		////GPUがここまでたどり着いたときにfenceの値を指定した値に代入するようsignalを送る
-		//commandQueue->Signal(fence.Get(), fenceValue);
-
-		////Fenceの値がSignal値にたどり着いているか確認する
-		//if (fence->GetCompletedValue() < fenceValue)
-		//{
-		//	//指定したSignalにたどり着いていないのでたどり着くまで待つようにイベントを設定する
-		//	fence->SetEventOnCompletion(fenceValue, fennceEvent);
-		//	//イベントを待つ
-		//	WaitForSingleObject(fennceEvent, INFINITE);
-		//}
-
-		//hr = commandAllocator->Reset();
-		//assert(SUCCEEDED(hr));
-		//hr = commandList->Reset(commandAllocator.Get(), nullptr);
-		//assert(SUCCEEDED(hr));
-
+		dxCommon->PostDraw();
 	}
 
 	//ImGuiの終了処理。

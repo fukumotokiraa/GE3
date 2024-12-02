@@ -41,6 +41,10 @@ public://メンバ関数
 	void InitializeScissorRect();
 	//ImGuiの初期化
 	void InitializeImGui();
+	//描画前処理
+	void PreDraw();
+	//描画後処理
+	void PostDraw();
 	//SRV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
@@ -100,5 +104,15 @@ private:
 	IDxcIncludeHandler* includeHandler = nullptr;
 	//rtv
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+	//リソースバリア
+	D3D12_RESOURCE_BARRIER barrier{};
+	//Fence
+	Microsoft::WRL::ComPtr < ID3D12Fence> fence = nullptr;
+	//FenceValue
+	uint64_t fenceValue = 0;
+	//FenceEvent
+	HANDLE fennceEvent;
+	//DepthStencilResource
+	Microsoft::WRL::ComPtr < ID3D12Resource> depthStencilResource = nullptr;
 };
 

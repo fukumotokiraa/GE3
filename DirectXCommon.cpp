@@ -309,7 +309,7 @@ void DirectXCommon::InitializeRenderTargetView()
 void DirectXCommon::InitializeDepthStencilView()
 {
 	//DepthStencilTextureをウィンドウのサイズで作成
-	Microsoft::WRL::ComPtr < ID3D12Resource> depthStencilResource = CreateDepthStencilTextureResource(device, WinApp::kClientWidth, WinApp::kClientHeight);
+	depthStencilResource = CreateDepthStencilTextureResource(device, WinApp::kClientWidth, WinApp::kClientHeight);
 	//DSVの設定
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//Format。基本的にはResourceに合わせる
@@ -321,12 +321,10 @@ void DirectXCommon::InitializeDepthStencilView()
 void DirectXCommon::InitializeFence()
 {
 	HRESULT hr;
-	Microsoft::WRL::ComPtr < ID3D12Fence> fence = nullptr;
-	uint64_t fenceValue = 0;
 	hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 	assert(SUCCEEDED(hr));
 	//Fenceのsignalを持つためのイベントを作成する
-	HANDLE fennceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	fennceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	assert(fennceEvent != nullptr);
 }
 
@@ -358,6 +356,94 @@ void DirectXCommon::InitializeImGui()
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(winApp_->GetHwnd());
 	ImGui_ImplDX12_Init(device.Get(), swapChainDesc.BufferCount, rtvDesc.Format, srvDescriptorHeap.Get(), srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+}
+
+void DirectXCommon::PreDraw()
+{
+	//バックバッファの番号取得
+	UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
+
+	//リソースバリアで書き込み可能に変更
+	//TransitionBarrierの設定
+	//今回のバリアはTransition
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//Noneにしておく
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//バリアを張る対象のリソース。現在のバックアップに対して行う
+	barrier.Transition.pResource = swapChainResources[backBufferIndex].Get();
+	//遷移前（現在）のResourceState
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	//遷移後のResourceState
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	//TransitionBarrierを張る
+	commandList->ResourceBarrier(1, &barrier);
+
+	//描画先のRTVとDSVを指定する
+	::D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
+
+	//画面全体の色をクリア
+	float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };
+	commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
+
+	//画面全体の深度をクリア
+	commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	//SRV用のデスクリプターヒープを指定する
+	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> descriptorHeaps[] = { srvDescriptorHeap};
+	commandList->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
+
+	//ビューポート領域の設定
+	commandList->RSSetViewports(1, &viewport);//Viewportを設定
+
+	//シザー矩形の設定
+	commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
+}
+
+void DirectXCommon::PostDraw()
+{
+	HRESULT hr;
+	//バックバッファの番号取得
+	UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
+
+	//リソースバリアで表示状態に変更
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	//TransitionBarrierを張る
+	commandList->ResourceBarrier(1, &barrier);
+
+	//グラフィックスコマンドをクローズ
+	hr = commandList->Close();
+	assert(SUCCEEDED(hr));
+
+	//GPUコマンドの実行
+	//GPU画面の交換を通知
+	Microsoft::WRL::ComPtr < ID3D12CommandList> commandLists[] = { commandList};
+	commandQueue->ExecuteCommandLists(1, commandLists->GetAddressOf());
+	swapChain->Present(1, 0);
+
+	//Fenceの値を更新
+	fenceValue++;
+
+	//コマンドキューにシグナルを送る
+	commandQueue->Signal(fence.Get(), fenceValue);
+
+	//コマンド完了待ち
+	if (fence->GetCompletedValue() < fenceValue)
+	{
+		//指定したSignalにたどり着いていないのでたどり着くまで待つようにイベントを設定する
+		fence->SetEventOnCompletion(fenceValue, fennceEvent);
+		//イベントを待つ
+		WaitForSingleObject(fennceEvent, INFINITE);
+	}
+
+	//コマンドアロケーターのリセット
+	hr = commandAllocator->Reset();
+	assert(SUCCEEDED(hr));
+
+	//コマンドリストのリセット
+	hr = commandList->Reset(commandAllocator.Get(), nullptr);
+	assert(SUCCEEDED(hr));
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index)
