@@ -6,6 +6,8 @@
 #include"WinApp.h"
 #include <format>
 #include <array>
+#include <chrono>
+#include <thread>
 #include"externals/DirectXTex/DirectXTex.h"
 
 //DirectX基盤
@@ -81,6 +83,13 @@ public://メンバ関数
 	HANDLE GetFenceEvent() { return fennceEvent; }
 
 private:
+	//FPS固定初期化
+	void InitializeFixFPS();
+	//FPS固定更新
+	void UpdateFixFPS();
+	//記録時間(FPS固定用)
+	std::chrono::steady_clock::time_point reference_;
+
 	Microsoft::WRL::ComPtr < ID3D12Debug1> debugController = nullptr;
 	Microsoft::WRL::ComPtr < IDXGIAdapter4> useAdapter = nullptr;
 	Microsoft::WRL::ComPtr < ID3D12InfoQueue> infoQueue = nullptr;
