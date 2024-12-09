@@ -10,6 +10,8 @@
 #include"DirectXCommon.h"
 #include"Logger.h"
 #include"D3DResourceLeakChecker.h"
+#include"SpriteCommon.h"
+#include"Sprite.h"
 
 #include"externals/imgui/imgui.h"
 #include"externals/imgui/imgui_impl_dx12.h"
@@ -358,7 +360,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	const uint32_t kSubdivision = 16;
 	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
 
-	
+#pragma region 基盤システムの初期化
+
 	winApp = new WinApp();
 	winApp->Initialize();
 
@@ -368,13 +371,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
 
+	SpriteCommon* spriteCommon = nullptr;
+	spriteCommon = new SpriteCommon;
+	spriteCommon->Initialize();
 
-	//ID3D12DescriptorHeap* rtvDescriptorHeap = nullptr;
-	//D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
-	//rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	//rtvDescriptorHeapDesc.NumDescriptors = 2;
-	//hr = device->CreateDescriptorHeap(&rtvDescriptorHeapDesc, IID_PPV_ARGS(&rtvDescriptorHeap));
-	//assert(SUCCEEDED(hr));
+#pragma endregion
+
+#pragma region 最初のシーンの初期化
+
+	Sprite* sprite = new Sprite();
+	sprite->Initialize();
+
+#pragma endregion
 
 
 	//モデル読み込み
@@ -859,6 +867,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	winApp->Finalize();
 
+	delete sprite;
+	delete spriteCommon;
 	delete input;
 	delete winApp;
 	delete dxCommon;
