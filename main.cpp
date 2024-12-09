@@ -373,7 +373,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	SpriteCommon* spriteCommon = nullptr;
 	spriteCommon = new SpriteCommon;
-	spriteCommon->Initialize();
+	spriteCommon->Initialize(dxCommon);
 
 #pragma endregion
 
@@ -761,8 +761,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		materialDataSprite->uvTransform = uvTransformMatrix;
 
 		//描画前処理
+		//DirectXの描画準備。全ての描画に共通のグラフィックスコマンドを積む
 		dxCommon->PreDraw();
-
+		//Spriteの描画準備。Spriteの描画に共通のグラフィックスコマンドを積む
+		spriteCommon->DrawCommonSetting();
 
 
 
@@ -772,12 +774,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-		dxCommon->GetCommandlist()->SetGraphicsRootSignature(rootSignature.Get());
-		dxCommon->GetCommandlist()->SetPipelineState(graphicsPipelineState.Get());//PSOを設定
+
 		dxCommon->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
-		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけば良い
-		dxCommon->GetCommandlist()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 		//マテリアルCBufferの場所を設定
 		dxCommon->GetCommandlist()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
