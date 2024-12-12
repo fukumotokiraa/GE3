@@ -94,9 +94,9 @@ private:
 	Microsoft::WRL::ComPtr < IDXGIAdapter4> useAdapter = nullptr;
 	Microsoft::WRL::ComPtr < ID3D12InfoQueue> infoQueue = nullptr;
 	//DirectX12デバイス
-	Microsoft::WRL::ComPtr<ID3D12Device> device;
+	Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
 	//DXGIファクトリ
-	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory;
+	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
 	//コマンドアロケーター
 	Microsoft::WRL::ComPtr < ID3D12CommandAllocator> commandAllocator = nullptr;
 	//コマンドリスト

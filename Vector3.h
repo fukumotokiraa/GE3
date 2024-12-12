@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cmath>
 /// <summary>
 /// 3次元ベクトル
 /// </summary>
