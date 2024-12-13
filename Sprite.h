@@ -26,6 +26,18 @@ public:
 
 	void CreateTransformationMatrixData();
 
+	const Vector2& GetPosition()const { return position_; }
+	void SetPosition(const Vector2& position) { position_ = position; }
+
+	float GetRotation()const { return rotation_; }
+	void SetRotation(float rotation) { rotation_ = rotation; }
+
+	const Vector4& GetColor()const { return materialData->color; }
+	void SetColor(const Vector4& color) { materialData->color = color; }
+
+	const Vector2& GetSize()const { return size_; }
+	void SetSize(const Vector2& size) { size_ = size; }
+
 private:
 	struct VertexData {
 		Vector4 position;
@@ -50,6 +62,12 @@ private:
 		Vector3 rotate;
 		Vector3 translate;
 	};
+
+	Transform transform;
+
+	Vector2 position_ = { 0.0f,0.0f };
+	float rotation_ = 0.0f;
+	Vector2 size_ = { 640.0f,360.0f };
 
 	bool isChecked = true;
 

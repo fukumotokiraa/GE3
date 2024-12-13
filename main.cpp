@@ -24,6 +24,7 @@
 #include<vector>
 #include<fstream>
 #include<sstream>
+#include<vector>
 
 #include "StringUtility.h"
 
@@ -236,6 +237,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Sprite* sprite = new Sprite();
 	sprite->Initialize(spriteCommon);
 
+	std::vector<Sprite*>sprites;
+	for (uint32_t i=0;i<5;i++) {
+		Sprite* sprite = new Sprite();
+		sprite->Initialize(spriteCommon);
+		sprites.push_back(sprite);
+		sprites[i]->SetSize({ 100.0f,100.0f });
+		sprites[i]->SetPosition({ i * 150.0f,0.0f });
+	}
+
 #pragma endregion
 
 
@@ -439,17 +449,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
 	assert(SUCCEEDED(hr));
 
-
-
 	Transform uvTransformSprite{
 		{1.0f,1.0f,1.0f},
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f}
 	};
-
-
-
-
 
 	Microsoft::WRL::ComPtr < ID3D12Resource> shaderResource = dxCommon->CreateBufferResource(sizeof(DirectionalLight));
 	DirectionalLight* directionalLightData = nullptr;
@@ -457,9 +461,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	directionalLightData->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightData->direction = { 0.0f,-1.0f,0.0f };
 	directionalLightData->intensity = 1.0f;
-
-
-
 
 
 	////WVP用のリソースを作る。Matrix4x4 １つ分のサイズを用意する
@@ -532,7 +533,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f);
 		ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
-			
+		Vector2 position = sprite->GetPosition();
+		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
+		sprite->SetPosition(position);
+		float rotation = sprite->GetRotation();
+		ImGui::DragFloat("SpriteRotate", &rotation, 0.01f, 10.0f, 10.0f);
+		sprite->SetRotation(rotation);
+		Vector4 color = sprite->GetColor();
+		ImGui::ColorEdit4("SpriteColor", &color.x);
+		sprite->SetColor(color);
+		Vector2 size = sprite->GetSize();
+		ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
+		sprite->SetSize(size);
 		ImGui::End();
 
 		input->Update();
@@ -553,9 +565,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			transform.translate.y -= 0.01f;
 		}
 
-		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
-		//ImGui::ShowDemoWindow();
-
 		//Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite.scale);
 		//uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransformSprite.rotate.z));
 		//uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransformSprite.translate));
@@ -568,12 +577,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		spriteCommon->DrawCommonSetting();
 
 		sprite->Draw();
+		for (uint32_t i = 0; i < 5; i++) {
+			sprites[i]->Draw();
+			//sprites.push_back(sprite);
+		}
 
 		//ImGuiの内部コマンドを生成する
 		ImGui::Render();
-
-
-
 
 
 		dxCommon->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
@@ -583,13 +593,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//wvp用のCBufferの場所を設定
 		//commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 		dxCommon->GetCommandlist()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
-
-
-
-
-
-
-
 
 
 		dxCommon->GetCommandlist()->SetGraphicsRootConstantBufferView(3, shaderResource->GetGPUVirtualAddress());
@@ -605,15 +608,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
 
 
-
-
-
 		dxCommon->GetCommandlist()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-
-
-
-		//commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
-
 
 		////描画
 		//commandList->DrawInstanced(6, 1, 0, 0);
@@ -623,6 +618,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandlist());
 
 		sprite->Update();
+		for (uint32_t i = 0; i < 5; i++) {
+			sprites[i]->Update();
+			//sprites.push_back(sprite);
+		}
 
 		// 行列の更新
 		//transform.rotate.y += 0.03f;
@@ -656,6 +655,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	winApp->Finalize();
 
+	for (uint32_t i = 0; i < 5; i++) {
+		delete sprites[i];
+	}
 	delete sprite;
 	delete spriteCommon;
 	delete input;
