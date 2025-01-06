@@ -26,8 +26,7 @@ public://メンバ関数
 	Microsoft::WRL::ComPtr < ID3D12Resource> CreateTextureResorce(Microsoft::WRL::ComPtr < ID3D12Device> device, const DirectX::TexMetadata& metadata);
 	//テクスチャリソースの転送
 	void UploadTextureData(Microsoft::WRL::ComPtr < ID3D12Resource>texture, const DirectX::ScratchImage& mipImages);
-	//テクスチャファイルの読み込み
-	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
+
 	//初期化
 	void Initialize(WinApp* winApp);
 	//デバイスの初期化
@@ -81,6 +80,8 @@ public://メンバ関数
 	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);
 	//Fence
 	HANDLE GetFenceEvent() { return fennceEvent; }
+	//最大SRV数（最大テクスチャ枚数）
+	static const uint32_t kMaxSRVCount;
 
 private:
 	//FPS固定初期化
@@ -145,5 +146,6 @@ private:
 	HANDLE fennceEvent;
 	//DepthStencilResource
 	Microsoft::WRL::ComPtr < ID3D12Resource> depthStencilResource = nullptr;
+
 };
 

@@ -3,18 +3,21 @@
 #include <d3d12.h>
 #include <wrl.h>
 #include "WinApp.h"
+#include "TextureManager.h"
 
 #include "Matrix4x4.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
 
+#include <string>
+
 class SpriteCommon;
 
 class Sprite
 {
 public:
-	void Initialize(SpriteCommon* spriteCommon);
+	void Initialize(SpriteCommon* spriteCommon, std::string textureFilePath);
 
 	void Update();
 
@@ -92,5 +95,8 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource = nullptr;
 	//バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData = nullptr;
+	//テクスチャ番号
+	uint32_t textureIndex = 0;
+
 };
 

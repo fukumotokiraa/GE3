@@ -3,9 +3,11 @@
 #include "DirectXCommon.h"
 #include "Calculation.h"
 
-void Sprite::Initialize(SpriteCommon* spriteCommon)
+void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 {
 	spriteCommon_ = spriteCommon;
+
+	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 
 	CreateVertexData();
 	CreateMaterialData();
@@ -61,7 +63,7 @@ void Sprite::Draw()
 	spriteCommon_->GetDxCommon()->GetCommandlist()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
 
 	//SRVのDescriptorTableの先頭を設定。２はrootParameter[2]である。
-	spriteCommon_->GetDxCommon()->GetCommandlist()->SetGraphicsRootDescriptorTable(2, spriteCommon_->GetDxCommon()->GetGPUDescriptorHandle(spriteCommon_->GetDxCommon()->GetSRVDescriptorHeap(), spriteCommon_->GetDxCommon()->GetDesriptorSizeSRV(), 2));
+	spriteCommon_->GetDxCommon()->GetCommandlist()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex));
 
 	spriteCommon_->GetDxCommon()->GetCommandlist()->DrawIndexedInstanced(6, 1, 0, 0,0);
 }
