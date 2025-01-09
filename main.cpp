@@ -14,6 +14,8 @@
 #include "SpriteCommon.h"
 #include "Sprite.h"
 #include "TextureManager.h"
+#include "Object3dCommon.h"
+#include "Object3d.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -213,6 +215,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	TextureManager* texture = nullptr;
 
+	Object3dCommon* object3dCommon = nullptr;
+	//3Dオブジェクト共通部の初期化
+	object3dCommon = new Object3dCommon();
+	object3dCommon->Initialize();
+
 	const uint32_t kSubdivision = 16;
 	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
 
@@ -260,6 +267,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//sprites.push_back(sprite);
 	//sprites[6]->SetSize({ 100.0f,100.0f });
 	//sprites[6]->SetPosition({ 6 * 150.0f,0.0f });
+
+	Object3d* object3d = new Object3d();
+	object3d->Initialize();
 
 #pragma endregion
 
@@ -677,6 +687,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	winApp->Finalize();
 
+	delete object3d;
 	TextureManager::GetInstance()->Finalize();
 	for (uint32_t i = 0; i < 5; i++) {
 		delete sprites[i];
@@ -687,6 +698,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete winApp;
 	CloseHandle(dxCommon->GetFenceEvent());
 	delete dxCommon;
+	delete object3dCommon;
 
 	D3DResourceLeakChecker leakCheck;
 
