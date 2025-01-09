@@ -201,7 +201,7 @@ float LengthSquared(const Vector3& v) {
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	D3DResourceLeakChecker leakCheck;
+
 
 	OutputDebugStringA("Hello,DirectX!\n");
 
@@ -664,18 +664,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
+
 	signatureBlob->Release();
 	if (errorBlob)
 	{
 		errorBlob->Release();
 	}
-	pixelShaderBlob->Release();
 	vertexShaderBlob->Release();
+	pixelShaderBlob->Release();
 
-	CloseHandle(dxCommon->GetFenceEvent());
+
 
 	winApp->Finalize();
 
+	TextureManager::GetInstance()->Finalize();
 	for (uint32_t i = 0; i < 5; i++) {
 		delete sprites[i];
 	}
@@ -683,8 +685,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete spriteCommon;
 	delete input;
 	delete winApp;
-	TextureManager::GetInstance()->Finalize();
+	CloseHandle(dxCommon->GetFenceEvent());
 	delete dxCommon;
+
+	D3DResourceLeakChecker leakCheck;
 
 	return 0;
 }
