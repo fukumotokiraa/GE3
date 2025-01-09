@@ -41,6 +41,25 @@ public:
 	const Vector2& GetSize()const { return size_; }
 	void SetSize(const Vector2& size) { size_ = size; }
 
+	const Vector2& GetAnchorPoint()const { return anchorPoint_; }
+	void SetAnchorPoint(const Vector2& anchorPoint) { anchorPoint_ = anchorPoint; }
+
+	bool GetIsFlipX()const { return isFlipX_; }
+	void SetIsFlipX(bool isFlipX) { isFlipX_ = isFlipX; }
+
+	bool GetIsFlipY()const { return isFlipY_; }
+	void SetIsFlipY(bool isFlipY) { isFlipY_ = isFlipY; }
+
+	const Vector2& GetTextureLeftTop()const { return textureLeftTop; }
+	void SetTextureLeftTop(const Vector2& textureLeftTop) { this->textureLeftTop = textureLeftTop; }
+
+	const Vector2& GetTextureSize()const { return textureSize; }
+	void SetTextureSize(const Vector2& textureSize) { this->textureSize = textureSize; }
+
+private:
+	//テクスチャサイズをイメージに合わせる
+	void AdjustTextureSize();
+
 private:
 	struct VertexData {
 		Vector4 position;
@@ -72,7 +91,19 @@ private:
 	float rotation_ = 0.0f;
 	Vector2 size_ = { 640.0f,360.0f };
 
+	Vector2 anchorPoint_ = { 0.0f,0.0f };
+
+	//左右フリップ
+	bool isFlipX_ = false;
+	//上下フリップ
+	bool isFlipY_ = false;
+
 	bool isChecked = true;
+
+	//テクスチャ左上座標
+	Vector2 textureLeftTop = { 0.0f,0.0f };
+	//テクスチャ切り出しサイズ
+	Vector2 textureSize = { 100.0f,100.0f };
 
 	SpriteCommon* spriteCommon_ = nullptr;
 
