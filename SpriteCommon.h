@@ -22,5 +22,8 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature = nullptr;
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 
+	//RootSignatureを作成
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 };
 

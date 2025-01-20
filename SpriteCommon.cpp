@@ -24,9 +24,7 @@ void SpriteCommon::DrawCommonSetting()
 void SpriteCommon::CreateRootSignature()
 {
 	//RootSignatureを作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;//0から始まる
 	descriptorRange[0].NumDescriptors = 1;//数は一つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRVを使う
@@ -38,14 +36,6 @@ void SpriteCommon::CreateGraphicsPipeline()
 	CreateRootSignature();
 
 	HRESULT hr;
-	//RootSignatureを作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	descriptorRange[0].BaseShaderRegister = 0;//0から始まる
-	descriptorRange[0].NumDescriptors = 1;//数は一つ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRVを使う
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//Offsetを自動計算
 
 	//RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform
 	D3D12_ROOT_PARAMETER rootParameters[4] = {};
