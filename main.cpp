@@ -16,6 +16,8 @@
 #include "TextureManager.h"
 #include "Object3dCommon.h"
 #include "Object3d.h"
+#include "ModelCommon.h"
+#include "Model.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -116,9 +118,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//sprites.push_back(sprite);
 	//sprites[6]->SetSize({ 100.0f,100.0f });
 	//sprites[6]->SetPosition({ 6 * 150.0f,0.0f });
+	ModelCommon* modelCommon = new ModelCommon();
+	modelCommon->Initialize(dxCommon);
+
+	Model* model = new Model();
+	model->Initialize(modelCommon);
 
 	Object3d* object3d = new Object3d();
-	object3d->Initialize(object3dCommon);
+	object3d->Initialize(object3dCommon,model);
+
 
 #pragma endregion
 
@@ -347,6 +355,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	winApp->Finalize();
 
 	delete object3d;
+	delete model;
+	delete modelCommon;
 	TextureManager::GetInstance()->Finalize();
 	for (uint32_t i = 0; i < 5; i++) {
 		delete sprites[i];

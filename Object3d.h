@@ -7,31 +7,14 @@
 #include "TextureManager.h"
 
 #include "Matrix4x4.h"
+#include "Model.h"
 #include "Object3dCommon.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
 
 class Object3dCommon;
-struct VertexData {
-	Vector4 position;
-	Vector2 texcoord;
-	Vector3 normal;
-};
-struct MaterialData {
-	std::string textureFilePath;
-	uint32_t textureIndex = 0;
-};
-struct ModelData {
-	std::vector<VertexData> vertices;
-	MaterialData material;
-};
-struct Material {
-	Vector4 color;
-	bool enableLighting;
-	float padding[3];
-	Matrix4x4 uvTransform;
-};
+
 struct TransformationMatrix {
 	Matrix4x4 WVP;
 	Matrix4x4 World;
@@ -51,7 +34,7 @@ class Object3d
 {
 public:
 	//初期化
-	void Initialize(Object3dCommon* object3dCommon);
+	void Initialize(Object3dCommon* object3dCommon,Model* model);
 
 	void Update();
 
@@ -65,23 +48,21 @@ public:
 
 	Transform& GetTransform() { return transform; }
 
-	//.mtlファイルの読み込み
-	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
-	//.objファイルの読み込み
-	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
+	void SetModel(Model* model) { this->model = model; }
+
+	void SetScale(const Vector3& scale) { transform.scale = scale; }
+	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
+	void SetTranslate(const Vector3& translate) { transform.translate = translate; }
+
+	const Vector3& GetScale()const { return transform.scale; }
+	const Vector3& GetRotate()const { return transform.rotate; }
+	const Vector3& GetTranslate()const { return transform.translate; }
+
+
 private:
 	Object3dCommon* object3dCommon_ = nullptr;
 
-	//objファイルのデータ
-	ModelData modelData;
-	//バッファリソース
-	Microsoft::WRL::ComPtr< ID3D12Resource> vertexResource = nullptr;
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource = nullptr;
-	//バッファリソース内のデータを指すポインタ
-	VertexData* vertexData = nullptr;
-	Material* materialData = nullptr;
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	Model* model = nullptr;
 
 	//バッファリソース
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource = nullptr;
