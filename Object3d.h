@@ -5,6 +5,7 @@
 #include <wrl/client.h>
 #include "DirectXCommon.h"
 #include "TextureManager.h"
+#include "ModelManager.h"
 
 #include "Matrix4x4.h"
 #include "Model.h"
@@ -49,6 +50,8 @@ public:
 	Transform& GetTransform() { return transform; }
 
 	void SetModel(Model* model) { this->model = model; }
+
+	void SetModel(const std::string& filePath);
 
 	void SetScale(const Vector3& scale) { transform.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }

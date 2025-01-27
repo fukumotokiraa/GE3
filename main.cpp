@@ -18,6 +18,7 @@
 #include "Object3d.h"
 #include "ModelCommon.h"
 #include "Model.h"
+#include "ModelManager.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -67,6 +68,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Object3dCommon* object3dCommon = nullptr;
 
+	//ModelCommon* modelCommon = nullptr;
+
 	const uint32_t kSubdivision = 16;
 	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
 
@@ -90,6 +93,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//3Dオブジェクト共通部の初期化
 	object3dCommon = new Object3dCommon();
 	object3dCommon->Initialize(dxCommon);
+
+	ModelManager::GetInstance()->Initialize(dxCommon);
 
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
@@ -118,103 +123,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//sprites.push_back(sprite);
 	//sprites[6]->SetSize({ 100.0f,100.0f });
 	//sprites[6]->SetPosition({ 6 * 150.0f,0.0f });
-	ModelCommon* modelCommon = new ModelCommon();
-	modelCommon->Initialize(dxCommon);
 
 	Model* model = new Model();
-	model->Initialize(modelCommon);
+	//model->Initialize(ModelManager::GetInstance()->GetModelCommon(), "axis", "axis.obj");
 
 	Object3d* object3d = new Object3d();
 	object3d->Initialize(object3dCommon,model);
 
 
+	ModelManager::GetInstance()->LoadModel("axis.obj");
+	object3d->SetModel("axis.obj");
+
+
 #pragma endregion
-
-	//// テクスチャのインデックス取得
-	//uint32_t textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("resources/uvChecker.png");
-
-	//// GPUハンドルの取得
-	//D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex);
-
-
-	////Textureを読んで転送する
-	//DirectX::ScratchImage mipImages = texture->LoadTexture("resources/uvChecker.png");
-	//const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	//Microsoft::WRL::ComPtr < ID3D12Resource> textureResource = dxCommon->CreateTextureResorce(dxCommon->GetDevice(), metadata);
-	//dxCommon->UploadTextureData(textureResource, mipImages);
-
-	////DirectX::ScratchImage mipImages2 = LoadTexture("resources/monsterBall.png");
-	//DirectX::ScratchImage mipImages2 = dxCommon->LoadTexture(modelData.material.textureFilePath);
-	//const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
-	//Microsoft::WRL::ComPtr < ID3D12Resource> textureResource2 = dxCommon->CreateTextureResorce(dxCommon->GetDevice(), metadata2);
-	//dxCommon->UploadTextureData(textureResource2, mipImages2);
-
-	////metaDataを基にSRVの設定
-	//D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	//srvDesc.Format = metadata.format;
-	//srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	//srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
-	//srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-	//D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
-	//srvDesc2.Format = metadata2.format;
-	//srvDesc2.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	//srvDesc2.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
-	//srvDesc2.Texture2D.MipLevels = UINT(metadata2.mipLevels);
-
-	////SRVを作成するDescriptorHeapの場所を決める
-	//D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon->GetSRVCPUDescriptorHandle(0);
-	//D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = dxCommon->GetSRVGPUDescriptorHandle(0);
-
-	//D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = dxCommon->GetCPUDescriptorHandle(dxCommon->GetSRVDescriptorHeap(), dxCommon->GetDesriptorSizeSRV(), 2);
-	//D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = dxCommon->GetGPUDescriptorHandle(dxCommon->GetSRVDescriptorHeap(), dxCommon->GetDesriptorSizeSRV(), 2);
-
-	////先頭はImGuiが使っているのでその次を使う
-	//textureSrvHandleCPU.ptr += dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	//textureSrvHandleGPU.ptr += dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	////SRVの生成
-	//dxCommon->GetDevice()->CreateShaderResourceView(textureResource.Get(), &srvDesc, textureSrvHandleCPU);
-	//dxCommon->GetDevice()->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);
-
 
 	Transform uvTransformSprite{
 		{1.0f,1.0f,1.0f},
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f}
 	};
-
-
-	////WVP用のリソースを作る。Matrix4x4 １つ分のサイズを用意する
-	//ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(TransformationMatrix));
-	////データを書き込む
-	//TransformationMatrix* wvpData = nullptr;
-	////書き込むためのアドレスを取得
-	//wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
-	////単位行列を書き込んでおく
-	////*wvpData = MakeIdentity4x4();
-	//wvpData->World = MakeIdentity4x4();
-	//wvpData->WVP = MakeIdentity4x4();
-
-
-
-
-
-
-	//uint32_t* indexDataSphere = nullptr;
-	//indexResourceSphere->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSphere));
-	//indexDataSphere[0] = 0; indexDataSphere[1] = 1; indexDataSphere[2] = 2;
-	//indexDataSphere[3] = 1; indexDataSphere[4] = 3; indexDataSphere[5] = 2;
-
-	//D3D12_INDEX_BUFFER_VIEW indexBufferViewSphere{};
-	//indexBufferViewSphere.BufferLocation = indexResourceSphere->GetGPUVirtualAddress();
-	//indexBufferViewSphere.SizeInBytes = sizeof(uint32_t) * (uint32_t)indices.size();
-	//indexBufferViewSphere.Format = DXGI_FORMAT_R32_UINT;
-
-	//ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(TransformationMatrix));
-	//TransformationMatrix* wvpDatas = nullptr;
-	//wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDatas));
-	//wvpDatas->World = MakeIdentity4x4();
-
 
 
 	while (true) {
@@ -351,12 +278,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//pixelShaderBlob->Release();
 
 
-
+	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
 	delete object3d;
 	delete model;
-	delete modelCommon;
 	TextureManager::GetInstance()->Finalize();
 	for (uint32_t i = 0; i < 5; i++) {
 		delete sprites[i];

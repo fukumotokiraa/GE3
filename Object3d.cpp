@@ -68,3 +68,8 @@ void Object3d::CreateDirectionLightData()
 	directionalLightData->direction = { 0.0f,-1.0f,0.0f };
 	directionalLightData->intensity = 1.0f;
 }
+
+void Object3d::SetModel(const std::string& filePath)
+{
+	model = ModelManager::GetInstance()->FindModel(filePath);
+}

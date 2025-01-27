@@ -6,12 +6,12 @@
 
 
 
-void Model::Initialize(ModelCommon* modelCommon)
+void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
 {
 	//ModelCommonのポインタを引数からメンバ変数に記録する
 	modelCommon_ = modelCommon;
 	//モデル読み込み
-	modelData_ = LoadObjFile("resources", "axis.obj");
+	modelData_ = LoadObjFile(directorypath, filename);
 	//頂点データの初期化
 	vertexResource = modelCommon_->GetDXCommon()->CreateBufferResource(sizeof(VertexData) * modelData_.vertices.size());
 	VertexData* vertexData = nullptr;
@@ -87,8 +87,11 @@ ModelData Model::LoadObjFile(const std::string& directoryPath, const std::string
 	std::vector<Vector2>texcoords;//テクスチャ座標
 	std::string line;//ファイルから読んだ1行を格納するもの
 
+
+	std::string checkStr = directoryPath + "/" + filename;
 	//2.ファイルを開く
-	std::ifstream file(directoryPath + "/" + filename);//ファイルを開く
+	std::ifstream file(checkStr);//ファイルを開く
+	
 	assert(file.is_open());//とりあえず開けなかったら止める
 
 	//3.実際にファイルを読み、ModelDataを構築していく
