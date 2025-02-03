@@ -10,7 +10,7 @@ env:
   CONFIGRATION: Debug
 jobs:
   build:
-    runs_on: windows-2022
+  runs_on: windows-2022
 
     steps:
       - name: Checkout
