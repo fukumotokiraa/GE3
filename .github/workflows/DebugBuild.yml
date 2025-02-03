@@ -7,7 +7,7 @@ env:
   #リポジトリのルートディレクトリを基点としたソリューションファイルのパス
   SOLUTION_FILE_PATH: project/GE3.sln
   #Visual Studio　の構成(Debug / Release)
-  CONFIGRATION: Debug
+  CONFIGURATION: Debug
 jobs:
   build:
     runs-on: windows-2022
