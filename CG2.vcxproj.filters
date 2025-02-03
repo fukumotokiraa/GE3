@@ -16,6 +16,33 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{9dd61b38-0554-41b4-b861-83a1764fd689}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\engine">
+      <UniqueIdentifier>{1d0cee8c-06ca-4820-bc4a-0725440e6387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\application">
+      <UniqueIdentifier>{06d0bf14-d794-4efc-8615-be7b2d75546e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\2d">
+      <UniqueIdentifier>{e8337572-87e9-4da8-9a65-d9b310bd5419}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\3d">
+      <UniqueIdentifier>{b6608b6b-e2cd-4d94-b44d-288eb00a677c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\base">
+      <UniqueIdentifier>{1e74a641-aea2-4cd9-b99d-8554161883a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\math">
+      <UniqueIdentifier>{b17b41dc-5fb5-4fd2-8faa-77c2053c546f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\io">
+      <UniqueIdentifier>{5c50f73d-9607-4950-a1d8-4e3250d87573}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\audio">
+      <UniqueIdentifier>{333a72c9-f117-4864-ab77-00c48ccbf00a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\engine\scene">
+      <UniqueIdentifier>{26b4c93a-fe77-4ed1-acf2-3da16471f73f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
