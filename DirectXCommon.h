@@ -27,6 +27,8 @@ public://メンバ関数
 	//テクスチャリソースの転送
 	void UploadTextureData(Microsoft::WRL::ComPtr < ID3D12Resource>texture, const DirectX::ScratchImage& mipImages);
 
+	//デストラクタ
+	~DirectXCommon();
 	//初期化
 	void Initialize(WinApp* winApp);
 	//デバイスの初期化

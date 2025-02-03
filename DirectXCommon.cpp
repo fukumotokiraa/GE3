@@ -247,6 +247,11 @@ void DirectXCommon::UpdateFixFPS()
 	reference_ = std::chrono::steady_clock::now();
 }
 
+DirectXCommon::~DirectXCommon()
+{
+	CloseHandle(GetFenceEvent());
+}
+
 void DirectXCommon::Initialize(WinApp* winApp)
 {
 	//NULL検出
@@ -354,8 +359,6 @@ void DirectXCommon::InitializeDevice()
 		//指定したメッセージの表示を抑制する
 		infoQueue->PushStorageFilter(&filter);
 
-		//解放
-		infoQueue->Release();
 	}
 #endif // _DEBUG
 }

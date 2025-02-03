@@ -289,11 +289,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	delete sprite;
 	delete spriteCommon;
+	delete object3dCommon;
+	delete dxCommon;
 	delete input;
 	delete winApp;
-	CloseHandle(dxCommon->GetFenceEvent());
-	delete dxCommon;
-	delete object3dCommon;
 
 	D3DResourceLeakChecker leakCheck;
 

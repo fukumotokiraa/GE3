@@ -7,6 +7,7 @@ class DirectXCommon;
 class Object3dCommon
 {
 public:
+	~Object3dCommon() {};
 	//初期化
 	void Initialize(DirectXCommon* dxCommon);
 	//共通描画設定
