@@ -132,10 +132,10 @@ private:
 	//シザー矩形
 	D3D12_RECT scissorRect{};
 	//dxcCompilerを初期化
-	IDxcUtils* dxcUtils = nullptr;
-	IDxcCompiler3* dxcCompiler = nullptr;
+	Microsoft::WRL::ComPtr < IDxcUtils> dxcUtils = nullptr;
+	Microsoft::WRL::ComPtr < IDxcCompiler3> dxcCompiler = nullptr;
 	//インクルードハンドラの生成
-	IDxcIncludeHandler* includeHandler = nullptr;
+	Microsoft::WRL::ComPtr < IDxcIncludeHandler> includeHandler = nullptr;
 	//rtv
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	//リソースバリア
