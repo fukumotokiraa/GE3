@@ -34,25 +34,6 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 
-
-Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
-	return{ scale.x,0,0,0,
-		   0,scale.y,0,0,
-		   0,0,scale.z,0,
-		   0,0,0,1 };
-};
-
-Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
-	return { 1,0,0,0,
-			0,1,0,0,
-			0,0,0,0,
-			translate.x,translate.y,translate.z,1 };
-};
-
-float LengthSquared(const Vector3& v) {
-	return (v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
@@ -67,8 +48,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager* texture = nullptr;
 
 	Object3dCommon* object3dCommon = nullptr;
-
-	//ModelCommon* modelCommon = nullptr;
 
 	const uint32_t kSubdivision = 16;
 	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
@@ -118,14 +97,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites[i]->SetSize({ 100.0f,100.0f });
 		sprites[i]->SetPosition({ i * 150.0f,0.0f });
 	}
-	////Sprite* sprite = new Sprite();
-	//sprite->Initialize(spriteCommon, "resources/monsterBall.png");
-	//sprites.push_back(sprite);
-	//sprites[6]->SetSize({ 100.0f,100.0f });
-	//sprites[6]->SetPosition({ 6 * 150.0f,0.0f });
 
 	Model* model = new Model();
-	//model->Initialize(ModelManager::GetInstance()->GetModelCommon(), "axis", "axis.obj");
 
 	Object3d* object3d = new Object3d();
 	object3d->Initialize(object3dCommon,model);
@@ -136,13 +109,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 #pragma endregion
-
-	Transform uvTransformSprite{
-		{1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
-	};
-
 
 	while (true) {
 		//windowsのメッセージ処理
@@ -164,9 +130,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f);
-		ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
 		Vector2 position = sprite->GetPosition();
 		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
 		sprite->SetPosition(position);
@@ -199,10 +162,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			object3d->GetTransform().translate.y -= 0.01f;
 		}
 
-		//Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite.scale);
-		//uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransformSprite.rotate.z));
-		//uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransformSprite.translate));
-		//materialDataSprite->uvTransform = uvTransformMatrix;
 		//描画前処理
 		//DirectXの描画準備。全ての描画に共通のグラフィックスコマンドを積む
 		dxCommon->PreDraw();
@@ -216,36 +175,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprite->Draw();
 		for (uint32_t i = 0; i < 5; i++) {
 			sprites[i]->Draw();
-			//sprites.push_back(sprite);
 		}
 		object3d->Draw();
 
 		//ImGuiの内部コマンドを生成する
 		ImGui::Render();
-
-
-
-		//wvp用のCBufferの場所を設定
-		//commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
-
-		//commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU2);
-		//commandList->IASetIndexBuffer(&indexBufferViewSphere); // IBVを設定
-
-		//commandList->DrawIndexedInstanced(kNumVertex, 1, 0, 0, 0);
-		//描画（DrawCall/ドローコール）。３頂点で１つのインスタンス。インスタンスについては今後
-		//commandList->DrawInstanced(6, 1, 0, 0);
-
-
-		////マテリアルCBufferの場所を設定
-		//commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
-
-
-
-
-
-
-		////描画
-		//commandList->DrawInstanced(6, 1, 0, 0);
 
 
 		//実際のcommandListのImGuiの描画コマンドを積む
@@ -254,7 +188,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprite->Update();
 		for (uint32_t i = 0; i < 5; i++) {
 			sprites[i]->Update();
-			//sprites.push_back(sprite);
 		}
 
 		object3d->Update();
@@ -267,16 +200,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-
-
-	//signatureBlob->Release();
-	//if (errorBlob)
-	//{
-	//	errorBlob->Release();
-	//}
-	//vertexShaderBlob->Release();
-	//pixelShaderBlob->Release();
-
 
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
