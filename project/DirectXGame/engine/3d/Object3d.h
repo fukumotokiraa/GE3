@@ -7,6 +7,7 @@
 #include "TextureManager.h"
 #include "ModelManager.h"
 
+
 #include "Matrix4x4.h"
 #include "Model.h"
 #include "Object3dCommon.h"
@@ -25,11 +26,6 @@ struct DirectionalLight {
 	Vector3 direction;
 	float intensity;
 };
-struct Transform {
-	Vector3 scale;
-	Vector3 rotate;
-	Vector3 translate;
-};
 //3Dオブジェクト
 class Object3d
 {
@@ -47,25 +43,21 @@ public:
 
 	void CreateDirectionLightData();
 
-	Transform& GetTransform() { return transform; }
-
 	void SetModel(Model* model) { this->model = model; }
 
 	void SetModel(const std::string& filePath);
 
-	void SetScale(const Vector3& scale) { transform.scale = scale; }
-	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
-	void SetTranslate(const Vector3& translate) { transform.translate = translate; }
+	void SetCamera(Camera* camera) { camera_ = camera; }
 
-	const Vector3& GetScale()const { return transform.scale; }
-	const Vector3& GetRotate()const { return transform.rotate; }
-	const Vector3& GetTranslate()const { return transform.translate; }
+	Transform& GetTransform() { return transform_; }
 
 
 private:
 	Object3dCommon* object3dCommon_ = nullptr;
 
 	Model* model = nullptr;
+
+	Camera* camera_ = nullptr;
 
 	//バッファリソース
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource = nullptr;
@@ -77,7 +69,6 @@ private:
 	//バッファリソース内のデータを指すポインタ
 	DirectionalLight* directionalLightData = nullptr;
 
-	Transform transform;
-	Transform cameraTransform;
+	Transform transform_;
 };
 

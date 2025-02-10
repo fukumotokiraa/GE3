@@ -101,6 +101,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
     <ClCompile Include="DirectXGame\engine\math\Calculation.cpp" />
     <ClCompile Include="DirectXGame\engine\debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="DirectXGame\engine\base\DirectXCommon.cpp" />
@@ -136,6 +137,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXGame\engine\base\Camera.h" />
     <ClInclude Include="DirectXGame\engine\math\Calculation.h" />
     <ClInclude Include="DirectXGame\engine\debug\D3DResourceLeakChecker.h" />
     <ClInclude Include="DirectXGame\engine\base\DirectXCommon.h" />
