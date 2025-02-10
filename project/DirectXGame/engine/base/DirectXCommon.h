@@ -75,8 +75,8 @@ public://メンバ関数
 	uint32_t GetDesriptorSizeDSV() { return desriptorSizeDSV; };
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetDSVDescriptorHeap() { return dsvDescriptorHeap; };
 	//getter
-	ID3D12Device* GetDevice()const { return device.Get(); }
-	ID3D12GraphicsCommandList* GetCommandlist()const { return commandList.Get(); }
+	Microsoft::WRL::ComPtr < ID3D12Device> GetDevice()const { return device.Get(); }
+	Microsoft::WRL::ComPtr < ID3D12GraphicsCommandList> GetCommandlist()const { return commandList.Get(); }
 	//デスクリプタハンドル取得関数
 	static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);
 	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);

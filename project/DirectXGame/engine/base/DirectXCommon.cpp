@@ -250,6 +250,9 @@ void DirectXCommon::UpdateFixFPS()
 DirectXCommon::~DirectXCommon()
 {
 	CloseHandle(fennceEvent);
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void DirectXCommon::Initialize(WinApp* winApp)
