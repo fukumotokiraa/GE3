@@ -127,7 +127,8 @@ private:
 	//バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData = nullptr;
 	//テクスチャ番号
-	uint32_t textureIndex = 0;
+	//uint32_t textureIndex = 0;
+	std::string textureFilePath_;
 
 };
 

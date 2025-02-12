@@ -31,7 +31,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	//テクスチャ読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
 	//テクスチャ番号を取得してメンバ変数に書き込む
-	modelData_.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	modelData_.material.textureFilePath = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
 }
 
 void Model::Draw()
@@ -44,7 +44,7 @@ void Model::Draw()
 	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 	modelCommon_->GetDXCommon()->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
 	//SRVのDescriptorTableの先頭を設定
-	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData_.material.textureIndex));
+	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData_.material.textureFilePath));
 	//描画(DrawCall)
 	modelCommon_->GetDXCommon()->GetCommandlist()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 

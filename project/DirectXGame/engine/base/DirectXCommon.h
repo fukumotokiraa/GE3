@@ -59,11 +59,6 @@ public://メンバ関数
 	void PreDraw();
 	//描画後処理
 	void PostDraw();
-	//SRV専用のデスクリプタ取得関数
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
-	uint32_t GetDesriptorSizeSRV() { return desriptorSizeSRV; };
-	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetSRVDescriptorHeap() { return srvDescriptorHeap; };
 	//RTV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetRTVGPUDescriptorHandle(uint32_t index);
@@ -82,8 +77,6 @@ public://メンバ関数
 	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);
 	//Fence
 	HANDLE GetFenceEvent() { return fennceEvent; }
-	//最大SRV数（最大テクスチャ枚数）
-	static const uint32_t kMaxSRVCount;
 
 private:
 	//FPS固定初期化
@@ -113,12 +106,10 @@ private:
 	//
 	WinApp* winApp_ = nullptr;
 	//デスクリプター
-	uint32_t desriptorSizeSRV = 0;
 	uint32_t desriptorSizeRTV = 0;
 	uint32_t desriptorSizeDSV = 0;
 	//デスクリプターヒープ
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> rtvDescriptorHeap = nullptr;
-	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> srvDescriptorHeap = nullptr;
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
 	//スワップチェーンリソース
 	//Microsoft::WRL::ComPtr < ID3D12Resource> swapChainResources[2] = { nullptr };
