@@ -35,7 +35,7 @@
 
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-
+	D3DResourceLeakChecker leakCheck;
 
 	OutputDebugStringA("Hello,DirectX!\n");
 
@@ -183,7 +183,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		//実際のcommandListのImGuiの描画コマンドを積む
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandlist());
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandlist().Get());
 
 		sprite->Update();
 		for (uint32_t i = 0; i < 5; i++) {
@@ -197,9 +197,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	//ImGuiの終了処理。
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+
 
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
@@ -217,7 +215,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete input;
 	delete winApp;
 
-	D3DResourceLeakChecker leakCheck;
+
 
 	return 0;
 }
