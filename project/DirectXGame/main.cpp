@@ -19,6 +19,7 @@
 #include "ModelCommon.h"
 #include "Model.h"
 #include "ModelManager.h"
+#include "GameManeger.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -103,6 +104,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Object3d* object3d = new Object3d();
 	object3d->Initialize(object3dCommon,model);
 
+	GameManeger* gameManeger = new GameManeger();
+
 
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	object3d->SetModel("axis.obj");
@@ -122,14 +125,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::NewFrame();
 		//ゲームの処理
 		// ImGui UIの追加
-		ImGui::Begin("Triangle Color Picker");           // ウィンドウの開始
-		//ImGui::Checkbox("MonsterBall", &isChecked);
-		//ImGui::Checkbox("Light", &materialData->enableLighting);
-		//ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x, 0.01f);
-		//directionalLightData->direction = Normalize(directionalLightData->direction);
+		ImGui::Begin("sceneNo");
+		int sceneNo = gameManeger->GetCurrentSceneNo();
+		ImGui::Text("scene: %d", sceneNo);
+		ImGui::End();
+
+		if (sceneNo == 1) {
+		ImGui::Begin("Model");           // ウィンドウの開始
 		ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
+		ImGui::End();                     // ウィンドウの終了
+
+		ImGui::Begin("Sprite");           // ウィンドウの開始
 		Vector2 position = sprite->GetPosition();
 		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
 		sprite->SetPosition(position);
@@ -143,6 +151,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
 		sprite->SetSize(size);
 		ImGui::End();
+		}
 
 		input->Update();
 		if (input->PushKey(DIK_RIGHT))
@@ -172,11 +181,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//Spriteの描画準備。Spriteの描画に共通のグラフィックスコマンドを積む
 		spriteCommon->DrawCommonSetting();
 
-		sprite->Draw();
-		for (uint32_t i = 0; i < 5; i++) {
-			sprites[i]->Draw();
+		if (sceneNo == 1) {
+			sprite->Draw();
+			for (uint32_t i = 0; i < 5; i++) {
+				sprites[i]->Draw();
+			}
+			object3d->Draw();
 		}
-		object3d->Draw();
 
 		//ImGuiの内部コマンドを生成する
 		ImGui::Render();
@@ -192,6 +203,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		object3d->Update();
 
+		gameManeger->changeScene(input->TriggerKey(DIK_SPACE));
 
 		dxCommon->PostDraw();
 	}
@@ -202,6 +214,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
+	delete gameManeger;
 	delete object3d;
 	delete model;
 	TextureManager::GetInstance()->Finalize();
