@@ -30,7 +30,7 @@ public:
 	//テクスチャファイルの読み込み
 	void LoadTexture(const std::string& filePath);
 	//srvインデックスの開始番号
-	std::string GetTextureIndexByFilePath(const std::string& filePath);
+	uint32_t GetTextureIndexByFilePath(const std::string& filePath);
 	//テクスチャ番号からGPUハンドルを取得
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(const std::string& filePath);
 	//メタデータを取得

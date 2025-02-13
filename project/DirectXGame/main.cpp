@@ -191,6 +191,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//DirectXの描画準備。全ての描画に共通のグラフィックスコマンドを積む
 		dxCommon->PreDraw();
 
+		srvManager->PreDraw();
+
 		//3Dオブジェクトの描画準備。3Dオブジェクトの描画に共通のグラフィックスコマンドを積む
 		object3dCommon->DrawCommonSetting();
 
@@ -203,12 +205,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		object3d->Draw();
 
-		//ImGuiの内部コマンドを生成する
-		ImGui::Render();
+		////ImGuiの内部コマンドを生成する
+		//ImGui::Render();
 
 
-		//実際のcommandListのImGuiの描画コマンドを積む
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandlist());
+		////実際のcommandListのImGuiの描画コマンドを積む
+		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandlist());
 
 		sprite->Update();
 		for (uint32_t i = 0; i < 5; i++) {
@@ -222,9 +224,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	//ImGuiの終了処理。
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplDX12_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	//ImGui::DestroyContext();
 
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();

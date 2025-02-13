@@ -85,15 +85,16 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	dxCommon_->GetDevice()->CreateShaderResourceView(textureData.resource.Get(), &srvDesc, textureData.srvHandleCPU);
 }
 
-std::string TextureManager::GetTextureIndexByFilePath(const std::string& filePath)
+uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& filePath)
 {
-	// 読み込み済みテクスチャデータを検索
+	//読み込み済みテクスチャデータを検索
 	if (textureDatas.contains(filePath)) {
-		// 読み込み済みならそのファイルパスを返す
-		return filePath;
+		//読み込み済みなら要素番号を返す
+		uint32_t textureIndex = static_cast<uint32_t>(std::distance(textureDatas.begin(), textureDatas.find(filePath)));
+		return textureIndex;
 	}
 	assert(0);
-	return "";
+	return 0;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& filePath)
