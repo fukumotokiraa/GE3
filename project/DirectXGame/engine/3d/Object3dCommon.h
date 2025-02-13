@@ -1,5 +1,6 @@
 #pragma once
 #include"externals/DirectXTex/d3dx12.h"
+#include "Camera.h"
 
 class DirectXCommon;
 
@@ -15,6 +16,10 @@ public:
 
 	DirectXCommon* GetDxCommon()const { return dxCommon_; }
 
+	Camera* GetDefaultCamera()const { return defaultCamera_; }
+
+	void SetDefaultCamera(Camera* camera) { defaultCamera_ = camera; }
+
 private:
 	//ルートシグネチャの作成
 	void CreateRootSignature();
@@ -28,5 +33,8 @@ private:
 
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
+
+
+	Camera* defaultCamera_ = nullptr;
 };
 

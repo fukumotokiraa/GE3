@@ -73,6 +73,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	object3dCommon = new Object3dCommon();
 	object3dCommon->Initialize(dxCommon);
 
+	Camera* camera = new Camera();
+	camera->SetRotate({ 0.0f,0.0f,0.0f });
+	camera->SetTranslate({ 0.0f,0.0f,-10.0f });
+	object3dCommon->SetDefaultCamera(camera);
+
 	ModelManager::GetInstance()->Initialize(dxCommon);
 
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
@@ -122,14 +127,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::NewFrame();
 		//ゲームの処理
 		// ImGui UIの追加
-		ImGui::Begin("Triangle Color Picker");           // ウィンドウの開始
+		ImGui::Begin("Camera");           // ウィンドウの開始
 		//ImGui::Checkbox("MonsterBall", &isChecked);
 		//ImGui::Checkbox("Light", &materialData->enableLighting);
 		//ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x, 0.01f);
 		//directionalLightData->direction = Normalize(directionalLightData->direction);
+		Vector3 cameraPosition = camera->GetTranslate();
+		Vector3 cameraRotate = camera->GetRotate();
+		Vector3 cameraScale = camera->GetScale();
+		ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
+		camera->SetTranslate(cameraPosition);
+		camera->SetRotate(cameraRotate);
+		camera->SetScale(cameraScale);
+		ImGui::End();
+
+		ImGui::Begin("Model");
 		ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
+		ImGui::End();
+
+		ImGui::Begin("Sprite");
 		Vector2 position = sprite->GetPosition();
 		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
 		sprite->SetPosition(position);
@@ -147,19 +167,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		input->Update();
 		if (input->PushKey(DIK_RIGHT))
 		{
-			object3d->GetTransform().translate.x += 0.01f;
+			camera->GetTranslate().x += 0.01f;
 		}
 		if (input->PushKey(DIK_LEFT))
 		{
-			object3d->GetTransform().translate.x -= 0.01f;
+			camera->GetTranslate().x -= 0.01f;
 		}
 		if (input->PushKey(DIK_UP))
 		{
-			object3d->GetTransform().translate.y += 0.01f;
+			camera->GetTranslate().y += 0.01f;
 		}
 		if (input->PushKey(DIK_DOWN))
 		{
-			object3d->GetTransform().translate.y -= 0.01f;
+			camera->GetTranslate().y -= 0.01f;
 		}
 
 		//描画前処理
@@ -191,7 +211,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		object3d->Update();
-
+		camera->Update();
 
 		dxCommon->PostDraw();
 	}
