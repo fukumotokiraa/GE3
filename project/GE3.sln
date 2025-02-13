@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "externals\Dir
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "externals", "externals", "{3B4B1040-24D9-4DCD-8D4E-7F4900C88275}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "imgui\imgui.vcxproj", "{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,9 +35,19 @@ Global
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Profile|x64.Build.0 = Profile|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.ActiveCfg = Release|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.Build.0 = Release|x64
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}.Debug|x64.ActiveCfg = Debug|x64
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}.Debug|x64.Build.0 = Debug|x64
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}.Profile|x64.ActiveCfg = Debug|x64
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}.Profile|x64.Build.0 = Debug|x64
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}.Release|x64.ActiveCfg = Release|x64
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77} = {3B4B1040-24D9-4DCD-8D4E-7F4900C88275}
+		{8AC21A70-B3E0-490C-ADC2-EC4A4E6E1194} = {3B4B1040-24D9-4DCD-8D4E-7F4900C88275}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B2FFB0AD-E43D-40A1-A0DF-7AA7D6B71B0F}
