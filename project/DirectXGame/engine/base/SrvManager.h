@@ -26,6 +26,9 @@ public:
 
 	bool maxTextureCheck();
 
+	//getter
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() { return descriptorHeap; }
+
 	static const uint32_t kMaxSRVCount;
 private:
 	DirectXCommon* dxCommon_ = nullptr;

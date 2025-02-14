@@ -64,6 +64,8 @@ public://メンバ関数
 	D3D12_GPU_DESCRIPTOR_HANDLE GetRTVGPUDescriptorHandle(uint32_t index);
 	uint32_t GetDesriptorSizeRTV() { return desriptorSizeRTV; };
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetRTVDescriptorHeap() { return rtvDescriptorHeap; };
+	//rtvDesc
+	D3D12_RENDER_TARGET_VIEW_DESC GetRTVDesc() { return rtvDesc; }
 	//DSV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUDescriptorHandle(uint32_t index);
@@ -77,6 +79,8 @@ public://メンバ関数
 	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>descriptorHeap, uint32_t descriptorSize, uint32_t index);
 	//Fence
 	HANDLE GetFenceEvent() { return fennceEvent; }
+	//スワップチェーンリソースの数を取得
+	size_t GetSwapChainResourcesNum()const { return swapChainResources.size(); }
 
 private:
 	//FPS固定初期化

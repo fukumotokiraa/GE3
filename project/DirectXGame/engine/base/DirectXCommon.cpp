@@ -248,9 +248,6 @@ void DirectXCommon::UpdateFixFPS()
 DirectXCommon::~DirectXCommon()
 {
 	CloseHandle(fennceEvent);
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 }
 
 void DirectXCommon::Initialize(WinApp* winApp)
@@ -534,9 +531,9 @@ void DirectXCommon::InitializeImGui()
 {
 	//ImGuiの初期化。
 	//IMGUI_CHECKVERSION();
-	//ImGui::CreateContext();
-	//ImGui::StyleColorsDark();
-	//ImGui_ImplWin32_Init(winApp_->GetHwnd());
+	////ImGui::CreateContext();
+	////ImGui::StyleColorsDark();
+	////ImGui_ImplWin32_Init(winApp_->GetHwnd());
 	//ImGui_ImplDX12_Init(device.Get(), swapChainDesc.BufferCount, rtvDesc.Format, srvDescriptorHeap.Get(), srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 }
 

@@ -59,10 +59,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	winApp = new WinApp();
 	winApp->Initialize();
 
-	ImGuiManager* imguiManager = nullptr;
-	imguiManager = new ImGuiManager();
-	imguiManager->Initialize(winApp);
-
 	input = new Input();
 	input->Initialize(winApp);
 
@@ -73,6 +69,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	srvManager = new SrvManager();
 	srvManager->Initialize(dxCommon);
 	TextureManager::GetInstance()->Initialize(dxCommon, srvManager);
+
+	ImGuiManager* imguiManager = nullptr;
+	imguiManager = new ImGuiManager();
+	imguiManager->Initialize(winApp, dxCommon, srvManager);
 
 	SpriteCommon* spriteCommon = nullptr;
 	spriteCommon = new SpriteCommon;
@@ -125,6 +125,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+	///=====================================================/// 
+	///		メインループ
+	///=====================================================///
 	while (true) {
 		//windowsのメッセージ処理
 		if (winApp->ProcessMessage())
@@ -132,48 +135,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//ゲームループを抜ける
 			break;
 		}
-		//ImGui_ImplDX12_NewFrame();
-		//ImGui_ImplWin32_NewFrame();
-		//ImGui::NewFrame();
-		////ゲームの処理
-		//// ImGui UIの追加
-		//ImGui::Begin("Camera");           // ウィンドウの開始
-		////ImGui::Checkbox("MonsterBall", &isChecked);
-		////ImGui::Checkbox("Light", &materialData->enableLighting);
-		////ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x, 0.01f);
-		////directionalLightData->direction = Normalize(directionalLightData->direction);
-		//Vector3 cameraPosition = camera->GetTranslate();
-		//Vector3 cameraRotate = camera->GetRotate();
-		//Vector3 cameraScale = camera->GetScale();
-		//ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
-		//ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
-		//ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
-		//camera->SetTranslate(cameraPosition);
-		//camera->SetRotate(cameraRotate);
-		//camera->SetScale(cameraScale);
-		//ImGui::End();
 
-		//ImGui::Begin("Model");
-		//ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
-		//ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
-		//ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
-		//ImGui::End();
-
-		//ImGui::Begin("Sprite");
-		//Vector2 position = sprite->GetPosition();
-		//ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
-		//sprite->SetPosition(position);
-		//float rotation = sprite->GetRotation();
-		//ImGui::DragFloat("SpriteRotate", &rotation, 0.01f, 10.0f, 10.0f);
-		//sprite->SetRotation(rotation);
-		//Vector4 color = sprite->GetColor();
-		//ImGui::ColorEdit4("SpriteColor", &color.x);
-		//sprite->SetColor(color);
-		//Vector2 size = sprite->GetSize();
-		//ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
-		//sprite->SetSize(size);
-		//ImGui::End();
-
+#pragma region Update
 		input->Update();
 		if (input->PushKey(DIK_RIGHT))
 		{
@@ -192,6 +155,63 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			camera->GetTranslate().y -= 0.01f;
 		}
 
+		sprite->Update();
+		for (uint32_t i = 0; i < 5; i++) {
+			sprites[i]->Update();
+		}
+
+		object3d->Update();
+		camera->Update();
+
+#pragma endregion
+
+#pragma region ImGuiUpdate
+		imguiManager->Begin();
+
+#ifdef USE_IMGUI
+		ImGui::Begin("Camera");
+		//ImGui::Checkbox("MonsterBall", &isChecked);
+		//ImGui::Checkbox("Light", &materialData->enableLighting);
+		//ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x, 0.01f);
+		//directionalLightData->direction = Normalize(directionalLightData->direction);
+		Vector3 cameraPosition = camera->GetTranslate();
+		Vector3 cameraRotate = camera->GetRotate();
+		Vector3 cameraScale = camera->GetScale();
+		ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
+		camera->SetTranslate(cameraPosition);
+		camera->SetRotate(cameraRotate);
+		camera->SetScale(cameraScale);
+		ImGui::End();
+
+		ImGui::Begin("Model");
+		ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
+		ImGui::End();
+
+		ImGui::Begin("Sprite");
+		Vector2 position = sprite->GetPosition();
+		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
+		sprite->SetPosition(position);
+		float rotation = sprite->GetRotation();
+		ImGui::DragFloat("SpriteRotate", &rotation, 0.01f, 10.0f, 10.0f);
+		sprite->SetRotation(rotation);
+		Vector4 color = sprite->GetColor();
+		ImGui::ColorEdit4("SpriteColor", &color.x);
+		sprite->SetColor(color);
+		Vector2 size = sprite->GetSize();
+		ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
+		sprite->SetSize(size);
+		ImGui::End();
+#endif
+
+
+		imguiManager->End();
+#pragma endregion
+
+#pragma region PreDraw
 		//描画前処理
 		//DirectXの描画準備。全ての描画に共通のグラフィックスコマンドを積む
 		dxCommon->PreDraw();
@@ -204,35 +224,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//Spriteの描画準備。Spriteの描画に共通のグラフィックスコマンドを積む
 		spriteCommon->DrawCommonSetting();
 
+#pragma endregion
+
+#pragma region Draw
+
 		sprite->Draw();
 		for (uint32_t i = 0; i < 5; i++) {
 			sprites[i]->Draw();
 		}
 		object3d->Draw();
 
-		////ImGuiの内部コマンドを生成する
-		//ImGui::Render();
+#pragma endregion
 
+#pragma region ImGuiDraw
+		imguiManager->Draw();
 
-		////実際のcommandListのImGuiの描画コマンドを積む
-		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandlist());
+#pragma endregion
 
-		sprite->Update();
-		for (uint32_t i = 0; i < 5; i++) {
-			sprites[i]->Update();
-		}
-
-		object3d->Update();
-		camera->Update();
-
+#pragma region PostDraw
 		dxCommon->PostDraw();
+
+#pragma endregion
+
 	}
 
-	//ImGuiの終了処理。
-	//ImGui_ImplDX12_Shutdown();
-	//ImGui_ImplWin32_Shutdown();
-	//ImGui::DestroyContext();
 
+
+	imguiManager->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
@@ -244,12 +262,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	delete sprite;
 	delete spriteCommon;
+	delete imguiManager;
 	delete srvManager;
 	delete camera;
 	delete object3dCommon;
 	delete dxCommon;
 	delete input;
-	delete imguiManager;
 	delete winApp;
 
 
