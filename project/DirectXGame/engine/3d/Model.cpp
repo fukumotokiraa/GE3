@@ -44,7 +44,7 @@ void Model::Draw()
 	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 	modelCommon_->GetDXCommon()->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
 	//SRVのDescriptorTableの先頭を設定
-	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData_.material.textureIndex));
+	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData_.material.textureFilePath));
 	//描画(DrawCall)
 	modelCommon_->GetDXCommon()->GetCommandlist()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 
