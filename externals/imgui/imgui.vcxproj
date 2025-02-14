@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{8ac21a70-b3e0-490c-adc2-ec4a4e6e1194}</ProjectGuid>
+    <ProjectGuid>{0C96299B-437E-4363-98E1-6893A4A07FC5}</ProjectGuid>
     <RootNamespace>imgui</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
