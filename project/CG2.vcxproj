@@ -128,6 +128,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\base\StringUtility.cpp" />
     <ClCompile Include="DirectXGame\engine\base\TextureManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\WinApp.cpp" />
+    <ClCompile Include="DirectXGame\engine\debug\ImGuiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3D.PS.hlsl">
@@ -169,6 +170,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\math\Vector3.h" />
     <ClInclude Include="DirectXGame\engine\math\Vector4.h" />
     <ClInclude Include="DirectXGame\engine\base\WinApp.h" />
+    <ClInclude Include="DirectXGame\engine\debug\ImGuiManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

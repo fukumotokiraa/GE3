@@ -19,6 +19,7 @@
 #include "ModelCommon.h"
 #include "Model.h"
 #include "ModelManager.h"
+#include "ImGuiManager.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -56,6 +57,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	winApp = new WinApp();
 	winApp->Initialize();
+
+	ImGuiManager* imguiManager = nullptr;
+	imguiManager = new ImGuiManager();
+	imguiManager->Initialize(winApp);
 
 	input = new Input();
 	input->Initialize(winApp);
@@ -233,6 +238,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete object3dCommon;
 	delete dxCommon;
 	delete input;
+	delete imguiManager;
 	delete winApp;
 
 
