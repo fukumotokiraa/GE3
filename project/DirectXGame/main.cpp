@@ -168,8 +168,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region ImGuiUpdate
 		imguiManager->Begin();
-		ImGui::ShowDemoWindow();
 #ifdef USE_IMGUI
+		ImGui::ShowDemoWindow();
 		ImGui::Begin("Camera");
 		//ImGui::Checkbox("MonsterBall", &isChecked);
 		//ImGui::Checkbox("Light", &materialData->enableLighting);
