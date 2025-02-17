@@ -98,6 +98,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Sprite* sprite = new Sprite();
 	sprite->Initialize(spriteCommon, "resources/uvChecker.png");
+	sprite->SetPosition({ 100.0f,100.0f });
 
 	std::vector<Sprite*>sprites;
 	for (uint32_t i=0;i<5;i++) {
@@ -167,7 +168,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region ImGuiUpdate
 		imguiManager->Begin();
-
+		ImGui::ShowDemoWindow();
 #ifdef USE_IMGUI
 		ImGui::Begin("Camera");
 		//ImGui::Checkbox("MonsterBall", &isChecked);
@@ -192,21 +193,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::End();
 
 		ImGui::Begin("Sprite");
+		ImGui::SetWindowSize(ImVec2(500, 100));
 		Vector2 position = sprite->GetPosition();
-		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f);
+		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f, "%.1f");
 		sprite->SetPosition(position);
 		float rotation = sprite->GetRotation();
 		ImGui::DragFloat("SpriteRotate", &rotation, 0.01f, 10.0f, 10.0f);
 		sprite->SetRotation(rotation);
-		Vector4 color = sprite->GetColor();
-		ImGui::ColorEdit4("SpriteColor", &color.x);
-		sprite->SetColor(color);
 		Vector2 size = sprite->GetSize();
 		ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
 		sprite->SetSize(size);
+		Vector4 color = sprite->GetColor();
+		ImGui::ColorEdit4("SpriteColor", &color.x);
+		sprite->SetColor(color);
 		ImGui::End();
 #endif
-
 
 		imguiManager->End();
 #pragma endregion
@@ -229,9 +230,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region Draw
 
 		sprite->Draw();
-		for (uint32_t i = 0; i < 5; i++) {
-			sprites[i]->Draw();
-		}
+		//for (uint32_t i = 0; i < 5; i++) {
+		//	sprites[i]->Draw();
+		//}
 		object3d->Draw();
 
 #pragma endregion
