@@ -32,14 +32,15 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
 	//テクスチャ番号を取得してメンバ変数に書き込む
 	modelData_.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
-}
-
-void Model::Draw()
-{
 	//VertexBufferViewを設定
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();//リソースの先頭アドレスから使う
 	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());//使用するリソースのサイズは頂点のサイズ
 	vertexBufferView.StrideInBytes = sizeof(VertexData);//１頂点あたりのサイズ
+}
+
+void Model::Draw()
+{
+
 	//マテリアルCBufferの場所を設定
 	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 	modelCommon_->GetDXCommon()->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定

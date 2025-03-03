@@ -89,7 +89,7 @@ private:
 
 	std::unordered_map < std::string, ParticleGroup > particleGroups_;
 
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	D3D12_VERTEX_BUFFER_VIEW* vertexBufferView;
 
 	Transform cameraTransform_;
 
@@ -118,6 +118,8 @@ private:
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
+
+	bool isFirstInstancingData = false;
 
 };
 

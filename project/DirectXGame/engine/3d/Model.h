@@ -35,6 +35,10 @@ public:
 	//.objファイルの読み込み
 	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
+	ModelData* GetModelData() {return &modelData_;}
+
+	D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &vertexBufferView; }
+
 private:
 	//ModelCommonのポインタ
 	ModelCommon* modelCommon_;

@@ -197,7 +197,7 @@ void ParticleManager::Update()
 			}
 
 			//移動処理
-			(*it).transform.translate += (*it).velocity;
+			(*it).transform.translate += (*it).velocity * kDeltaTime_;
 			//経過時間を加算
 			(*it).currentTime += kDeltaTime_;
 			float alpha = 1.0f - ((*it).currentTime / (*it).lifeTime);
@@ -212,6 +212,7 @@ void ParticleManager::Update()
 				particleGroup.instanceData[count].world = worldMatrix;
 				particleGroup.instanceData[count].color = (*it).color;
 				count++;
+				isFirstInstancingData = true;
 			}
 			it++;
 		}
@@ -236,19 +237,21 @@ void ParticleManager::Draw()
 		if(particleGroup.instanceCount==0) {
 			continue;
 		}
+		if (isFirstInstancingData == false) {
+			continue;
+		}
 
 		//VertexBufferViewを設定
-		vertexBufferView.BufferLocation = particleGroups_[name].instanceResource->GetGPUVirtualAddress();//リソースの先頭アドレスから使う
-		vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * particleGroups_[name].particles.size());//使用するリソースのサイズは頂点のサイズ
-		vertexBufferView.StrideInBytes = sizeof(VertexData);//１頂点あたりのサイズ
-		dxCommon_->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);
+		vertexBufferView = model_->GetVertexBufferView();
+
+		dxCommon_->GetCommandlist()->IASetVertexBuffers(0, 1, vertexBufferView);
 		dxCommon_->GetCommandlist()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 		//テクスチャのSRVのDescriptorTableを設定
-		dxCommon_->GetCommandlist()->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.materialData.textureIndex));
+		dxCommon_->GetCommandlist()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(particleGroup.materialData.textureFilePath));
 		//インスタンシングデータのSRVのDescriptorTableを設定
 		dxCommon_->GetCommandlist()->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.instanceSrvIndex));
 		//描画(DrawCall)
-		dxCommon_->GetCommandlist()->DrawInstanced(UINT(particleGroup.particles.size()), particleGroup.instanceCount, 0, 0);
+		dxCommon_->GetCommandlist()->DrawInstanced(UINT(model_->GetModelData()->vertices.size()), particleGroup.instanceCount, 0, 0);
 	}
 }
 
