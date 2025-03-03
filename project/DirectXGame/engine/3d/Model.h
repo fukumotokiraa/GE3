@@ -1,10 +1,6 @@
 #pragma once
-#include "Matrix4x4.h"
 #include "ModelCommon.h"
 #include "TextureManager.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
 #include "Calculation.h"
 
 struct VertexData {
@@ -54,6 +50,8 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource = nullptr;
 	//マテリアルリソースにデータを書き込むためのポインタ
 	Material* materialData = nullptr;
+
+	uint32_t instanceCount = 10;
 
 };
 

@@ -21,6 +21,8 @@
 #include "ModelManager.h"
 #include "ImGuiManager.h"
 #include "SrvManager.h"
+#include "ParticleManager.h"
+#include "ParticleEmitter.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -30,6 +32,8 @@
 		 
 #include <cstdint>
 #include <vector>
+#include <random>
+#include <unordered_map>
 
 #include "StringUtility.h"
 
@@ -47,12 +51,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	DirectXCommon* dxCommon = nullptr;
 
-	TextureManager* texture = nullptr;
-
 	Object3dCommon* object3dCommon = nullptr;
 
 	const uint32_t kSubdivision = 16;
 	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
+
+	bool isSprite = false;
 
 #pragma region 基盤システムの初期化
 
@@ -92,6 +96,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
+
+	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager, object3dCommon);
+	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/uvChecker.png", "plane.obj");
+
+	//particleManager->Initialize(dxCommon, srvManager, object3dCommon);
+	//particleManager->CreateParticleGroup("example", "resources/uvChecker.png", "plane.obj");
+
 #pragma endregion
 
 #pragma region 最初のシーンの初期化
@@ -115,13 +126,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	Model* model = new Model();
-
 	Object3d* object3d = new Object3d();
 	object3d->Initialize(object3dCommon,model);
-
-
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	object3d->SetModel("axis.obj");
+
+	Model* model2 = new Model();
+	Object3d* object3d2 = new Object3d();
+	object3d2->Initialize(object3dCommon, model2);
+	ModelManager::GetInstance()->LoadModel("plane.obj");
+	object3d2->SetModel("plane.obj");
+
+	std::unordered_map<std::string, ParticleGroup> particleGroups;
+	ParticleGroup particleGroup;
+	for (int i = 0; i < 10; ++i) {
+		Particle particle;
+		particle.transform.translate = { 0.0f, 0.0f, 0.0f };
+
+		particleGroup.particles.push_back(particle);
+	}
+	particleGroups["example"] = particleGroup;
+
+	std::random_device seedGenerator;
+	std::mt19937 randomEngine(seedGenerator());
+
+	float emissionInterval = 0.5f;
+	ParticleEmitter particleEmitter(randomEngine, particleGroups, emissionInterval);
 
 
 #pragma endregion
@@ -162,7 +192,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		object3d->Update();
+		object3d2->Update();
+
 		camera->Update();
+
+		ParticleManager::GetInstance()->Update();
+		particleEmitter.Update();
 
 #pragma endregion
 
@@ -178,7 +213,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 cameraPosition = camera->GetTranslate();
 		Vector3 cameraRotate = camera->GetRotate();
 		Vector3 cameraScale = camera->GetScale();
-		ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.1f, -100.0f, 100.0f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
 		camera->SetTranslate(cameraPosition);
@@ -193,7 +228,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::End();
 
 		ImGui::Begin("Sprite");
-		ImGui::SetWindowSize(ImVec2(500, 100));
+		//ImGui::SetWindowSize(ImVec2(500, 100));
+		ImGui::Checkbox("Draw", &isSprite);
 		Vector2 position = sprite->GetPosition();
 		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f, "%.1f");
 		sprite->SetPosition(position);
@@ -229,11 +265,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region Draw
 
-		sprite->Draw();
+		if (isSprite) {
+			sprite->Draw();
+		}
 		//for (uint32_t i = 0; i < 5; i++) {
 		//	sprites[i]->Draw();
 		//}
-		object3d->Draw();
+		//object3d->Draw();
+		//object3d2->Draw();
+
+		ParticleManager::GetInstance()->Draw();
 
 #pragma endregion
 
@@ -250,11 +291,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 
-
+	ParticleManager::GetInstance()->Finalize();
 	imguiManager->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
+	delete object3d2;
+	delete model2;
 	delete object3d;
 	delete model;
 	TextureManager::GetInstance()->Finalize();

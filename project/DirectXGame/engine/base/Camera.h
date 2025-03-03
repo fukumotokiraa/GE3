@@ -1,13 +1,5 @@
 #pragma once
-#include "Matrix4x4.h"
-#include "Vector3.h"
 #include "Calculation.h"
-
-struct Transform {
-	Vector3 scale;
-	Vector3 rotate;
-	Vector3 translate;
-};
 
 class Camera
 {

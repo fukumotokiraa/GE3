@@ -53,6 +53,18 @@ Vector3 operator/(const Vector3& v, float s) {
 	return  Multiply(1.0f / s, v);
 }
 
+Vector3 operator+=(Vector3& v1, const Vector3& v2)
+{
+	v1 = Add(v1, v2);
+	return v1;
+}
+
+Vector3 operator-=(Vector3& v1, const Vector3& v2)
+{
+	v1 = Subtract(v1, v2);
+	return v1;
+}
+
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return Add(m1, m2);
 }
@@ -102,27 +114,6 @@ Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
 	};
 	return result; 
 }
-
-Matrix4x4 Multiply4x4(const Matrix4x4& m1, const Matrix4x4& m2)
-{
-	return {
-	    m1.m[0][0] * m2.m[0][0] + m1.m[0][1] * m2.m[1][0] + m1.m[0][2] * m2.m[2][0] + m1.m[0][3] * m2.m[3][0],
-	    m1.m[0][0] * m2.m[0][1] + m1.m[0][1] * m2.m[1][1] + m1.m[0][2] * m2.m[2][1] + m1.m[0][3] * m2.m[3][1],
-	    m1.m[0][0] * m2.m[0][2] + m1.m[0][1] * m2.m[1][2] + m1.m[0][2] * m2.m[2][2] + m1.m[0][3] * m2.m[3][2],
-	    m1.m[0][0] * m2.m[0][3] + m1.m[0][1] * m2.m[1][3] + m1.m[0][2] * m2.m[2][3] + m1.m[0][3] * m2.m[3][3],
-	    m1.m[1][0] * m2.m[0][0] + m1.m[1][1] * m2.m[1][0] + m1.m[1][2] * m2.m[2][0] + m1.m[1][3] * m2.m[3][0],
-	    m1.m[1][0] * m2.m[0][1] + m1.m[1][1] * m2.m[1][1] + m1.m[1][2] * m2.m[2][1] + m1.m[1][3] * m2.m[3][1],
-	    m1.m[1][0] * m2.m[0][2] + m1.m[1][1] * m2.m[1][2] + m1.m[1][2] * m2.m[2][2] + m1.m[1][3] * m2.m[3][2],
-	    m1.m[1][0] * m2.m[0][3] + m1.m[1][1] * m2.m[1][3] + m1.m[1][2] * m2.m[2][3] + m1.m[1][3] * m2.m[3][3],
-	    m1.m[2][0] * m2.m[0][0] + m1.m[2][1] * m2.m[1][0] + m1.m[2][2] * m2.m[2][0] + m1.m[2][3] * m2.m[3][0],
-	    m1.m[2][0] * m2.m[0][1] + m1.m[2][1] * m2.m[1][1] + m1.m[2][2] * m2.m[2][1] + m1.m[2][3] * m2.m[3][1],
-	    m1.m[2][0] * m2.m[0][2] + m1.m[2][1] * m2.m[1][2] + m1.m[2][2] * m2.m[2][2] + m1.m[2][3] * m2.m[3][2],
-	    m1.m[2][0] * m2.m[0][3] + m1.m[2][1] * m2.m[1][3] + m1.m[2][2] * m2.m[2][3] + m1.m[2][3] * m2.m[3][3],
-	    m1.m[3][0] * m2.m[0][0] + m1.m[3][1] * m2.m[1][0] + m1.m[3][2] * m2.m[2][0] + m1.m[3][3] * m2.m[3][0],
-	    m1.m[3][0] * m2.m[0][1] + m1.m[3][1] * m2.m[1][1] + m1.m[3][2] * m2.m[2][1] + m1.m[3][3] * m2.m[3][1],
-	    m1.m[3][0] * m2.m[0][2] + m1.m[3][1] * m2.m[1][2] + m1.m[3][2] * m2.m[2][2] + m1.m[3][3] * m2.m[3][2],
-	    m1.m[3][0] * m2.m[0][3] + m1.m[3][1] * m2.m[1][3] + m1.m[3][2] * m2.m[2][3] + m1.m[3][3] * m2.m[3][3]};
-};
 
 Matrix4x4 Inverse(const Matrix4x4& m) // 逆行列
 {
@@ -250,7 +241,16 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 		m1.m[3][0] * m2.m[0][2] + m1.m[3][1] * m2.m[1][2] + m1.m[3][2] * m2.m[2][2] + m1.m[3][3] * m2.m[3][2],
 		m1.m[3][0] * m2.m[0][3] + m1.m[3][1] * m2.m[1][3] + m1.m[3][2] * m2.m[2][3] + m1.m[3][3] * m2.m[3][3],
 	};
-};
+}
+
+Matrix4x4 Multiply(const Matrix4x4& m, const Vector4& v) {
+	return {
+		m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w,
+		m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w,
+		m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w,
+		m.m[3][0] * v.x + m.m[3][1] * v.y + m.m[3][2] * v.z + m.m[3][3] * v.w,
+	};
+}
 
 Matrix4x4 MakeRotateXMatrix(float radian) { return { 1, 0, 0, 0, 0, cosf(radian), sinf(radian), 0, 0, -sinf(radian), cosf(radian), 0, 0, 0, 0, 1 }; }
 Matrix4x4 MakeRotateYMatrix(float radian) { return { cosf(radian), 0, -sinf(radian), 0, 0, 1, 0, 0, sinf(radian), 0, cosf(radian), 0, 0, 0, 0, 1 }; }
@@ -284,7 +284,7 @@ Matrix4x4 MakeRotateMatrix(Vector3 radian) {
 	Matrix4x4 rotateXMatrix = {1, 0, 0, 0, 0, cosf(radian.x), sinf(radian.x), 0, 0, -sinf(radian.x), cosf(radian.x), 0, 0, 0, 0, 1};
 	Matrix4x4 rotateYMatrix = {cosf(radian.y), 0, -sinf(radian.y), 0, 0, 1, 0, 0, sinf(radian.y), 0, cosf(radian.y), 0, 0, 0, 0, 1};
 	Matrix4x4 rotateZMatrix = {cosf(radian.z), sinf(radian.z), 0, 0, -sinf(radian.z), cosf(radian.z), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-	return Multiply4x4(rotateXMatrix, Multiply4x4(rotateYMatrix, rotateZMatrix));
+	return Multiply(rotateXMatrix, Multiply(rotateYMatrix, rotateZMatrix));
 
 }
 

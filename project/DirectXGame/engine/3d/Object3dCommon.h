@@ -20,6 +20,10 @@ public:
 
 	void SetDefaultCamera(Camera* camera) { defaultCamera_ = camera; }
 
+	//getter
+	ID3D12RootSignature* GetRootSignature() { return rootSignature.Get(); }
+	ID3D12PipelineState* GetPipelineState() { return graphicsPipelineState.Get(); }
+
 private:
 	//ルートシグネチャの作成
 	void CreateRootSignature();
