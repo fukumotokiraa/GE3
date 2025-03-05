@@ -17,6 +17,11 @@ struct Transform {
 	Vector3 translate;
 };
 
+struct AABB {
+	Vector3 min;
+	Vector3 max;
+};
+
 Vector3 Add(const Vector3& v1, const Vector3& v2);
 
 Vector3 Subtract(const Vector3& v1, const Vector3& v2);

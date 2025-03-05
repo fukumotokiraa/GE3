@@ -175,10 +175,15 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 	materialData_->uvTransform = MakeIdentity4x4();
 
 	camera_ = object3dCommon_->GetDefaultCamera();
+
+	accelerationField.acceleration = { 10.0f,0.0f,0.0f };
+	accelerationField.area.min = { -1.0f,-1.0f,-1.0f };
+	accelerationField.area.max = { 1.0f,1.0f,1.0f };
 }
 
 void ParticleManager::Update()
 {
+
 	//ビルボード行列の計算
 	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
 
@@ -196,14 +201,29 @@ void ParticleManager::Update()
 				continue;
 			}
 
+			//加速場
+			if (applyField && isCollision(accelerationField.area, (*it).transform.translate)) {
+				(*it).velocity += accelerationField.acceleration * kDeltaTime_;
+			}
 			//移動処理
 			(*it).transform.translate += (*it).velocity * kDeltaTime_;
 			//経過時間を加算
 			(*it).currentTime += kDeltaTime_;
-			float alpha = 1.0f - ((*it).currentTime / (*it).lifeTime);
+			//徐々に消えていく
+			float alpha = 1.0f - (*it).currentTime / (*it).lifeTime;
 			
 			//ワールド行列を計算
 			Matrix4x4 worldMatrix = MakeAffineMatrix((*it).transform.scale, (*it).transform.rotate, (*it).transform.translate);
+			//ビルボード行列を合成
+			if (useBillBoard) {
+				Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
+				Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, cameraMatrix);
+				billboardMatrix.m[3][0] = 0.0f;
+				billboardMatrix.m[3][1] = 0.0f;
+				billboardMatrix.m[3][2] = 0.0f;
+
+				worldMatrix = Multiply(worldMatrix, billboardMatrix);
+			}
 			//ワールドビュープロジェクション行列を合成
 			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 			//インスタンシング用データ1個分の書き込み
@@ -211,10 +231,16 @@ void ParticleManager::Update()
 				particleGroup.instanceData[count].WVP = worldViewProjectionMatrix;
 				particleGroup.instanceData[count].world = worldMatrix;
 				particleGroup.instanceData[count].color = (*it).color;
+				particleGroup.instanceData[count].color.w = alpha;
 				count++;
-				isFirstInstancingData = true;
 			}
 			it++;
+		}
+		//instanceCountを設定
+		particleGroup.instanceCount = count;
+
+		if (particleGroup.instanceCount == 0) {
+			memset(particleGroup.instanceData, 0, sizeof(ParticleForGPU) * 1024);
 		}
 	}
 
@@ -235,9 +261,6 @@ void ParticleManager::Draw()
 	//全てのパーティクルグループについて処理する
 	for (const auto& [name,particleGroup] : particleGroups_) {
 		if(particleGroup.instanceCount==0) {
-			continue;
-		}
-		if (isFirstInstancingData == false) {
 			continue;
 		}
 
@@ -282,7 +305,6 @@ void ParticleManager::CreateParticleGroup(const std::string& name, const std::st
 	//インスタンスリソースをマップ
 	particleGroups_.at(name).instanceResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroups_.at(name).instanceData));
 	//インスタンスのデータを初期化
-	ParticleForGPU particleForGPU;
 	particleForGPU.WVP = MakeIdentity4x4();
 	particleForGPU.world = MakeIdentity4x4();
 	particleForGPU.color = { 1.0f,1.0f,1.0f,1.0f };
@@ -300,15 +322,19 @@ void ParticleManager::CreateParticleGroup(const std::string& name, const std::st
 
 void ParticleManager::Emit(const std::string& name, const Vector3& position, uint32_t count)
 {
-    assert(particleGroups_.contains(name));
-    // パーティクルグループのパーティクルリストに新しいパーティクルを追加
-    for (uint32_t i = 0; i < count; i++) {
-        particleGroups_.at(name).particles.push_back(MakeNewParicle(randomEngine_, position));
-    }
-	particleGroups_.at(name).instanceCount = count;
+	assert(particleGroups_.contains(name));
+	ParticleGroup& group = particleGroups_.at(name);
+
+	// パーティクルグループのパーティクルリストに新しいパーティクルを追加
+	for (uint32_t i = 0; i < count; i++) {
+		group.particles.push_back(MakeNewParticle(randomEngine_, position));
+	}
+
+	// インスタンスカウントを更新
+	group.instanceCount += count;
 }
 
-Particle ParticleManager::MakeNewParicle(std::mt19937& randomEngine, const Vector3& translate)
+Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate)
 {
 	std::uniform_real_distribution<float>distribution(-1.0f, 1.0f);
 	std::uniform_real_distribution<float>distColor(0.0f, 1.0f);

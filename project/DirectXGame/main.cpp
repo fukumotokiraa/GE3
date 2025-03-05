@@ -58,6 +58,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	bool isSprite = false;
 
+	bool isModel = false;
+
 #pragma region 基盤システムの初期化
 
 	winApp = new WinApp();
@@ -139,18 +141,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 	ParticleGroup particleGroup;
-	for (int i = 0; i < 10; ++i) {
-		Particle particle;
-		particle.transform.translate = { 0.0f, 0.0f, 0.0f };
-
-		particleGroup.particles.push_back(particle);
-	}
+	Particle particle;
+	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
+	particleGroup.particles.push_back(particle);
 	particleGroups["example"] = particleGroup;
 
 	std::random_device seedGenerator;
 	std::mt19937 randomEngine(seedGenerator());
 
-	float emissionInterval = 0.5f;
+	float emissionInterval = 1.0f;
 	ParticleEmitter particleEmitter(randomEngine, particleGroups, emissionInterval);
 
 
@@ -203,6 +202,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region ImGuiUpdate
 		imguiManager->Begin();
+
 #ifdef USE_IMGUI
 		ImGui::ShowDemoWindow();
 		ImGui::Begin("Camera");
@@ -222,6 +222,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::End();
 
 		ImGui::Begin("Model");
+		ImGui::Checkbox("Draw", &isModel);
 		ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
@@ -242,6 +243,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector4 color = sprite->GetColor();
 		ImGui::ColorEdit4("SpriteColor", &color.x);
 		sprite->SetColor(color);
+		ImGui::End();
+
+		ImGui::Begin("Particle");
+		bool useBillBoard = ParticleManager::GetInstance()->GetUseBillBoard();
+		ImGui::Checkbox("BillBoard", &useBillBoard);
+		ParticleManager::GetInstance()->SetUseBillBoard(useBillBoard);
+		bool applyField = ParticleManager::GetInstance()->GetApplyField();
+		ImGui::Checkbox("ApplyField", &applyField);
+		ParticleManager::GetInstance()->SetApplyField(applyField);
 		ImGui::End();
 #endif
 
@@ -271,7 +281,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//for (uint32_t i = 0; i < 5; i++) {
 		//	sprites[i]->Draw();
 		//}
-		//object3d->Draw();
+		if (isModel) {
+			object3d->Draw();
+		}
 		//object3d2->Draw();
 
 		ParticleManager::GetInstance()->Draw();

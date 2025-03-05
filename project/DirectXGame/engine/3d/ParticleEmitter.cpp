@@ -14,10 +14,11 @@ void ParticleEmitter::Update()
 	if (currentTime_ >= emissionInterval_) {
 		for (auto& group : particleGroups_) {
 			ParticleGroup& particleGroup = group.second;
-			Emit(group.first, particleGroup.particles.front().transform.translate, 10);
+			Emit(group.first, particleGroup.particles.front().transform.translate, 3);
 		}
 		currentTime_ = 0.0f;
 	}
+
 }
 
 void ParticleEmitter::Emit(const std::string& name, const Vector3& translate, uint32_t count)

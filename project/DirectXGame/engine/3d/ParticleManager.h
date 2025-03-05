@@ -42,6 +42,10 @@ struct ParticleGroup {
 	// インスタンシングデータを書き込むためのポインタ
 	ParticleForGPU* instanceData;
 };
+struct AccelerationField {
+	Vector3 acceleration;//!<加速度
+	AABB area;//!<範囲
+};
 
 class DirectXCommon;
 class SrvManager;
@@ -61,6 +65,16 @@ private:
 	//グラフィックスパイプラインの生成
 	void CreateGraphicsPipeline();
 
+	bool isCollision(const AABB& aabb, const Vector3& point) {
+		// 各軸において点がAABBの範囲内にあるかを確認
+		if (point.x < aabb.min.x || point.x > aabb.max.x) return false;
+		if (point.y < aabb.min.y || point.y > aabb.max.y) return false;
+		if (point.z < aabb.min.z || point.z > aabb.max.z) return false;
+
+		// すべての軸で範囲内にある場合、衝突している
+		return true;
+	}
+
 public:
 	static ParticleManager* GetInstance();
 
@@ -76,7 +90,15 @@ public:
 
 	void Emit(const std::string& name, const Vector3& position, uint32_t count);
 
-	Particle MakeNewParicle(std::mt19937& randomEngine, const Vector3& translate);
+	Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
+
+	bool GetUseBillBoard() { return useBillBoard; }
+
+	void SetUseBillBoard(bool useBillBoard) { this->useBillBoard = useBillBoard; }
+
+	bool GetApplyField() { return applyField; }
+
+	void SetApplyField(bool applyField) { this->applyField = applyField; }
 
 private:
 	DirectXCommon* dxCommon_;
@@ -119,7 +141,15 @@ private:
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
 
+	ParticleForGPU particleForGPU;
+
 	bool isFirstInstancingData = false;
+
+	bool useBillBoard = true;
+
+	AccelerationField accelerationField;
+
+	bool applyField = false;
 
 };
 
