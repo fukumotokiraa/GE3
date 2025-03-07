@@ -7,13 +7,8 @@
 #include "TextureManager.h"
 #include "ModelManager.h"
 
-
-#include "Matrix4x4.h"
 #include "Model.h"
 #include "Object3dCommon.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
 
 class Object3dCommon;
 

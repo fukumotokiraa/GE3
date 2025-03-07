@@ -1,10 +1,6 @@
 #pragma once
-#include "Matrix4x4.h"
 #include "ModelCommon.h"
 #include "TextureManager.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
 #include "Calculation.h"
 
 struct VertexData {
@@ -39,6 +35,10 @@ public:
 	//.objファイルの読み込み
 	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
+	ModelData* GetModelData() {return &modelData_;}
+
+	D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &vertexBufferView; }
+
 private:
 	//ModelCommonのポインタ
 	ModelCommon* modelCommon_;
@@ -54,6 +54,8 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource = nullptr;
 	//マテリアルリソースにデータを書き込むためのポインタ
 	Material* materialData = nullptr;
+
+	uint32_t instanceCount = 10;
 
 };
 

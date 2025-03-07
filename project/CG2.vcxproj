@@ -104,6 +104,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\engine\3d\ParticleManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
     <ClCompile Include="DirectXGame\engine\base\SrvManager.cpp" />
     <ClCompile Include="DirectXGame\engine\math\Calculation.cpp" />
@@ -130,18 +131,10 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\base\TextureManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\WinApp.cpp" />
     <ClCompile Include="DirectXGame\engine\debug\ImGuiManager.cpp" />
+    <ClCompile Include="DirectXGame\engine\3d\ParticleEmitter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="resources\shaders\Object3D.PS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="resources\shaders\Object3D.VS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="DirectXGame\engine\3d\ParticleManager.h" />
     <ClInclude Include="DirectXGame\engine\base\Camera.h" />
     <ClInclude Include="DirectXGame\engine\base\SrvManager.h" />
     <ClInclude Include="DirectXGame\engine\math\Calculation.h" />
@@ -173,6 +166,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\math\Vector4.h" />
     <ClInclude Include="DirectXGame\engine\base\WinApp.h" />
     <ClInclude Include="DirectXGame\engine\debug\ImGuiManager.h" />
+    <ClInclude Include="DirectXGame\engine\3d\ParticleEmitter.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
@@ -181,12 +175,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\shaders\Object3d.hlsli">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
