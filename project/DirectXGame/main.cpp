@@ -1,28 +1,13 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Vector4.h"
-#include "Vector3.h"
-#include "Vector2.h"
-#include "Matrix3x3.h"
-#include "Matrix4x4.h"
 #include  "Calculation.h"
-#include "Input.h"
-#include "WinApp.h"
-#include "DirectXCommon.h"
 #include "Logger.h"
 #include "D3DResourceLeakChecker.h"
-#include "SpriteCommon.h"
-#include "Sprite.h"
-#include "TextureManager.h"
-#include "Object3dCommon.h"
 #include "Object3d.h"
 #include "ModelCommon.h"
 #include "Model.h"
-#include "ModelManager.h"
-#include "ImGuiManager.h"
-#include "SrvManager.h"
-#include "ParticleManager.h"
 #include "ParticleEmitter.h"
+#include "MyGame.h"
 		 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -45,112 +30,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	OutputDebugStringA("Hello,DirectX!\n");
 
-	WinApp* winApp = nullptr;
-
-	Input* input = nullptr;
-
-	DirectXCommon* dxCommon = nullptr;
-
-	Object3dCommon* object3dCommon = nullptr;
-
-	const uint32_t kSubdivision = 16;
-	const uint32_t kNumVertex = kSubdivision * kSubdivision * 6;
+	MyGame game;
 
 	bool isSprite = false;
 
 	bool isModel = false;
 
-#pragma region 基盤システムの初期化
 
-	winApp = new WinApp();
-	winApp->Initialize();
+	game.Initialize();
 
-	input = new Input();
-	input->Initialize(winApp);
-
-	dxCommon = new DirectXCommon();
-	dxCommon->Initialize(winApp);
-
-	SrvManager* srvManager = nullptr;
-	srvManager = new SrvManager();
-	srvManager->Initialize(dxCommon);
-	TextureManager::GetInstance()->Initialize(dxCommon, srvManager);
-
-	ImGuiManager* imguiManager = nullptr;
-	imguiManager = new ImGuiManager();
-	imguiManager->Initialize(winApp, dxCommon, srvManager);
-
-	SpriteCommon* spriteCommon = nullptr;
-	spriteCommon = new SpriteCommon;
-	spriteCommon->Initialize(dxCommon);
-
-	//3Dオブジェクト共通部の初期化
-	object3dCommon = new Object3dCommon();
-	object3dCommon->Initialize(dxCommon);
-
-	Camera* camera = new Camera();
-	camera->SetRotate({ 0.0f,0.0f,0.0f });
-	camera->SetTranslate({ 0.0f,0.0f,-10.0f });
-	object3dCommon->SetDefaultCamera(camera);
-
-
-	ModelManager::GetInstance()->Initialize(dxCommon);
-
-	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
-	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
-
-	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager, object3dCommon);
-	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
-
-#pragma endregion
-
-#pragma region 最初のシーンの初期化
-
-	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteCommon, "resources/uvChecker.png");
-	sprite->SetPosition({ 100.0f,100.0f });
-
-	std::vector<Sprite*>sprites;
-	for (uint32_t i=0;i<5;i++) {
-		Sprite* sprite = new Sprite();
-		if (i % 2 == 0) {
-			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
-		}
-		else {
-			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
-		}
-		sprites.push_back(sprite);
-		sprites[i]->SetSize({ 100.0f,100.0f });
-		sprites[i]->SetPosition({ i * 150.0f,0.0f });
-	}
-
-	Model* model = new Model();
-	Object3d* object3d = new Object3d();
-	object3d->Initialize(object3dCommon,model);
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	object3d->SetModel("axis.obj");
-
-	Model* model2 = new Model();
-	Object3d* object3d2 = new Object3d();
-	object3d2->Initialize(object3dCommon, model2);
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	object3d2->SetModel("plane.obj");
-
-	std::unordered_map<std::string, ParticleGroup> particleGroups;
-	ParticleGroup particleGroup;
-	Particle particle;
-	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
-	particleGroup.particles.push_back(particle);
-	particleGroups["example"] = particleGroup;
-
-	std::random_device seedGenerator;
-	std::mt19937 randomEngine(seedGenerator());
-
-	float emissionInterval = 1.0f;
-	ParticleEmitter particleEmitter(randomEngine, particleGroups, emissionInterval);
-
-
-#pragma endregion
 
 	///=====================================================/// 
 	///		メインループ
