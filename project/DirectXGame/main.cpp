@@ -100,10 +100,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
 
 	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager, object3dCommon);
-	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/uvChecker.png", "plane.obj");
-
-	//particleManager->Initialize(dxCommon, srvManager, object3dCommon);
-	//particleManager->CreateParticleGroup("example", "resources/uvChecker.png", "plane.obj");
+	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
 
 #pragma endregion
 
@@ -195,8 +192,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		camera->Update();
 
-		ParticleManager::GetInstance()->Update();
 		particleEmitter.Update();
+		ParticleManager::GetInstance()->Update();
 
 #pragma endregion
 

@@ -238,10 +238,6 @@ void ParticleManager::Update()
 		}
 		//instanceCountを設定
 		particleGroup.instanceCount = count;
-
-		if (particleGroup.instanceCount == 0) {
-			memset(particleGroup.instanceData, 0, sizeof(ParticleForGPU) * 1024);
-		}
 	}
 
 }
@@ -323,15 +319,12 @@ void ParticleManager::CreateParticleGroup(const std::string& name, const std::st
 void ParticleManager::Emit(const std::string& name, const Vector3& position, uint32_t count)
 {
 	assert(particleGroups_.contains(name));
-	ParticleGroup& group = particleGroups_.at(name);
-
-	// パーティクルグループのパーティクルリストに新しいパーティクルを追加
 	for (uint32_t i = 0; i < count; i++) {
-		group.particles.push_back(MakeNewParticle(randomEngine_, position));
+		particleGroups_.at(name).particles.push_back(MakeNewParticle(randomEngine_, position));
 	}
 
 	// インスタンスカウントを更新
-	group.instanceCount += count;
+	particleGroups_.at(name).instanceCount += count;
 }
 
 Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate)
