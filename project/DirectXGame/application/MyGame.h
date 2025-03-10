@@ -19,6 +19,9 @@
 class MyGame
 {
 public:
+	MyGame();
+	~MyGame();
+
 	void Initialize();
 
 	void Finalize();
@@ -26,6 +29,8 @@ public:
 	void Update();
 
 	void Draw();
+
+	bool IsEndRequest() { return endRequest_; }
 
 private:
 	WinApp* winApp = nullptr;
@@ -46,6 +51,13 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 	ParticleGroup particleGroup;
 	Particle particle;
+	float emissionInterval = 1.0f;
+	ParticleEmitter particleEmitter;
+
+	bool isSprite = false;
+	bool isModel = false;
+
+	bool endRequest_ = false;
 
 };
 

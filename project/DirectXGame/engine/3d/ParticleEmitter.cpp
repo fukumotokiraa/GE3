@@ -1,8 +1,7 @@
 #include "ParticleEmitter.h"
 
-ParticleEmitter::ParticleEmitter(std::mt19937 randomEngine, std::unordered_map<std::string, ParticleGroup>& particleGroups, float emissionInterval)
-	: randomEngine_(randomEngine),
-	particleGroups_(particleGroups),
+ParticleEmitter::ParticleEmitter(std::unordered_map<std::string, ParticleGroup>& particleGroups, float emissionInterval)
+	:particleGroups_(particleGroups),
 	emissionInterval_(emissionInterval),
 	currentTime_(0.0f) {
 	
