@@ -12,42 +12,6 @@ void MyGame::Initialize()
 {
 	Framework::Initialize();
 
-#pragma region 基盤システムの初期化
-
-	winApp = new WinApp();
-	winApp->Initialize();
-
-	dxCommon = new DirectXCommon();
-	dxCommon->Initialize(winApp);
-
-	input = new Input();
-	input->Initialize(winApp);
-
-	srvManager = new SrvManager();
-	srvManager->Initialize(dxCommon);
-
-	spriteCommon = new SpriteCommon();
-	spriteCommon->Initialize(dxCommon);
-
-	TextureManager::GetInstance()->Initialize(dxCommon, srvManager);
-
-	imguiManager = new ImGuiManager();
-	imguiManager->Initialize(winApp, dxCommon, srvManager);
-
-	object3dCommon = new Object3dCommon();
-	object3dCommon->Initialize(dxCommon);
-
-	camera = new Camera();
-	camera->SetRotate({ 0.0f,0.0f,0.0f });
-	camera->SetTranslate({ 0.0f,0.0f,-10.0f });
-	object3dCommon->SetDefaultCamera(camera);
-
-	ModelManager::GetInstance()->Initialize(dxCommon);
-
-	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager, object3dCommon);
-
-#pragma endregion
-
 #pragma region 各オブジェクトの初期化
 
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
@@ -109,14 +73,7 @@ void MyGame::Finalize()
 		delete sprites[i];
 	}
 	delete sprite;
-	delete spriteCommon;
-	delete imguiManager;
-	delete srvManager;
-	delete camera;
-	delete object3dCommon;
-	delete dxCommon;
-	delete input;
-	delete winApp;
+
 
 #pragma endregion
 
@@ -125,19 +82,6 @@ void MyGame::Finalize()
 
 void MyGame::Update()
 {
-#pragma region ゲーム終了処理
-
-	//windowsのメッセージ処理
-	if (winApp->ProcessMessage())
-	{
-		//ゲームループを抜ける
-		endRequest_ = true;
-	}
-
-#pragma endregion
-
-	Framework::Update();
-
 #pragma region Update
 	input->Update();
 	if (input->PushKey(DIK_RIGHT))
@@ -165,12 +109,11 @@ void MyGame::Update()
 	object3d->Update();
 	object3d2->Update();
 
-	camera->Update();
-
 	particleEmitter.Update();
-	ParticleManager::GetInstance()->Update();
 
 #pragma endregion
+
+	Framework::Update();
 
 #pragma region ImGuiUpdate
 	imguiManager->Begin();
