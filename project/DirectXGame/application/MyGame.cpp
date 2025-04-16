@@ -10,6 +10,8 @@ MyGame::~MyGame()
 
 void MyGame::Initialize()
 {
+	Framework::Initialize();
+
 #pragma region 基盤システムの初期化
 
 	winApp = new WinApp();
@@ -117,6 +119,8 @@ void MyGame::Finalize()
 	delete winApp;
 
 #pragma endregion
+
+	Framework::Finalize();
 }
 
 void MyGame::Update()
@@ -131,6 +135,8 @@ void MyGame::Update()
 	}
 
 #pragma endregion
+
+	Framework::Update();
 
 #pragma region Update
 	input->Update();

@@ -8,6 +8,7 @@
 #include "ImGuiManager.h"
 #include "Object3dCommon.h"
 #include "Camera.h"
+#include "Framework.h"
 #include "ModelManager.h"
 #include "ParticleManager.h"
 #include "Sprite.h"
@@ -16,21 +17,19 @@
 #include "ParticleEmitter.h"
 
 
-class MyGame
+class MyGame : public Framework
 {
 public:
 	MyGame();
 	~MyGame();
 
-	void Initialize();
+	void Initialize() override;
 
-	void Finalize();
+	void Finalize() override;
 
-	void Update();
+	void Update() override;
 
-	void Draw();
-
-	bool IsEndRequest() { return endRequest_; }
+	void Draw() override;
 
 private:
 	WinApp* winApp = nullptr;

@@ -133,6 +133,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\debug\ImGuiManager.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\ParticleEmitter.cpp" />
     <ClCompile Include="DirectXGame\application\MyGame.cpp" />
+    <ClCompile Include="DirectXGame\engine\base\Framework.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXGame\engine\3d\ParticleManager.h" />
@@ -169,6 +170,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\debug\ImGuiManager.h" />
     <ClInclude Include="DirectXGame\engine\3d\ParticleEmitter.h" />
     <ClInclude Include="DirectXGame\application\MyGame.h" />
+    <ClInclude Include="DirectXGame\engine\base\Framework.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
