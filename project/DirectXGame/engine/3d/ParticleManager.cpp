@@ -316,18 +316,18 @@ void ParticleManager::CreateParticleGroup(const std::string& name, const std::st
 	
 }
 
-void ParticleManager::Emit(const std::string& name, const Vector3& position, uint32_t count)
+void ParticleManager::Emit(const std::string& name, const Vector3& position, const Vector3& rotate, const Vector3& scale, uint32_t count)
 {
 	assert(particleGroups_.contains(name));
 	for (uint32_t i = 0; i < count; i++) {
-		particleGroups_.at(name).particles.push_back(MakeNewParticle(randomEngine_, position));
+		particleGroups_.at(name).particles.push_back(MakeNewParticle(randomEngine_, position, rotate, scale));
 	}
 
 	// インスタンスカウントを更新
 	particleGroups_.at(name).instanceCount += count;
 }
 
-Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate)
+Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate, const Vector3& rotate, const Vector3& scale)
 {
 	std::uniform_real_distribution<float>distribution(-1.0f, 1.0f);
 	std::uniform_real_distribution<float>distRotate(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
@@ -336,12 +336,19 @@ Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vect
 	std::uniform_real_distribution<float>distTime(1.0f, 3.0f);
 	Particle particle;
 	Vector3 randomTranslate{ distribution(randomEngine),distribution(randomEngine),distribution(randomEngine) };
-	particle.transform.scale = { 0.05f,distScale(randomEngine),1.0f};
-	particle.transform.rotate = { 0.0f,0.0f,distRotate(randomEngine)};
+	particle.transform.scale = scale;
+	particle.transform.rotate = rotate;
 	particle.transform.translate = translate;
 	particle.velocity = {0.0f,0.0f,0.0f};
 	particle.color = { 1.0f,1.0f,1.0f,1.0f };
 	particle.lifeTime = 1.0f;
 	particle.currentTime = 0;
 	return particle;
+}
+
+void ParticleManager::AddParticle(const std::string& groupName, const Particle& particle)
+{
+	if (particleGroups_.contains(groupName)) {
+		particleGroups_.at(groupName).particles.push_back(particle);
+	}
 }

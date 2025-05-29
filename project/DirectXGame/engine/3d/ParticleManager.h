@@ -88,9 +88,11 @@ public:
 
 	void CreateParticleGroup(const std::string& name, const std::string& textureFilePath, const std::string& modelFilePath);
 
-	void Emit(const std::string& name, const Vector3& position, uint32_t count);
+	void Emit(const std::string& name, const Vector3& position, const Vector3& rotate, const Vector3& scale, uint32_t count);
 
-	Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
+	Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate, const Vector3& rotate, const Vector3& scale);
+
+	void AddParticle(const std::string& groupName, const Particle& particle);
 
 	bool GetUseBillBoard() { return useBillBoard; }
 

@@ -8,7 +8,7 @@ public:
 
 	void Update();
 
-	void Emit(const std::string& name, const Vector3& translate, uint32_t count);
+	void Emit(const std::string& name, const Vector3& translate, const Vector3& rotate, const Vector3& scale, uint32_t count);
 
 private:
 	std::mt19937 randomEngine_;

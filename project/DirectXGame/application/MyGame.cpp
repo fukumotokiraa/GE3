@@ -46,10 +46,31 @@ void MyGame::Initialize()
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	object3d2->SetModel("plane.obj");
 
-	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle2.png", "plane.obj");
-	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
-	particleGroup.particles.push_back(particle);
-	particleGroups["example"] = particleGroup;
+	ParticleManager::GetInstance()->CreateParticleGroup("ring", "resources/gradationLine.png", "plane.obj");
+	const uint32_t kRingDivide = 32;
+	const float kOuterRadius = 5.0f;
+	const float kInnerRadius = 3.0f;
+	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+	Vector3 center = { 0.0f, 0.0f, 0.0f };
+
+	ParticleGroup ringGroup;
+	for (uint32_t index = 0; index < kRingDivide; index++) {
+		float angle = index * radianPerDivide;
+		float x = std::sin(angle) * ((kOuterRadius + kInnerRadius) * 0.5f);
+		float y = std::cos(angle) * ((kOuterRadius + kInnerRadius) * 0.5f);
+
+		Particle particle;
+		particle.transform.translate = { center.x + x, center.y + y, center.z };
+		particle.transform.rotate = { 0.0f, 0.0f, angle }; // 回転角度を設定
+		particle.transform.scale = {radianPerDivide, 1.0f, 1.0f }; // サイズを設定
+		// 必要に応じてサイズや色も設定
+		ringGroup.particles.push_back(particle);
+	}
+	particleGroups["ring"] = ringGroup;
+
+	//particle.transform.translate = { 0.0f, 0.0f, 0.0f };
+	//particleGroup.particles.push_back(particle);
+	//particleGroups["example"] = particleGroup;
 
 
 #pragma endregion
