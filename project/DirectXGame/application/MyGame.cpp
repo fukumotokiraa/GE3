@@ -68,9 +68,12 @@ void MyGame::Initialize()
 	}
 	particleGroups["ring"] = ringGroup;
 
+	//ParticleManager::GetInstance()->CreateParticleGroup("ring", "resources/gradationLine.png", "plane.obj");
 	//particle.transform.translate = { 0.0f, 0.0f, 0.0f };
+	//particle.transform.rotate = { 0.0f, 0.0f, 0.0f }; // 回転角度を設定
+	//particle.transform.scale = {1.0f, 1.0f, 1.0f }; // サイズを設定
 	//particleGroup.particles.push_back(particle);
-	//particleGroups["example"] = particleGroup;
+	//particleGroups["ring"] = ringGroup;
 
 
 #pragma endregion

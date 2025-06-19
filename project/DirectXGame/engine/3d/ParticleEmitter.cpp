@@ -13,14 +13,14 @@ void ParticleEmitter::Update()
 	if (currentTime_ >= emissionInterval_) {
 		for (auto& group : particleGroups_) {
 			ParticleGroup& particleGroup = group.second;
-			Emit(group.first, particleGroup.particles.front().transform.translate, particleGroup.particles.front().transform.rotate, particleGroup.particles.front().transform.scale, 8);
+			Emit(group.first, particleGroup.particles.front().transform.translate, particleGroup.particles.front().transform.rotate, particleGroup.particles.front().transform.scale, 32, true);
 		}
 		currentTime_ = 0.0f;
 	}
 
 }
 
-void ParticleEmitter::Emit(const std::string& name, const Vector3& translate, const Vector3& rotate, const Vector3& scale, uint32_t count)
+void ParticleEmitter::Emit(const std::string& name, const Vector3& translate, const Vector3& rotate, const Vector3& scale, uint32_t count, bool isRing)
 {
-	ParticleManager::GetInstance()->Emit(name, translate, rotate, scale, count);
+	ParticleManager::GetInstance()->Emit(name, translate, rotate, scale, count, isRing);
 }

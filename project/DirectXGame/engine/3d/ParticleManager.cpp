@@ -316,15 +316,40 @@ void ParticleManager::CreateParticleGroup(const std::string& name, const std::st
 	
 }
 
-void ParticleManager::Emit(const std::string& name, const Vector3& position, const Vector3& rotate, const Vector3& scale, uint32_t count)
+void ParticleManager::Emit(const std::string& name, const Vector3& position, const Vector3& rotate, const Vector3& scale, uint32_t count, bool isRing)
 {
 	assert(particleGroups_.contains(name));
-	for (uint32_t i = 0; i < count; i++) {
-		particleGroups_.at(name).particles.push_back(MakeNewParticle(randomEngine_, position, rotate, scale));
+	if (isRing) {
+		float innerRadius = 0.3f;
+		float outerRadius = 0.6f;
+		float radius = (innerRadius + outerRadius) * 0.5f;
+		float deltaAngle = 2.0f * std::numbers::pi_v<float> / count;
+
+		for (uint32_t i = 0; i < count; ++i) {
+			float angle = i * deltaAngle;
+			Vector3 offset{
+				std::cos(angle) * radius,
+				std::sin(angle) * radius,
+				0.0f
+			};
+
+			Vector3 particlePos = position + offset;
+			Vector3 particleRot = { 0.0f, 0.0f, angle };
+
+			auto& group = particleGroups_.at(name);
+			group.particles.push_back(MakeNewParticle(randomEngine_, particlePos, particleRot, scale));
+		}
+
+		particleGroups_.at(name).instanceCount += count;
+	}
+	else {
+		for (uint32_t i = 0; i < count; i++) {
+			particleGroups_.at(name).particles.push_back(MakeNewParticle(randomEngine_, position, rotate, scale));
+		}
+		// インスタンスカウントを更新
+		particleGroups_.at(name).instanceCount += count;
 	}
 
-	// インスタンスカウントを更新
-	particleGroups_.at(name).instanceCount += count;
 }
 
 Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate, const Vector3& rotate, const Vector3& scale)

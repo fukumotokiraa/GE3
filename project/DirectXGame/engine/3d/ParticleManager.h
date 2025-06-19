@@ -88,7 +88,7 @@ public:
 
 	void CreateParticleGroup(const std::string& name, const std::string& textureFilePath, const std::string& modelFilePath);
 
-	void Emit(const std::string& name, const Vector3& position, const Vector3& rotate, const Vector3& scale, uint32_t count);
+	void Emit(const std::string& name, const Vector3& position, const Vector3& rotate, const Vector3& scale, uint32_t count, bool isRing);
 
 	Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate, const Vector3& rotate, const Vector3& scale);
 
