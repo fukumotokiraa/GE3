@@ -41,6 +41,8 @@ private:
 	bool endRequest_ = false;
 
 	float angle;
+
+	int count;
 	//const uint32_t kRingDivide = 32;
 	//const float kOuterRadius = 1.0f;
 	//const float kInnerRadius = 0.2f;

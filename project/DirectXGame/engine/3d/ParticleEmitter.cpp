@@ -13,7 +13,7 @@ void ParticleEmitter::Update()
 	if (currentTime_ >= emissionInterval_) {
 		for (auto& group : particleGroups_) {
 			ParticleGroup& particleGroup = group.second;
-			Emit(group.first, particleGroup.particles.front().transform.translate, particleGroup.particles.front().transform.rotate, particleGroup.particles.front().transform.scale, 32, true);
+			Emit(group.first, particleGroup.particles.front().transform.translate, particleGroup.particles.front().transform.rotate, particleGroup.particles.front().transform.scale, 10, true);
 		}
 		currentTime_ = 0.0f;
 	}
