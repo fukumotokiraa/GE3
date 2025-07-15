@@ -95,18 +95,6 @@ void MyGame::Initialize()
 		objects.push_back(newObject);
 	}
 
-	//for(auto& objectData : levelData->objects) {
-	//	Model* sceneModel = nullptr;
-	//	decltype(models)::iterator it = models.find(objectData.file_name);
-	//	if (it != models.end()) { sceneModel = it->second; }
-	//	Object3d* newObject = new Object3d;
-	//	newObject->Initialize(object3dCommon, sceneModel);
-	//	newObject->SetPosition(objectData.transform.translation);
-	//	newObject->SetRotation(objectData.transform.rotation);
-	//	newObject->SetScale(objectData.transform.scaling);
-	//	objects.push_back(newObject);
-	//}
-
 
 #pragma region 各オブジェクトの初期化
 
@@ -230,9 +218,9 @@ void MyGame::Update()
 	Vector3 cameraPosition = camera->GetTranslate();
 	Vector3 cameraRotate = camera->GetRotate();
 	Vector3 cameraScale = camera->GetScale();
-	ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.1f, -100.0f, 100.0f);
-	ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
-	ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
+	ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.1f);
+	ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
+	ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f);
 	camera->SetTranslate(cameraPosition);
 	camera->SetRotate(cameraRotate);
 	camera->SetScale(cameraScale);
