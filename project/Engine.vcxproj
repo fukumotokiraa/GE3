@@ -65,7 +65,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)DirectXGame;$(ProjectDir)DirectXGame\application;$(ProjectDir)DirectXGame\engine;$(ProjectDir)DirectXGame\engine\2d;$(ProjectDir)DirectXGame\engine\3d;$(ProjectDir)DirectXGame\engine\audio;$(ProjectDir)DirectXGame\engine\base;$(ProjectDir)DirectXGame\engine\io;$(ProjectDir)DirectXGame\engine\math;$(ProjectDir)DirectXGame\engine\scene;$(ProjectDir);$(ProjectDir)DirectXGame\engine\debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)DirectXGame;$(ProjectDir)DirectXGame\application;$(ProjectDir)DirectXGame\engine;$(ProjectDir)DirectXGame\engine\2d;$(ProjectDir)DirectXGame\engine\3d;$(ProjectDir)DirectXGame\engine\audio;$(ProjectDir)DirectXGame\engine\base;$(ProjectDir)DirectXGame\engine\io;$(ProjectDir)DirectXGame\engine\math;$(ProjectDir)DirectXGame\engine\scene;$(ProjectDir);$(ProjectDir)DirectXGame\engine\debug;$(ProjectDir)externals\assimp\include;$(ProjectDir)externals;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

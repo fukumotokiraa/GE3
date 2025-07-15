@@ -6,6 +6,7 @@
 #include "ParticleEmitter.h"
 
 
+
 class MyGame : public Framework
 {
 public:
@@ -21,7 +22,8 @@ public:
 	void Draw() override;
 
 private:
-
+	std::unordered_map<std::string, Model*> models;
+	std::vector < Object3d* > objects;
 
 	Sprite* sprite = nullptr;
 	std::vector<Sprite*>sprites;
