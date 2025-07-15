@@ -1,5 +1,8 @@
 #include "MyGame.h"
 
+#include <fstream>
+#include <externals/json.hpp>
+
 MyGame::MyGame()
 	:particleEmitter(particleGroups, emissionInterval) {
 }
@@ -10,7 +13,83 @@ MyGame::~MyGame()
 
 void MyGame::Initialize()
 {
+	struct ObjectData {
+		std::string type;
+		std::string name;
+
+		struct Transform {
+			Vector3 translation;
+			Vector3 rotation;
+			Vector3 scaling;
+		};
+
+		Transform transform;
+
+		std::string file_name;
+	};
+	struct LevelData {
+		std::string name;
+		std::vector<ObjectData> objects;
+	};
+
 	Framework::Initialize();
+
+
+	const std::string fullPath = std::string("resources/levels/") + "scene.json";
+	std::ifstream file;
+	file.open(fullPath);
+	if(file.fail()) {
+		assert(0);
+	}
+	nlohmann::json deserialized;
+	file >> deserialized;
+	assert(deserialized.is_object());
+	assert(deserialized.contains("name"));
+	assert(deserialized["name"].is_string());
+
+	LevelData* levelData = new LevelData();
+
+	levelData->name = deserialized["name"].get<std::string>();
+	assert(levelData->name == "scene");
+	for (nlohmann::json& object : deserialized["objects"]) {
+		assert(object.contains("type"));
+		if (object["type"].get<std::string>() == "MESH") {
+			levelData->objects.emplace_back(ObjectData{});
+			ObjectData& objectData = levelData->objects.back();
+			objectData.type = object["type"].get<std::string>();
+			objectData.type = object["name"].get<std::string>();
+
+			nlohmann::json& transform = object["transform"];
+			objectData.transform.translation.x = (float)transform["translation"][0];
+			objectData.transform.translation.y = (float)transform["translation"][1];
+			objectData.transform.translation.z = (float)transform["translation"][2];
+
+			objectData.transform.rotation.x = -(float)transform["rotation"][0];
+			objectData.transform.rotation.y = -(float)transform["rotation"][1];
+			objectData.transform.rotation.z = -(float)transform["rotation"][2];
+
+			objectData.transform.scaling.x = (float)transform["scale"][0];
+			objectData.transform.scaling.y = (float)transform["scale"][1];
+			objectData.transform.scaling.z = (float)transform["scale"][2];
+
+			if (object.contains("file_name")) {
+				objectData.file_name = object["file_name"].get<std::string>();
+			}
+		}
+	}
+
+	for(auto& objectData : levelData->objects) {
+		Model* sceneModel = nullptr;
+		decltype(models)::iterator it = models.find(objectData.file_name);
+		if (it != models.end()) { sceneModel = it->second; }
+		Object3d* newObject = new Object3d;
+		newObject->Initialize(object3dCommon, sceneModel);
+		newObject->SetPosition(objectData.transform.translation);
+		newObject->SetRotation(objectData.transform.rotation);
+		newObject->SetScale(objectData.transform.scaling);
+		objects.push_back(newObject);
+	}
+
 
 #pragma region 各オブジェクトの初期化
 
@@ -108,6 +187,9 @@ void MyGame::Update()
 
 	object3d->Update();
 	object3d2->Update();
+	for (auto& object : objects) {
+		object->Update();
+	}
 
 	particleEmitter.Update();
 
@@ -202,6 +284,9 @@ void MyGame::Draw()
 		object3d->Draw();
 	}
 	//object3d2->Draw();
+	for (auto& object : objects) {
+		object->Draw();
+	}
 
 	ParticleManager::GetInstance()->Draw();
 

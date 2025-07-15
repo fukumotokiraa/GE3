@@ -45,6 +45,9 @@ public:
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
 	Transform& GetTransform() { return transform_; }
+	void SetPosition(const Vector3& position) { transform_.translate = position; }
+	void SetRotation(const Vector3& rotation) { transform_.rotate = rotation; }
+	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 
 
 private:
