@@ -78,17 +78,34 @@ void MyGame::Initialize()
 		}
 	}
 
+	ModelManager::GetInstance()->LoadModel("Player.gltf");
+	//レベルデータからオブジェクトを生成、配置
 	for(auto& objectData : levelData->objects) {
+		//モデルファイル名 objectData.file_name にあれば入っている → file_name を元に、モデルデータを特定する
 		Model* sceneModel = nullptr;
 		decltype(models)::iterator it = models.find(objectData.file_name);
 		if (it != models.end()) { sceneModel = it->second; }
+		//モデルを指定して3Dオブジェクトを生成
 		Object3d* newObject = new Object3d;
 		newObject->Initialize(object3dCommon, sceneModel);
+		newObject->SetModel("Player.gltf");
 		newObject->SetPosition(objectData.transform.translation);
 		newObject->SetRotation(objectData.transform.rotation);
 		newObject->SetScale(objectData.transform.scaling);
 		objects.push_back(newObject);
 	}
+
+	//for(auto& objectData : levelData->objects) {
+	//	Model* sceneModel = nullptr;
+	//	decltype(models)::iterator it = models.find(objectData.file_name);
+	//	if (it != models.end()) { sceneModel = it->second; }
+	//	Object3d* newObject = new Object3d;
+	//	newObject->Initialize(object3dCommon, sceneModel);
+	//	newObject->SetPosition(objectData.transform.translation);
+	//	newObject->SetRotation(objectData.transform.rotation);
+	//	newObject->SetScale(objectData.transform.scaling);
+	//	objects.push_back(newObject);
+	//}
 
 
 #pragma region 各オブジェクトの初期化
@@ -147,6 +164,9 @@ void MyGame::Finalize()
 	delete model2;
 	delete object3d;
 	delete model;
+	for (auto& object : objects) {
+		delete object;
+	}
 	TextureManager::GetInstance()->Finalize();
 	for (uint32_t i = 0; i < 5; i++) {
 		delete sprites[i];
