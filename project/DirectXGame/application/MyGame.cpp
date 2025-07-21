@@ -57,7 +57,7 @@ void MyGame::Initialize()
 			levelData->objects.emplace_back(ObjectData{});
 			ObjectData& objectData = levelData->objects.back();
 			objectData.type = object["type"].get<std::string>();
-			objectData.type = object["name"].get<std::string>();
+			objectData.name = object["name"].get<std::string>();
 
 			nlohmann::json& transform = object["transform"];
 			objectData.transform.translation.x = (float)transform["translation"][0];
@@ -79,6 +79,8 @@ void MyGame::Initialize()
 	}
 
 	ModelManager::GetInstance()->LoadModel("Player.gltf");
+	ModelManager::GetInstance()->LoadModel("Enemy.gltf");
+	ModelManager::GetInstance()->LoadModel("EvoEnemy.gltf");
 	//レベルデータからオブジェクトを生成、配置
 	for(auto& objectData : levelData->objects) {
 		//モデルファイル名 objectData.file_name にあれば入っている → file_name を元に、モデルデータを特定する
@@ -94,6 +96,23 @@ void MyGame::Initialize()
 		newObject->SetScale(objectData.transform.scaling);
 		objects.push_back(newObject);
 	}
+
+	//for (auto& objectData : levelData->objects) {
+	//	// モデルが未ロードならロードしてmodelsに登録
+	//	if (models.find(objectData.file_name) == models.end()) {
+	//		ModelManager::GetInstance()->LoadModel(objectData.file_name);
+	//		models[objectData.file_name] = ModelManager::GetInstance()->FindModel(objectData.file_name);
+	//	}
+	//	Model* sceneModel = models[objectData.file_name];
+
+	//	Object3d* newObject = new Object3d;
+	//	newObject->Initialize(object3dCommon, sceneModel);
+	//	newObject->SetModel(sceneModel); // Model*で指定
+	//	newObject->SetPosition(objectData.transform.translation);
+	//	newObject->SetRotation(objectData.transform.rotation);
+	//	newObject->SetScale(objectData.transform.scaling);
+	//	objects.push_back(newObject);
+	//}
 
 
 #pragma region 各オブジェクトの初期化
