@@ -2,6 +2,7 @@
 #include "SpriteCommon.h"
 #include "DirectXCommon.h"
 #include "Calculation.h"
+#include "SrvManager.h"
 
 void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 {
@@ -77,6 +78,10 @@ void Sprite::Update()
 
 void Sprite::Draw()
 {
+	// SRV用デスクリプタヒープをセット
+	ID3D12DescriptorHeap* descriptorHeaps[] = { TextureManager::GetInstance()->GetSrvManager()->GetDescriptorHeap().Get() };
+	spriteCommon_->GetDxCommon()->GetCommandlist()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
 	//spriteの描画
 	spriteCommon_->GetDxCommon()->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
 	spriteCommon_->GetDxCommon()->GetCommandlist()->IASetIndexBuffer(&indexBufferView);//IBVを設定
