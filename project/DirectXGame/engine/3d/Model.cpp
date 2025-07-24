@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "SrvManager.h"
 
 
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
@@ -40,7 +41,10 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 void Model::Draw()
 {
-
+	ID3D12DescriptorHeap* descriptorHeaps[] = {
+	TextureManager::GetInstance()->GetSrvManager()->GetDescriptorHeap().Get()
+	};
+	modelCommon_->GetDXCommon()->GetCommandlist()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	//マテリアルCBufferの場所を設定
 	modelCommon_->GetDXCommon()->GetCommandlist()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 	modelCommon_->GetDXCommon()->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定

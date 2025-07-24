@@ -178,9 +178,9 @@ void MyGame::Draw()
 #pragma region PreDraw
 	//描画前処理
 	//DirectXの描画準備。全ての描画に共通のグラフィックスコマンドを積む
-	dxCommon->PreDraw();
+	dxCommon->RenderTexturePreDraw();
 
-	srvManager->PreDraw();
+	srvManager->RenderTextureSrvPreDraw();
 
 	//3Dオブジェクトの描画準備。3Dオブジェクトの描画に共通のグラフィックスコマンドを積む
 	object3dCommon->DrawCommonSetting();
@@ -206,6 +206,13 @@ void MyGame::Draw()
 	ParticleManager::GetInstance()->Draw();
 
 #pragma endregion
+
+
+	dxCommon->RenderTexturePostDraw();
+
+	dxCommon->PreDraw();
+	srvManager->PreDraw();
+	object3dCommon->RenderTextureDraw();
 
 #pragma region ImGuiDraw
 	imguiManager->Draw();

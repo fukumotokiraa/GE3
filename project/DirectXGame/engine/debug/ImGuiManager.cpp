@@ -31,7 +31,7 @@ void ImGuiManager::Initialize([[maybe_unused]] WinApp* winApp, [[maybe_unused]] 
 	//ImGuiのWin32の初期化
 	ImGui_ImplWin32_Init(winApp_->GetHwnd());
 	//ImGuiのDX12の初期化
-	ImGui_ImplDX12_Init( dxCommon_->GetDevice().Get(), static_cast<int>(dxCommon_->GetSwapChainResourcesNum()), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, srvManager_->GetDescriptorHeap().Get(), srvManager_->GetCPUDescriptorHandle(srvIndex), srvManager_->GetGPUDescriptorHandle(srvIndex));
+	ImGui_ImplDX12_Init( dxCommon_->GetDevice().Get(), static_cast<int>(dxCommon_->GetSwapChainResourcesNum()), DXGI_FORMAT_R8G8B8A8_UNORM, srvManager_->GetDescriptorHeap().Get(), srvManager_->GetCPUDescriptorHandle(srvIndex), srvManager_->GetGPUDescriptorHandle(srvIndex));
 #endif
 }
 

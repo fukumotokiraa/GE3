@@ -29,7 +29,7 @@ void Framework::Initialize()
 	imguiManager->Initialize(winApp, dxCommon, srvManager);
 
 	object3dCommon = new Object3dCommon();
-	object3dCommon->Initialize(dxCommon);
+	object3dCommon->Initialize(dxCommon, srvManager);
 
 	camera = new Camera();
 	camera->SetRotate({ 0.0f,0.0f,0.0f });

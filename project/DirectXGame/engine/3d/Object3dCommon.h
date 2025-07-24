@@ -3,6 +3,7 @@
 #include "Camera.h"
 
 class DirectXCommon;
+class SrvManager;
 
 //3Dオブジェクト共通部
 class Object3dCommon
@@ -10,9 +11,11 @@ class Object3dCommon
 public:
 	~Object3dCommon() {};
 	//初期化
-	void Initialize(DirectXCommon* dxCommon);
+	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
 	//共通描画設定
 	void DrawCommonSetting();
+
+	void RenderTextureDraw();
 
 	DirectXCommon* GetDxCommon()const { return dxCommon_; }
 
@@ -29,9 +32,11 @@ private:
 	void CreateRootSignature();
 	//グラフィックスパイプラインの生成
 	void CreateGraphicsPipeline();
+	void CreateRenderTextureGraphicsPipeline();
 
 private:
 	DirectXCommon* dxCommon_;
+	SrvManager* srvManager_;
 	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature = nullptr;
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 

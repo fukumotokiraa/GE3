@@ -26,8 +26,11 @@ public:
 
 	bool maxTextureCheck();
 
+	void RenderTextureSrvPreDraw();
 	//getter
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() { return descriptorHeap; }
+	//SRVのインデックスを取得
+	uint32_t GetRenderTextureSrvIndex() const { return renderTextureSrvIndex; }
 
 	static const uint32_t kMaxSRVCount;
 private:
@@ -38,6 +41,7 @@ private:
 
 	uint32_t useIndex = 0;
 
+	uint32_t renderTextureSrvIndex = 0;
 
 
 };

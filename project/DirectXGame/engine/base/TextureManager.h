@@ -38,6 +38,8 @@ public:
 	//srvインデックスの取得
 	uint32_t GetSRVIndex(const std::string& filePath);
 
+	SrvManager* GetSrvManager() { return srvManager_; }
+
 private:
 	DirectXCommon* dxCommon_;
 	SrvManager* srvManager_;

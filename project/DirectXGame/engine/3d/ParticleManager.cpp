@@ -131,7 +131,7 @@ void ParticleManager::CreateGraphicsPipeline()
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
@@ -248,6 +248,12 @@ void ParticleManager::Draw()
 	if (particleGroups_.empty()) {
 		return;
 	}
+
+	ID3D12DescriptorHeap* descriptorHeaps[] = {
+		srvManager_->GetDescriptorHeap().Get()
+	};
+	dxCommon_->GetCommandlist()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
 	//ルートシグネチャを設定
 	dxCommon_->GetCommandlist()->SetGraphicsRootSignature(rootSignature.Get());
 	//パイプラインステートを設定

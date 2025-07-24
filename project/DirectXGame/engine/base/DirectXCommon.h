@@ -8,6 +8,8 @@
 #include <array>
 #include <chrono>
 #include <thread>
+
+#include "Calculation.h"
 #include"externals/DirectXTex/DirectXTex.h"
 
 //DirectX基盤
@@ -57,8 +59,10 @@ public://メンバ関数
 	void InitializeImGui();
 	//描画前処理
 	void PreDraw();
+	void RenderTexturePreDraw();
 	//描画後処理
 	void PostDraw();
+	void RenderTexturePostDraw();
 	//RTV専用のデスクリプタ取得関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetRTVGPUDescriptorHandle(uint32_t index);
@@ -81,6 +85,11 @@ public://メンバ関数
 	HANDLE GetFenceEvent() { return fennceEvent; }
 	//スワップチェーンリソースの数を取得
 	size_t GetSwapChainResourcesNum()const { return swapChainResources.size(); }
+	//レンダーテクスチャーの生成
+	Microsoft::WRL::ComPtr <ID3D12Resource> CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor);
+	void CreateRenderTexture(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor);
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetRenderTextureResoruce() { return renderTextureResource; }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHandle() { return renderTextureRtvHandle; }
 
 private:
 	//FPS固定初期化
@@ -143,6 +152,11 @@ private:
 	HANDLE fennceEvent;
 	//DepthStencilResource
 	Microsoft::WRL::ComPtr < ID3D12Resource> depthStencilResource = nullptr;
+	// RenderTexture用
+	Microsoft::WRL::ComPtr<ID3D12Resource> renderTextureResource = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> renderTextureRtvHeap = nullptr;
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTextureRtvHandle{};
+	D3D12_RESOURCE_STATES renderTextureState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
 };
 

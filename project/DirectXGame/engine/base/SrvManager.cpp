@@ -105,3 +105,17 @@ bool SrvManager::maxTextureCheck()
 	//テクスチャの枚数が上限に達していなければtrue
 	return useIndex < kMaxSRVCount;
 }
+
+void SrvManager::RenderTextureSrvPreDraw()
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC renderTextureSrvDesc{};
+	renderTextureSrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	renderTextureSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	renderTextureSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	renderTextureSrvDesc.Texture2D.MipLevels = 1; // MipLevelsを1に設定
+
+	renderTextureSrvIndex = Allocate();
+	D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = GetCPUDescriptorHandle(renderTextureSrvIndex);
+
+	dxCommon_->GetDevice()->CreateShaderResourceView(dxCommon_->GetRenderTextureResoruce().Get(), &renderTextureSrvDesc, srvHandle);
+}
