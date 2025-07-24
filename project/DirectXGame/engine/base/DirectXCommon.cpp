@@ -648,6 +648,7 @@ void DirectXCommon::RenderTexturePreDraw()
 		barrier.Transition.pResource = renderTextureResource.Get();
 		barrier.Transition.StateBefore = renderTextureState;
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		commandList->ResourceBarrier(1, &barrier);
 		renderTextureState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	}
@@ -731,13 +732,23 @@ void DirectXCommon::RenderTexturePostDraw()
 	//barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	////TransitionBarrierを張る
 	//commandList->ResourceBarrier(1, &barrier);
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = renderTextureResource.Get();
-	barrier.Transition.StateBefore = renderTextureState;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	commandList->ResourceBarrier(1, &barrier);
-	renderTextureState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//barrier.Transition.pResource = renderTextureResource.Get();
+	//barrier.Transition.StateBefore = renderTextureState;
+	//barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//commandList->ResourceBarrier(1, &barrier);
+	//renderTextureState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	if (renderTextureState != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = renderTextureResource.Get();
+		barrier.Transition.StateBefore = renderTextureState;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		commandList->ResourceBarrier(1, &barrier);
+		renderTextureState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	}
 
 	//グラフィックスコマンドをクローズ
 	hr = commandList->Close();
@@ -747,7 +758,6 @@ void DirectXCommon::RenderTexturePostDraw()
 	//GPU画面の交換を通知
 	Microsoft::WRL::ComPtr < ID3D12CommandList> commandLists[] = { commandList};
 	commandQueue->ExecuteCommandLists(1, commandLists->GetAddressOf());
-	swapChain->Present(1, 0);
 
 	//Fenceの値を更新
 	fenceValue++;

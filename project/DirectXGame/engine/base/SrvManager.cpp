@@ -17,7 +17,7 @@ SrvManager::~SrvManager()
 void SrvManager::Initialize(DirectXCommon* dxCommon)
 {
 	dxCommon_ = dxCommon;
-
+	renderTextureSrvIndex = kMaxSRVCount - 1;
 	//デスクリプターヒープ生成
 	descriptorHeap = dxCommon_->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 	//デスクリプタ1個分のサイズを取得して記録
@@ -114,7 +114,6 @@ void SrvManager::RenderTextureSrvPreDraw()
 	renderTextureSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	renderTextureSrvDesc.Texture2D.MipLevels = 1; // MipLevelsを1に設定
 
-	renderTextureSrvIndex = Allocate();
 	D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = GetCPUDescriptorHandle(renderTextureSrvIndex);
 
 	dxCommon_->GetDevice()->CreateShaderResourceView(dxCommon_->GetRenderTextureResoruce().Get(), &renderTextureSrvDesc, srvHandle);

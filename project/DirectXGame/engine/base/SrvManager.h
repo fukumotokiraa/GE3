@@ -41,7 +41,7 @@ private:
 
 	uint32_t useIndex = 0;
 
-	uint32_t renderTextureSrvIndex = 0;
+	uint32_t renderTextureSrvIndex;
 
 
 };
