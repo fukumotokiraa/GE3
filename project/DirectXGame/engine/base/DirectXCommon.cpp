@@ -311,7 +311,7 @@ void DirectXCommon::Initialize(WinApp* winApp)
 	//コマンド関連の初期化
 	InitializeCommand();
 	//RenderTextureの生成
-	CreateRenderTexture(WinApp::kClientWidth, WinApp::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, { 1.0f,0.0f,0.0f,1.0f });
+	CreateRenderTexture(WinApp::kClientWidth, WinApp::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, { 1.0f,0.0f,0.0f,1.0f });
 	//スワップチェーンの生成
 	CreateSwapChain();
 	//深度バッファの生成
