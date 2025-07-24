@@ -22,7 +22,7 @@ void WinApp::Initialize()
 	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	wc.lpfnWndProc = WindowProc;
-	wc.lpszClassName = L"CG2WindowClass";
+	wc.lpszClassName = L"EngineWindowClass";
 	wc.hInstance = GetModuleHandle(nullptr);
 	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 
@@ -34,7 +34,7 @@ void WinApp::Initialize()
 
 	hwnd = CreateWindow(
 		wc.lpszClassName,
-		L"CG2",
+		L"Engine",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
