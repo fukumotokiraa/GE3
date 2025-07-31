@@ -33,7 +33,7 @@ void Framework::Initialize()
 
 	camera = new Camera();
 	camera->SetRotate({ 0.0f,0.0f,0.0f });
-	camera->SetTranslate({ 0.0f,0.0f,-50.0f });
+	camera->SetTranslate({ 0.0f,0.0f,-70.0f });
 	object3dCommon->SetDefaultCamera(camera);
 
 	ModelManager::GetInstance()->Initialize(dxCommon);

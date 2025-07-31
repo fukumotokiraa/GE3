@@ -15,13 +15,24 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"\u5186\u9310"
+			"name":"\u5186\u67f1.001",
+			"rotation":[
+				0,
+				0.7071068286895752,
+				0,
+				0.7071068286895752
+			],
+			"scale":[
+				0.5,
+				0.5,
+				0.5
+			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"\u30de\u30c6\u30ea\u30a2\u30eb.001",
+			"name":"\u30de\u30c6\u30ea\u30a2\u30eb",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -33,7 +44,7 @@
 	],
 	"meshes":[
 		{
-			"name":"\u5186\u9310",
+			"name":"\u5186\u67f1.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -56,69 +67,69 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"frame",
-			"uri":"frame.png"
+			"name":"hammer",
+			"uri":"hammer.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":128,
+			"count":384,
 			"max":[
-				1,
-				1,
-				1
+				1.5,
+				6.399999618530273,
+				2
 			],
 			"min":[
-				-1,
-				-1,
-				-1
+				-1.5,
+				0,
+				-2
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":128,
+			"count":384,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":128,
+			"count":384,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":186,
+			"count":744,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1536,
+			"byteLength":4608,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1536,
-			"byteOffset":1536,
+			"byteLength":4608,
+			"byteOffset":4608,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1024,
-			"byteOffset":3072,
+			"byteLength":3072,
+			"byteOffset":9216,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":372,
-			"byteOffset":4096,
+			"byteLength":1488,
+			"byteOffset":12288,
 			"target":34963
 		}
 	],
@@ -130,8 +141,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":4468,
-			"uri":"EvoEnemy.bin"
+			"byteLength":13776,
+			"uri":"hammer.bin"
 		}
 	]
 }
