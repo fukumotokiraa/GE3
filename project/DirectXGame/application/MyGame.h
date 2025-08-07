@@ -23,13 +23,19 @@ public:
 	void Draw() override;
 
 private:
-	TitleScene* titleScene = new TitleScene;
-	GameScene* gameScene = new GameScene;
+	enum Scene {
+		Title,
+		Game
+	};
+	Scene scene = Title;
 
 	Sprite* backSprite1 = nullptr;
 	Sprite* backSprite2 = nullptr;
 	Sprite* RedHpSprite = nullptr;
 	Sprite* GreenHpSprite = nullptr;
+	Sprite* blackBack = nullptr;
+	Sprite* title = nullptr;
+	Sprite* pushSpace = nullptr;
 
 	std::vector<Sprite*>sprites;
 	Model* model = nullptr;
@@ -55,7 +61,11 @@ private:
 
 	Vector2 numberSize = { 32.0f,64.0f };
 
-	int number = 000000; // 5桁の数字を表示するための変数
+	int number = 000000;
+
+	float titlePos = -400.0f;
+
+	int pushDraw = 0;
 
 };
 

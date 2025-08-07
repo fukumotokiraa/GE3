@@ -12,17 +12,27 @@ void MyGame::Initialize()
 {
 	Framework::Initialize();
 
-	titleScene->Initialize();
-	gameScene->Initialize();
 
 #pragma region 各オブジェクトの初期化
-
-	//TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("resources/sky.png");
 	TextureManager::GetInstance()->LoadTexture("resources/RedHP.png");
 	TextureManager::GetInstance()->LoadTexture("resources/GreenHP.png");
 	TextureManager::GetInstance()->LoadTexture("resources/number.png");
+	TextureManager::GetInstance()->LoadTexture("resources/blackBack.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Title.png");
+	TextureManager::GetInstance()->LoadTexture("resources/PushSpace.png");
+
+	blackBack = new Sprite();
+	blackBack->Initialize(spriteCommon, "resources/blackBack.png");
+	blackBack->SetPosition({ 0.0f, 0.0f });
+
+	title = new Sprite();
+	title->Initialize(spriteCommon, "resources/Title.png");
+	title->SetPosition({0.0f, titlePos});
+
+	pushSpace = new Sprite();
+	pushSpace->Initialize(spriteCommon, "resources/PushSpace.png");
+	pushSpace->SetPosition({0.0f,420.0f});
 
 	backSprite1 = new Sprite();
 	backSprite1->Initialize(spriteCommon, "resources/sky.png");
@@ -59,17 +69,6 @@ void MyGame::Initialize()
 	ModelManager::GetInstance()->LoadModel("Player.gltf");
 	object3d->SetModel("Player.gltf");
 
-	//model2 = new Model();
-	//object3d2 = new Object3d();
-	//object3d2->Initialize(object3dCommon, model2);
-	//ModelManager::GetInstance()->LoadModel("plane.obj");
-	//object3d2->SetModel("plane.obj");
-
-	//ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
-	//particle.transform.translate = { 0.0f, 0.0f, 0.0f };
-	//particleGroup.particles.push_back(particle);
-	//particleGroups["example"] = particleGroup;
-
 #pragma endregion
 
 }
@@ -83,8 +82,6 @@ void MyGame::Finalize()
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
-	//delete object3d2;
-	//delete model2;
 	delete object3d;
 	delete model;
 	TextureManager::GetInstance()->Finalize();
@@ -95,11 +92,12 @@ void MyGame::Finalize()
 	delete RedHpSprite;
 	delete backSprite2;
 	delete backSprite1;
+	delete pushSpace;
+	delete title;
+	delete blackBack;
 
 #pragma endregion
 
-	gameScene->Finalize();
-	titleScene->Finalize();
 
 	Framework::Finalize();
 }
@@ -107,129 +105,151 @@ void MyGame::Finalize()
 void MyGame::Update()
 {
 	Framework::Update();
-#pragma region Update
 	input->Update();
-	if (input->PushKey(DIK_D))
-	{
-		object3d->GetTransform().translate.x += 0.1f;
-	}
-	if (input->PushKey(DIK_A))
-	{
-		object3d->GetTransform().translate.x -= 0.1f;
-	}
-	if (input->PushKey(DIK_W))
-	{
-		object3d->GetTransform().translate.y += 0.1f;
-	}
-	if (input->PushKey(DIK_S))
-	{
-		object3d->GetTransform().translate.y -= 0.1f;
-	}
 
-	backSpritePos1 -= 1.0f;
-	backSpritePos2 -= 1.0f;
-	if (backSpritePos1 < -1280) {
-		backSpritePos1 = 1280;
-	}
-	if (backSpritePos2 < -1280) {
-		backSpritePos2 = 1280;
-	}
-	backSprite1->SetPosition({ backSpritePos1, 0.0f });
-	backSprite2->SetPosition({ backSpritePos2, 0.0f });
+	switch (scene) {
+	case Title:
+		if(titlePos<0.0f) {
+			titlePos++;
+			title->SetPosition({ 0.0f, titlePos });
+		}
+		pushDraw++;
 
-	backSprite1->Update();
-	backSprite2->Update();
+		blackBack->Update();
+		title->Update();
+		pushSpace->Update();
 
-	GreenHpSize--;
-	if (GreenHpSize < 0) {
-		GreenHpSize = defaultGreenHpSize;
-	}
-	GreenHpSprite->SetSize({ GreenHpSize, 50.0f });
+		if (input->PushKey(DIK_SPACE)) {
+			scene = Game;
+			backSpritePos1 = 0.0f;
+			backSpritePos2 = 1280.0f;
+			GreenHpSize = defaultGreenHpSize;
+			number = 00000;
+		}
+		break;
 
-	RedHpSprite->Update();
-	GreenHpSprite->Update();
+	case Game:
+#pragma region Game
+		if (input->PushKey(DIK_D))
+		{
+			object3d->GetTransform().translate.x += 0.1f;
+		}
+		if (input->PushKey(DIK_A))
+		{
+			object3d->GetTransform().translate.x -= 0.1f;
+		}
+		if (input->PushKey(DIK_W))
+		{
+			object3d->GetTransform().translate.y += 0.1f;
+		}
+		if (input->PushKey(DIK_S))
+		{
+			object3d->GetTransform().translate.y -= 0.1f;
+		}
 
-	number++;
-	int32_t workNumber = number;
-	int32_t digit = 10000;
-	for (int i = 0; i < 5; i++) {
-		int nowNumber = workNumber / digit;
-		sprites[i]->SetTextureLeftTop({ numberSize.x * nowNumber, 0.0f });
-		workNumber %= digit;
-		digit /= 10;
-	}
+		backSpritePos1 -= 1.0f;
+		backSpritePos2 -= 1.0f;
+		if (backSpritePos1 < -1280) {
+			backSpritePos1 = 1280;
+		}
+		if (backSpritePos2 < -1280) {
+			backSpritePos2 = 1280;
+		}
+		backSprite1->SetPosition({ backSpritePos1, 0.0f });
+		backSprite2->SetPosition({ backSpritePos2, 0.0f });
 
-	for (uint32_t i = 0; i < 5; i++) {
-		sprites[i]->Update();
-	}
+		backSprite1->Update();
+		backSprite2->Update();
 
-	object3d->Update();
-	//object3d2->Update();
+		GreenHpSize--;
+		if (GreenHpSize < 0) {
+			GreenHpSize = defaultGreenHpSize;
+		}
+		GreenHpSprite->SetSize({ GreenHpSize, 50.0f });
 
-	//particleEmitter.Update();
+		RedHpSprite->Update();
+		GreenHpSprite->Update();
+
+		number++;
+		int32_t workNumber = number;
+		int32_t digit = 10000;
+		for (int i = 0; i < 5; i++) {
+			int nowNumber = workNumber / digit;
+			sprites[i]->SetTextureLeftTop({ numberSize.x * nowNumber, 0.0f });
+			workNumber %= digit;
+			digit /= 10;
+		}
+
+		for (uint32_t i = 0; i < 5; i++) {
+			sprites[i]->Update();
+		}
+
+		object3d->Update();
+
 
 #pragma endregion
 
+		break;
+	}
 
-	titleScene->Update();
-	gameScene->Update();
 
 #pragma region ImGuiUpdate
-	imguiManager->Begin();
+		imguiManager->Begin();
 
 #ifdef USE_IMGUI
-	//ImGui::ShowDemoWindow();
-	ImGui::Begin("Camera");
-	//ImGui::Checkbox("MonsterBall", &isChecked);
-	//ImGui::Checkbox("Light", &materialData->enableLighting);
-	//ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x, 0.01f);
-	//directionalLightData->direction = Normalize(directionalLightData->direction);
-	Vector3 cameraPosition = camera->GetTranslate();
-	Vector3 cameraRotate = camera->GetRotate();
-	Vector3 cameraScale = camera->GetScale();
-	ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.1f, -100.0f, 100.0f);
-	ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
-	ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
-	camera->SetTranslate(cameraPosition);
-	camera->SetRotate(cameraRotate);
-	camera->SetScale(cameraScale);
-	ImGui::End();
+		//ImGui::ShowDemoWindow();
+		ImGui::Begin("Camera");
+		//ImGui::Checkbox("MonsterBall", &isChecked);
+		//ImGui::Checkbox("Light", &materialData->enableLighting);
+		//ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x, 0.01f);
+		//directionalLightData->direction = Normalize(directionalLightData->direction);
+		Vector3 cameraPosition = camera->GetTranslate();
+		Vector3 cameraRotate = camera->GetRotate();
+		Vector3 cameraScale = camera->GetScale();
+		ImGui::DragFloat3("CameraPosition", &cameraPosition.x, 0.1f, -100.0f, 100.0f);
+		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("CameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
+		camera->SetTranslate(cameraPosition);
+		camera->SetRotate(cameraRotate);
+		camera->SetScale(cameraScale);
+		ImGui::End();
 
-	//ImGui::Begin("Model");
-	//ImGui::Checkbox("Draw", &isModel);
-	//ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
-	//ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
-	//ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
-	//ImGui::End();
+		//ImGui::Begin("Model");
+		//ImGui::Checkbox("Draw", &isModel);
+		//ImGui::DragFloat3("ModelPosition", &object3d->GetTransform().translate.x, 0.01f, -10.0f, 10.0f);
+		//ImGui::DragFloat3("ModelRotate", &object3d->GetTransform().rotate.x, 0.01f, -10.0f, 10.0f);
+		//ImGui::DragFloat3("ModelScale", &object3d->GetTransform().scale.x, 0.01f, -10.0f, 10.0f);
+		//ImGui::End();
 
-	ImGui::Begin("Sprite");
-	//ImGui::Checkbox("Draw", &isSprite);
-	Vector2 position = backSprite1->GetPosition();
-	ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f, "%.1f");
-	backSprite1->SetPosition(position);
-	float rotation = backSprite1->GetRotation();
-	ImGui::DragFloat("SpriteRotate", &rotation, 0.01f, 10.0f, 10.0f);
-	backSprite1->SetRotation(rotation);
-	Vector2 size = backSprite1->GetSize();
-	ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
-	backSprite1->SetSize(size);
-	Vector4 color = backSprite1->GetColor();
-	ImGui::ColorEdit4("SpriteColor", &color.x);
-	backSprite1->SetColor(color);
-	ImGui::End();
+		ImGui::Begin("Sprite");
+		//ImGui::Checkbox("Draw", &isSprite);
+		Vector2 position = backSprite1->GetPosition();
+		ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f, "%.1f");
+		backSprite1->SetPosition(position);
+		float rotation = backSprite1->GetRotation();
+		ImGui::DragFloat("SpriteRotate", &rotation, 0.01f, 10.0f, 10.0f);
+		backSprite1->SetRotation(rotation);
+		Vector2 size = backSprite1->GetSize();
+		ImGui::DragFloat2("SpriteSize", &size.x, 1.0f, 0.0f, 1000.0f);
+		backSprite1->SetSize(size);
+		Vector4 color = backSprite1->GetColor();
+		ImGui::ColorEdit4("SpriteColor", &color.x);
+		backSprite1->SetColor(color);
+		ImGui::End();
 
-	//ImGui::Begin("Particle");
-	//bool useBillBoard = ParticleManager::GetInstance()->GetUseBillBoard();
-	//ImGui::Checkbox("BillBoard", &useBillBoard);
-	//ParticleManager::GetInstance()->SetUseBillBoard(useBillBoard);
-	//bool applyField = ParticleManager::GetInstance()->GetApplyField();
-	//ImGui::Checkbox("ApplyField", &applyField);
-	//ParticleManager::GetInstance()->SetApplyField(applyField);
-	//ImGui::End();
+		//ImGui::Begin("Particle");
+		//bool useBillBoard = ParticleManager::GetInstance()->GetUseBillBoard();
+		//ImGui::Checkbox("BillBoard", &useBillBoard);
+		//ParticleManager::GetInstance()->SetUseBillBoard(useBillBoard);
+		//bool applyField = ParticleManager::GetInstance()->GetApplyField();
+		//ImGui::Checkbox("ApplyField", &applyField);
+		//ParticleManager::GetInstance()->SetApplyField(applyField);
+		//ImGui::End();
 #endif
 
-	imguiManager->End();
+		imguiManager->End();
 #pragma endregion
+
 }
 
 void MyGame::Draw()
@@ -249,29 +269,41 @@ void MyGame::Draw()
 
 #pragma endregion
 
-#pragma region Draw
+	switch (scene) {
+	case Title:
+		blackBack->Draw();
+		title->Draw();
+		if (pushDraw % 60 > 30) {
+			pushSpace->Draw();
+		}
 
-	titleScene->Draw();
-	gameScene->Draw();
+		break;
 
-	backSprite1->Draw();
-	backSprite2->Draw();
+	case Game:
+#pragma region Game
 
-	for (uint32_t i = 0; i < 5; i++) {
-		sprites[i]->Draw();
+
+		backSprite1->Draw();
+		backSprite2->Draw();
+
+		for (uint32_t i = 0; i < 5; i++) {
+			sprites[i]->Draw();
+		}
+
+		RedHpSprite->Draw();
+		GreenHpSprite->Draw();
+
+		object3d->Draw();
+
+#pragma endregion
+
+		break;
 	}
-
-	RedHpSprite->Draw();
-	GreenHpSprite->Draw();
-
-	object3d->Draw();
-
-#pragma endregion
-
 #pragma region ImGuiDraw
-	imguiManager->Draw();
+		//imguiManager->Draw();
 
 #pragma endregion
+
 
 #pragma region PostDraw
 	dxCommon->PostDraw();
