@@ -62,7 +62,7 @@ void Sprite::Update()
 
 
 	//Transform情報を作る
-	transform = { {size_.x,size_.y,1.0f},{0.0f,0.0f,rotation_},{position_.x,position_.y,0.0f} };
+	transform = { {size_.x,size_.y,1.0f},{0.0f,0.0f,rotation_},{position_.x,position_.y,100.0f} };
 	//TransformからWorldMatrixを作る
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	//ViewMatrixを作って単位行列を代入
