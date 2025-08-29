@@ -35,6 +35,9 @@ private:
 	float emissionInterval = 1.0f;
 	ParticleEmitter particleEmitter;
 
+	Model* board = nullptr;
+	Object3d* boardObject = nullptr;
+
 	bool isSprite = false;
 	bool isModel = false;
 
