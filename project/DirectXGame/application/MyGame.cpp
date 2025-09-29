@@ -52,6 +52,8 @@ void MyGame::Initialize()
 	ModelManager::GetInstance()->LoadModel("board.gltf");
 	boardObject->SetModel("board.gltf");
 
+	stage.Initialize(object3dCommon);
+
 	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
 	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
 	particleGroup.particles.push_back(particle);
@@ -70,6 +72,7 @@ void MyGame::Finalize()
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
+	stage.Finalize();
 	delete boardObject;
 	delete board;
 	delete object3d2;
@@ -117,6 +120,7 @@ void MyGame::Update()
 	object3d->Update();
 	object3d2->Update();
 	boardObject->Update();
+	stage.Update();
 
 	particleEmitter.Update();
 
@@ -210,7 +214,8 @@ void MyGame::Draw()
 	if (isModel) {
 		object3d->Draw();
 	}
-	boardObject->Draw();
+	//boardObject->Draw();
+	stage.Draw();
 	//object3d2->Draw();
 
 	ParticleManager::GetInstance()->Draw();

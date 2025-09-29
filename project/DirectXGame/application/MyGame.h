@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Object3d.h"
 #include "ParticleEmitter.h"
+#include "Stage.h"
 
 
 class MyGame : public Framework
@@ -37,6 +38,9 @@ private:
 
 	Model* board = nullptr;
 	Object3d* boardObject = nullptr;
+
+	Stage stage;
+
 
 	bool isSprite = false;
 	bool isModel = false;
