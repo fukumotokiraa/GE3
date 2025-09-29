@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Object3d.h"
 #include "ParticleEmitter.h"
+#include "Stage.h"
 
 
 class MyGame : public Framework
@@ -37,12 +38,9 @@ private:
 
 	Model* board = nullptr;
 	Object3d* boardObject = nullptr;
-	Model* stage = nullptr;
-	std::vector<Object3d*> stageObjects;
-	Vector3 stageOrigin = { -4.0f,-4.0f,0.0f };
-	const int stageWidth = 8;
-	const int stageHeight = 8;
-	const float blockSize = 1.0f;
+
+	Stage stage;
+
 
 	bool isSprite = false;
 	bool isModel = false;

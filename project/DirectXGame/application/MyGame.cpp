@@ -52,17 +52,7 @@ void MyGame::Initialize()
 	ModelManager::GetInstance()->LoadModel("board.gltf");
 	boardObject->SetModel("board.gltf");
 
-	stage = new Model();
-	ModelManager::GetInstance()->LoadModel("stage.gltf");
-	for (int y = 0; y < stageHeight; ++y) {
-		for (int x = 0; x < stageWidth; ++x) {
-			Object3d* block = new Object3d();
-			block->Initialize(object3dCommon, stage);
-			block->SetModel("stage.gltf");
-			block->GetTransform().translate = { x * blockSize + stageOrigin.x, 0.0f, y * blockSize + stageOrigin.y };
-			stageObjects.push_back(block);
-		}
-	}
+	stage.Initialize(object3dCommon);
 
 	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
 	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
@@ -82,10 +72,7 @@ void MyGame::Finalize()
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
-	for (auto block : stageObjects) {
-		delete block;
-	}
-	stageObjects.clear();
+	stage.Finalize();
 	delete boardObject;
 	delete board;
 	delete object3d2;
@@ -133,9 +120,7 @@ void MyGame::Update()
 	object3d->Update();
 	object3d2->Update();
 	boardObject->Update();
-	for (auto block : stageObjects) {
-		block->Update();
-	}
+	stage.Update();
 
 	particleEmitter.Update();
 
@@ -230,9 +215,7 @@ void MyGame::Draw()
 		object3d->Draw();
 	}
 	//boardObject->Draw();
-	for (auto block : stageObjects) {
-		block->Draw();
-	}
+	stage.Draw();
 	//object3d2->Draw();
 
 	ParticleManager::GetInstance()->Draw();
