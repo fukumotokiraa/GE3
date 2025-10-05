@@ -1,7 +1,7 @@
 #include "MyGame.h"
 
 MyGame::MyGame()
-	:particleEmitter(particleGroups, emissionInterval) {
+{
 }
 
 MyGame::~MyGame()
@@ -63,12 +63,6 @@ void MyGame::Initialize()
 	ModelManager::GetInstance()->LoadModel("board.gltf");
 	boardObject->SetModel("board.gltf");
 
-
-
-	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
-	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
-	particleGroup.particles.push_back(particle);
-	particleGroups["example"] = particleGroup;
 
 #pragma endregion
 
@@ -133,9 +127,6 @@ void MyGame::Update()
 	object3d->Update();
 	object3d2->Update();
 	boardObject->Update();
-
-
-	particleEmitter.Update();
 
 	sceneManager_->Update();
 
@@ -235,8 +226,6 @@ void MyGame::Draw()
 	//boardObject->Draw();
 
 	//object3d2->Draw();
-
-	ParticleManager::GetInstance()->Draw();
 
 #pragma endregion
 

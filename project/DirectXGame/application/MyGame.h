@@ -33,11 +33,6 @@ private:
 	Object3d* object3d = nullptr;
 	Model* model2 = nullptr;
 	Object3d* object3d2 = nullptr;
-	std::unordered_map<std::string, ParticleGroup> particleGroups;
-	ParticleGroup particleGroup;
-	Particle particle;
-	float emissionInterval = 1.0f;
-	ParticleEmitter particleEmitter;
 
 	Model* board = nullptr;
 	Object3d* boardObject = nullptr;

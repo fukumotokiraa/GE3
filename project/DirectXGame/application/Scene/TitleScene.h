@@ -10,6 +10,7 @@ class GameScene;
 class TitleScene : public BaseScene
 {
 public:
+	TitleScene();
 	~TitleScene()override = default;
 	void Initialize()override;
 	void Finalize()override;
@@ -24,6 +25,15 @@ private:
 	Object3d* rightMatchObject = nullptr;
 	Model* leftMatch = nullptr;
 	Object3d* leftMatchObject = nullptr;
+
+	std::unordered_map<std::string, ParticleGroup> particleGroups;
+	ParticleGroup rightParticleGroup;
+	Particle rightParticle;
+	float emissionInterval = 0.1f;
+	ParticleEmitter particleEmitter;
+
+	ParticleGroup leftParticleGroup;
+	Particle leftParticle;
 
 };
 
