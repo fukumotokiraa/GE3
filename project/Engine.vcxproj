@@ -108,6 +108,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\application\Scene\BaseScene.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\ParticleManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
     <ClCompile Include="DirectXGame\engine\base\SrvManager.cpp" />
@@ -139,8 +140,12 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\MyGame.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Framework.cpp" />
     <ClCompile Include="DirectXGame\application\Stage.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\GameScene.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\TitleScene.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXGame\application\Scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\engine\3d\ParticleManager.h" />
     <ClInclude Include="DirectXGame\engine\base\Camera.h" />
     <ClInclude Include="DirectXGame\engine\base\SrvManager.h" />
@@ -177,6 +182,9 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\MyGame.h" />
     <ClInclude Include="DirectXGame\engine\base\Framework.h" />
     <ClInclude Include="DirectXGame\application\Stage.h" />
+    <ClInclude Include="DirectXGame\application\Scene\GameScene.h" />
+    <ClInclude Include="DirectXGame\application\Scene\TitleScene.h" />
+    <ClInclude Include="DirectXGame\application\Scene\SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

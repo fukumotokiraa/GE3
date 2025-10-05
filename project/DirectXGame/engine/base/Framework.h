@@ -11,6 +11,7 @@
 #include "ModelManager.h"
 #include "ParticleManager.h"
 #include "D3DResourceLeakChecker.h"
+#include "Scene/SceneManager.h"
 
 class Framework
 {

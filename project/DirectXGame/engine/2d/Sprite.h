@@ -29,8 +29,8 @@ public:
 
 	void CreateTransformationMatrixData();
 
-	const Vector2& GetPosition()const { return position_; }
-	void SetPosition(const Vector2& position) { position_ = position; }
+	const Vector3& GetPosition()const { return position_; }
+	void SetPosition(const Vector3& position) { position_ = position; }
 
 	float GetRotation()const { return rotation_; }
 	void SetRotation(float rotation) { rotation_ = rotation; }
@@ -87,7 +87,7 @@ private:
 
 	Transform transform;
 
-	Vector2 position_ = { 0.0f,0.0f };
+	Vector3 position_ = { 0.0f,0.0f, 0.0f };
 	float rotation_ = 0.0f;
 	Vector2 size_ = { 640.0f,360.0f };
 
