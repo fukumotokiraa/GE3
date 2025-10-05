@@ -173,7 +173,7 @@ void MyGame::Update()
 
 	ImGui::Begin("Sprite");
 	ImGui::Checkbox("Draw", &isSprite);
-	Vector2 position = sprite->GetPosition();
+	Vector3 position = sprite->GetPosition();
 	ImGui::DragFloat2("SpritePosition", &position.x, 1.0f, -100.0f, 1000.0f, "%.1f");
 	sprite->SetPosition(position);
 	float rotation = sprite->GetRotation();
