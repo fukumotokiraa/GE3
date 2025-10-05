@@ -12,7 +12,18 @@ void MyGame::Initialize()
 {
 	Framework::Initialize();
 
+	sceneManager_ = new SceneManager();
+	sceneManager_->SetSpriteCommon(spriteCommon);
+	sceneManager_->SetObject3dCommon(object3dCommon);
+	sceneManager_->SetInput(input);
+
+	BaseScene* scene = new TitleScene();
+	//scene->SetSpriteCommon(spriteCommon);
+	//scene->SetInput(input);
+	sceneManager_->SetNextScene(scene);
+
 #pragma region 各オブジェクトの初期化
+
 
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
@@ -52,7 +63,7 @@ void MyGame::Initialize()
 	ModelManager::GetInstance()->LoadModel("board.gltf");
 	boardObject->SetModel("board.gltf");
 
-	stage.Initialize(object3dCommon);
+
 
 	ParticleManager::GetInstance()->CreateParticleGroup("example", "resources/circle.png", "plane.obj");
 	particle.transform.translate = { 0.0f, 0.0f, 0.0f };
@@ -60,6 +71,7 @@ void MyGame::Initialize()
 	particleGroups["example"] = particleGroup;
 
 #pragma endregion
+
 
 }
 
@@ -72,7 +84,6 @@ void MyGame::Finalize()
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
 
-	stage.Finalize();
 	delete boardObject;
 	delete board;
 	delete object3d2;
@@ -84,7 +95,7 @@ void MyGame::Finalize()
 		delete sprites[i];
 	}
 	delete sprite;
-
+	delete sceneManager_;
 
 #pragma endregion
 
@@ -112,6 +123,8 @@ void MyGame::Update()
 		camera->GetTranslate().y -= 0.01f;
 	}
 
+	//scene->Update();
+
 	sprite->Update();
 	for (uint32_t i = 0; i < 5; i++) {
 		sprites[i]->Update();
@@ -120,9 +133,11 @@ void MyGame::Update()
 	object3d->Update();
 	object3d2->Update();
 	boardObject->Update();
-	stage.Update();
+
 
 	particleEmitter.Update();
+
+	sceneManager_->Update();
 
 #pragma endregion
 
@@ -205,6 +220,9 @@ void MyGame::Draw()
 
 #pragma region Draw
 
+	//scene->Draw();
+	sceneManager_->Draw();
+
 	if (isSprite) {
 		sprite->Draw();
 	}
@@ -215,7 +233,7 @@ void MyGame::Draw()
 		object3d->Draw();
 	}
 	//boardObject->Draw();
-	stage.Draw();
+
 	//object3d2->Draw();
 
 	ParticleManager::GetInstance()->Draw();
