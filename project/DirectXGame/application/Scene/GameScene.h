@@ -1,7 +1,9 @@
 #pragma once
 #include "BaseScene.h"
+#include "PreGameScene.h"
 #include "Stage.h"
 
+class PreGameScene;
 class Stage;
 class GameScene : public BaseScene
 {
@@ -12,10 +14,11 @@ public:
 	void Update()override;
 	void Draw()override;
 
-	void SetObject3dCommon(Object3dCommon* object3dCommon) { object3dCommon_ = object3dCommon; }
+	PreGameScene* GetPreGameScene() { return preGameScene_; }
+	Stage* GetStage() { return stage_; }
 
 private:
-	Stage stage;
-	Object3dCommon* object3dCommon_ = nullptr;
+	Stage* stage_ = nullptr;
+	PreGameScene* preGameScene_ = nullptr;
 };
 

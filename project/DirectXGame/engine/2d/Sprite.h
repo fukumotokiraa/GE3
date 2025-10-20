@@ -35,6 +35,9 @@ public:
 	float GetRotation()const { return rotation_; }
 	void SetRotation(float rotation) { rotation_ = rotation; }
 
+	void SetScale(const Vector2& scale) { scale_ = scale; }
+	const Vector2& GetScale() const { return scale_; }
+
 	const Vector4& GetColor()const { return materialData->color; }
 	void SetColor(const Vector4& color) { materialData->color = color; }
 
@@ -89,6 +92,7 @@ private:
 
 	Vector3 position_ = { 0.0f,0.0f, 0.0f };
 	float rotation_ = 0.0f;
+	Vector2 scale_ = { 1.0f, 1.0f };
 	Vector2 size_ = { 640.0f,360.0f };
 
 	Vector2 anchorPoint_ = { 0.0f,0.0f };

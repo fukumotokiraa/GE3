@@ -143,6 +143,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\Scene\GameScene.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\TitleScene.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\SceneManager.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\PreGameScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXGame\application\Scene\BaseScene.h" />
@@ -185,6 +186,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\Scene\GameScene.h" />
     <ClInclude Include="DirectXGame\application\Scene\TitleScene.h" />
     <ClInclude Include="DirectXGame\application\Scene\SceneManager.h" />
+    <ClInclude Include="DirectXGame\application\Scene\PreGameScene.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

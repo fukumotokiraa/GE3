@@ -21,6 +21,7 @@ public:
 
 private:
 	Sprite* titleSprite = nullptr;
+
 	Model* rightMatch = nullptr;
 	Object3d* rightMatchObject = nullptr;
 	Model* leftMatch = nullptr;

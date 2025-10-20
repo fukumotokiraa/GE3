@@ -144,6 +144,7 @@ void MyGame::Update()
 		swordBotTimer = 0.0f;
 	}
 
+#pragma region MoveSprite
 	switch (spriteMoveState) {
 	case SpriteMoveState::Idle:
 		// 何もしない
@@ -265,6 +266,14 @@ void MyGame::Update()
 			if (t >= 1.0f) {
 				swordBotState = SpriteMoveState::Staying;
 				swordBotTimer = 0.0f;
+
+				BaseScene* current = sceneManager_->GetCurrentScene();
+				if (dynamic_cast<TitleScene*>(current)) {
+					sceneManager_->SetNextScene(new GameScene());
+				}
+				else if (dynamic_cast<GameScene*>(current)) {
+					sceneManager_->SetNextScene(new TitleScene());
+				}
 			}
 		}
 		break;
@@ -289,6 +298,11 @@ void MyGame::Update()
 			if (t >= 1.0f) {
 				swordBotState = SpriteMoveState::Idle;
 				swordBot->SetPosition(botStartPos);
+				BaseScene* currentScene = sceneManager_->GetCurrentScene();
+				GameScene* gameScene = dynamic_cast<GameScene*>(currentScene);
+				if (gameScene) {
+					gameScene->GetPreGameScene()->StartSetSpriteAppear();
+				}
 			}
 		}
 		break;
@@ -299,6 +313,7 @@ void MyGame::Update()
 	swordBot->Update();
 
 	//scene->Update();
+#pragma endregion
 
 	sprite->Update();
 	for (uint32_t i = 0; i < 5; i++) {
@@ -311,7 +326,6 @@ void MyGame::Update()
 
 	sceneManager_->Update();
 
-#pragma endregion
 
 	Framework::Update();
 

@@ -40,11 +40,6 @@ private:
 	Model* board = nullptr;
 	Object3d* boardObject = nullptr;
 
-	Stage stage;
-
-	TitleScene* titleScene = nullptr;
-	GameScene* gameScene = nullptr;
-
 	bool isSprite = false;
 	bool isModel = false;
 
