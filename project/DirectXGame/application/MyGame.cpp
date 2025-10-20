@@ -27,10 +27,25 @@ void MyGame::Initialize()
 
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
+	TextureManager::GetInstance()->LoadTexture("resources/swordTop.png");
+	TextureManager::GetInstance()->LoadTexture("resources/swordMid.png");
+	TextureManager::GetInstance()->LoadTexture("resources/swordBot.png");
 
 	sprite = new Sprite();
 	sprite->Initialize(spriteCommon, "resources/uvChecker.png");
-	sprite->SetPosition({ 100.0f,100.0f });
+	sprite->SetPosition({ 100.0f,100.0f ,-200.0f});
+
+	swordTop = new Sprite();
+	swordTop->Initialize(spriteCommon, "resources/swordTop.png");
+	swordTop->SetPosition(topStartPos);
+
+	swordMid = new Sprite();
+	swordMid->Initialize(spriteCommon, "resources/swordMid.png");
+	swordMid->SetPosition(midStartPos);
+
+	swordBot = new Sprite();
+	swordBot->Initialize(spriteCommon, "resources/swordBot.png");
+	swordBot->SetPosition(botStartPos);
 
 	for (uint32_t i = 0; i < 5; i++) {
 		Sprite* sprite = new Sprite();
@@ -88,6 +103,9 @@ void MyGame::Finalize()
 	for (uint32_t i = 0; i < 5; i++) {
 		delete sprites[i];
 	}
+	delete swordTop;
+	delete swordMid;
+	delete swordBot;
 	delete sprite;
 	delete sceneManager_;
 
@@ -116,6 +134,169 @@ void MyGame::Update()
 	{
 		camera->GetTranslate().y -= 0.01f;
 	}
+
+	if (input->TriggerKey(DIK_SPACE) && spriteMoveState == SpriteMoveState::Idle) {
+		spriteMoveState = SpriteMoveState::Entering;
+		spriteMoveTimer = 0.0f;
+		swordMidState = SpriteMoveState::Idle;
+		swordBotState = SpriteMoveState::Idle;
+		swordMidTimer = 0.0f;
+		swordBotTimer = 0.0f;
+	}
+
+	switch (spriteMoveState) {
+	case SpriteMoveState::Idle:
+		// 何もしない
+		break;
+	case SpriteMoveState::Entering:
+		spriteMoveTimer += 1.0f / 60.0f; // フレームレート固定なら
+		{
+			float t = std::clamp(spriteMoveTimer / enterDuration, 0.0f, 1.0f);
+			float easeT = easeOutCubic(t);
+			Vector3 pos = {
+				topStartPos.x + (topCenterPos.x - topStartPos.x) * easeT,
+				topStartPos.y
+			};
+			swordTop->SetPosition(pos);
+			if (t >= 1.0f) {
+				spriteMoveState = SpriteMoveState::Staying;
+				spriteMoveTimer = 0.0f;
+			}
+		}
+		break;
+	case SpriteMoveState::Staying:
+		spriteMoveTimer += 1.0f / 60.0f;
+		swordTop->SetPosition(topCenterPos);
+		if (spriteMoveTimer >= stayDuration) {
+			spriteMoveState = SpriteMoveState::Exiting;
+			spriteMoveTimer = 0.0f;
+		}
+		break;
+	case SpriteMoveState::Exiting:
+		spriteMoveTimer += 1.0f / 60.0f;
+		{
+			float t = std::clamp(spriteMoveTimer / exitDuration, 0.0f, 1.0f);
+			float easeT = easeOutCubic(t);
+			Vector3 pos = {
+				topCenterPos.x + (topEndPos.x - topCenterPos.x) * easeT,
+				topCenterPos.y
+			};
+			swordTop->SetPosition(pos);
+			if (t >= 1.0f) {
+				spriteMoveState = SpriteMoveState::Idle;
+				swordTop->SetPosition(topStartPos);
+			}
+		}
+		break;
+	}
+	switch (swordMidState) {
+	case SpriteMoveState::Idle:
+		if (spriteMoveState != SpriteMoveState::Idle) {
+			swordMidTimer += 1.0f / 60.0f;
+			if (swordMidTimer >= swordMidDelay) {
+				swordMidState = SpriteMoveState::Entering;
+				swordMidTimer = 0.0f;
+			}
+		}
+		break;
+	case SpriteMoveState::Entering:
+		swordMidTimer += 1.0f / 60.0f;
+		{
+			float t = std::clamp(swordMidTimer / enterDuration, 0.0f, 1.0f);
+			float easeT = easeOutCubic(t);
+			Vector3 pos = {
+				midStartPos.x + (midCenterPos.x - midStartPos.x) * easeT,
+				midStartPos.y
+			};
+			swordMid->SetPosition(pos);
+			if (t >= 1.0f) {
+				swordMidState = SpriteMoveState::Staying;
+				swordMidTimer = 0.0f;
+			}
+		}
+		break;
+	case SpriteMoveState::Staying:
+		swordMidTimer += 1.0f / 60.0f;
+		swordMid->SetPosition(midCenterPos);
+		if (swordMidTimer >= stayDuration) {
+			swordMidState = SpriteMoveState::Exiting;
+			swordMidTimer = 0.0f;
+		}
+		break;
+	case SpriteMoveState::Exiting:
+		swordMidTimer += 1.0f / 60.0f;
+		{
+			float t = std::clamp(swordMidTimer / exitDuration, 0.0f, 1.0f);
+			float easeT = easeOutCubic(t);
+			Vector3 pos = {
+				midCenterPos.x + (midEndPos.x - midCenterPos.x) * easeT,
+				midCenterPos.y
+			};
+			swordMid->SetPosition(pos);
+			if (t >= 1.0f) {
+				swordMidState = SpriteMoveState::Idle;
+				swordMid->SetPosition(midStartPos);
+			}
+		}
+		break;
+	}
+
+	// Botの処理
+	switch (swordBotState) {
+	case SpriteMoveState::Idle:
+		if (spriteMoveState != SpriteMoveState::Idle) {
+			swordBotTimer += 1.0f / 60.0f;
+			if (swordBotTimer >= swordBotDelay) {
+				swordBotState = SpriteMoveState::Entering;
+				swordBotTimer = 0.0f;
+			}
+		}
+		break;
+	case SpriteMoveState::Entering:
+		swordBotTimer += 1.0f / 60.0f;
+		{
+			float t = std::clamp(swordBotTimer / enterDuration, 0.0f, 1.0f);
+			float easeT = easeOutCubic(t);
+			Vector3 pos = {
+				botStartPos.x + (botCenterPos.x - botStartPos.x) * easeT,
+				botStartPos.y
+			};
+			swordBot->SetPosition(pos);
+			if (t >= 1.0f) {
+				swordBotState = SpriteMoveState::Staying;
+				swordBotTimer = 0.0f;
+			}
+		}
+		break;
+	case SpriteMoveState::Staying:
+		swordBotTimer += 1.0f / 60.0f;
+		swordBot->SetPosition(botCenterPos);
+		if (swordBotTimer >= stayDuration) {
+			swordBotState = SpriteMoveState::Exiting;
+			swordBotTimer = 0.0f;
+		}
+		break;
+	case SpriteMoveState::Exiting:
+		swordBotTimer += 1.0f / 60.0f;
+		{
+			float t = std::clamp(swordBotTimer / exitDuration, 0.0f, 1.0f);
+			float easeT = easeOutCubic(t);
+			Vector3 pos = {
+				botCenterPos.x + (botEndPos.x - botCenterPos.x) * easeT,
+				botCenterPos.y
+			};
+			swordBot->SetPosition(pos);
+			if (t >= 1.0f) {
+				swordBotState = SpriteMoveState::Idle;
+				swordBot->SetPosition(botStartPos);
+			}
+		}
+		break;
+	}
+
+	swordTop->Update();
+	swordMid->Update();
+	swordBot->Update();
 
 	//scene->Update();
 
@@ -212,11 +393,16 @@ void MyGame::Draw()
 #pragma region Draw
 
 	//scene->Draw();
-	sceneManager_->Draw();
+
+	swordTop->Draw();
+	swordMid->Draw();
+	swordBot->Draw();
 
 	if (isSprite) {
 		sprite->Draw();
 	}
+
+	sceneManager_->Draw();
 	//for (uint32_t i = 0; i < 5; i++) {
 	//	sprites[i]->Draw();
 	//}
