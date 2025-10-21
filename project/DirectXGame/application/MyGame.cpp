@@ -88,7 +88,6 @@ void MyGame::Finalize()
 {
 #pragma region Finalize
 
-	ParticleManager::GetInstance()->Finalize();
 	imguiManager->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	winApp->Finalize();
