@@ -1,0 +1,1 @@
+#include "BaseFighter.h"

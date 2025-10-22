@@ -108,6 +108,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\application\Fighter\BaseFighter.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Phase\BattlePhase.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\BaseScene.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\ParticleManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
@@ -144,8 +146,13 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\Scene\TitleScene.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\SceneManager.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\PreGameScene.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Phase\SetPhase.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Phase\PhaseCommon.cpp" />
+    <ClCompile Include="DirectXGame\application\Fighter\Knight.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXGame\application\Fighter\BaseFighter.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Phase\BattlePhase.h" />
     <ClInclude Include="DirectXGame\application\Scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\engine\3d\ParticleManager.h" />
     <ClInclude Include="DirectXGame\engine\base\Camera.h" />
@@ -187,6 +194,9 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\Scene\TitleScene.h" />
     <ClInclude Include="DirectXGame\application\Scene\SceneManager.h" />
     <ClInclude Include="DirectXGame\application\Scene\PreGameScene.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Phase\SetPhase.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Phase\PhaseCommon.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\Knight.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

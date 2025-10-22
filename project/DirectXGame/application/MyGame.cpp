@@ -117,22 +117,22 @@ void MyGame::Update()
 {
 #pragma region Update
 	input->Update();
-	if (input->PushKey(DIK_RIGHT))
-	{
-		camera->GetTranslate().x += 0.01f;
-	}
-	if (input->PushKey(DIK_LEFT))
-	{
-		camera->GetTranslate().x -= 0.01f;
-	}
-	if (input->PushKey(DIK_UP))
-	{
-		camera->GetTranslate().y += 0.01f;
-	}
-	if (input->PushKey(DIK_DOWN))
-	{
-		camera->GetTranslate().y -= 0.01f;
-	}
+	//if (input->PushKey(DIK_RIGHT))
+	//{
+	//	camera->GetTranslate().x += 0.01f;
+	//}
+	//if (input->PushKey(DIK_LEFT))
+	//{
+	//	camera->GetTranslate().x -= 0.01f;
+	//}
+	//if (input->PushKey(DIK_UP))
+	//{
+	//	camera->GetTranslate().y += 0.01f;
+	//}
+	//if (input->PushKey(DIK_DOWN))
+	//{
+	//	camera->GetTranslate().y -= 0.01f;
+	//}
 
 	if (input->TriggerKey(DIK_SPACE) && spriteMoveState == SpriteMoveState::Idle) {
 		spriteMoveState = SpriteMoveState::Entering;
