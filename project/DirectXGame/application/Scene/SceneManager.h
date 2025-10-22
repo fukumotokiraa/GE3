@@ -14,6 +14,8 @@ public:
 	void SetObject3dCommon(Object3dCommon* object3dCommon) { object3dCommon_ = object3dCommon; }
 	void SetInput(Input* input) { input_ = input; }
 
+	BaseScene* GetCurrentScene() { return scene_; }
+
 private:
 	//現在のシーン
 	BaseScene* scene_ = nullptr;

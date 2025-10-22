@@ -42,7 +42,7 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
-	ParticleManager::GetInstance()->Finalize();
+	//ParticleManager::GetInstance()->Finalize();
 	delete leftMatchObject;
 	delete leftMatch;
 	delete rightMatchObject;
