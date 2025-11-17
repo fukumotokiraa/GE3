@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "Fighter/Knight.h"
 
 void GameScene::Initialize()
 {
@@ -24,10 +25,20 @@ void GameScene::Initialize()
 	loseSpriteTimer_ = 0.0f;
 	isLose_ = false;
 
+	phaseCommon_ = new PhaseCommon();
+    phaseCommon_->Initialize(object3dCommon_, input_);
+	setPhase_ = new SetPhase();
+	setPhase_->Initialize(phaseCommon_);
+
 }
 
 void GameScene::Finalize()
 {
+	setPhase_->Finalize();
+	delete setPhase_;
+	phaseCommon_->Finalize();
+	delete phaseCommon_;
+
 	delete loseSprite_;
 
 	delete gameover_;
@@ -40,6 +51,7 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
+#pragma region シーン遷移
 	gameover_->Update();
 	loseSprite_->Update();
     if (input_->TriggerKey(DIK_RETURN)) {
@@ -102,9 +114,16 @@ void GameScene::Update()
         break;
     }
     }
+#pragma endregion
+
+
 
 	stage_->Update();
 	preGameScene_->Update();
+
+	phaseCommon_->Update();
+	setPhase_->Update();
+
 }
 
 void GameScene::Draw()
@@ -113,9 +132,12 @@ void GameScene::Draw()
 loseSprite_->Draw();
 	}	*/	
 	stage_->Draw();
-	gameover_->Draw();
+	//gameover_->Draw();
 	preGameScene_->Draw();
     if (isLose_ && loseSprite_) {
         loseSprite_->Draw();
     }
+
+	phaseCommon_->Draw();
+	setPhase_->Draw();
 }

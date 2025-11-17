@@ -2,6 +2,8 @@
 #include "BaseScene.h"
 #include "PreGameScene.h"
 #include "Stage.h"
+#include "Phase/PhaseCommon.h"
+#include "Phase/SetPhase.h"
 
 class PreGameScene;
 class Stage;
@@ -47,6 +49,8 @@ public:
 private:
 	Stage* stage_ = nullptr;
 	PreGameScene* preGameScene_ = nullptr;
+	PhaseCommon* phaseCommon_ = nullptr;
+	SetPhase* setPhase_ = nullptr;
 
 	Sprite* gameover_ = nullptr;
 	Sprite* loseSprite_ = nullptr;

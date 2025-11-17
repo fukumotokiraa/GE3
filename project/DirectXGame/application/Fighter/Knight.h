@@ -10,8 +10,11 @@ public:
 	void Update() override;
 	void Draw() override;
 
-private:
+	Object3d* GetKnightObject() { return knightObject; }
 
+private:
+	Model* knightModel = nullptr;
+	Object3d* knightObject = nullptr;
 
 };
 
