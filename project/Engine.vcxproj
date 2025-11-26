@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -108,6 +108,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\application\Scene\Clear.cpp" />
     <ClCompile Include="DirectXGame\application\Fighter\BaseFighter.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\Phase\BattlePhase.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\BaseScene.cpp" />
@@ -151,6 +152,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\Fighter\Knight.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXGame\application\Scene\Clear.h" />
     <ClInclude Include="DirectXGame\application\Fighter\BaseFighter.h" />
     <ClInclude Include="DirectXGame\application\Scene\Phase\BattlePhase.h" />
     <ClInclude Include="DirectXGame\application\Scene\BaseScene.h" />

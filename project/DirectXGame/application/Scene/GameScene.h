@@ -4,6 +4,7 @@
 #include "Stage.h"
 #include "Phase/PhaseCommon.h"
 #include "Phase/SetPhase.h"
+#include "Clear.h"
 
 class PreGameScene;
 class Stage;
@@ -51,6 +52,7 @@ private:
 	PreGameScene* preGameScene_ = nullptr;
 	PhaseCommon* phaseCommon_ = nullptr;
 	SetPhase* setPhase_ = nullptr;
+	Clear* clear_ = nullptr;
 
 	Sprite* gameover_ = nullptr;
 	Sprite* loseSprite_ = nullptr;

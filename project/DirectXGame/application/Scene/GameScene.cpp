@@ -7,6 +7,8 @@ void GameScene::Initialize()
 	stage_->Initialize(object3dCommon_);
 	preGameScene_ = new PreGameScene();
 	preGameScene_->Initialize(spriteCommon_);
+	//clear_ = new Clear();
+	//clear_->Initialize(spriteCommon_);
 
 	//loseSprite_ = new Sprite();
 	//TextureManager::GetInstance()->LoadTexture("resources/lose.png");
@@ -14,12 +16,13 @@ void GameScene::Initialize()
 	//loseSprite_->SetPosition({ 0.0f,0.0f, 100.0f });
 
 	gameover_ = new Sprite();
-	TextureManager::GetInstance()->LoadTexture("resources/gameover.png");
-	gameover_->Initialize(spriteCommon_, "resources/gameover.png");
+	TextureManager::GetInstance()->LoadTexture("resources/gameclear.png");
+	gameover_->Initialize(spriteCommon_, "resources/gameclear.png");
+
 
 	loseSprite_ = new Sprite();
-	TextureManager::GetInstance()->LoadTexture("resources/lose.png");
-	loseSprite_->Initialize(spriteCommon_, "resources/lose.png");
+	TextureManager::GetInstance()->LoadTexture("resources/clear.png");
+	loseSprite_->Initialize(spriteCommon_, "resources/clear.png");
 	loseSprite_->SetPosition(startPos_);
 	loseSpriteState_ = LoseSpriteState::Idle;
 	loseSpriteTimer_ = 0.0f;
@@ -43,6 +46,8 @@ void GameScene::Finalize()
 
 	delete gameover_;
 
+	//clear_->Finalize();
+	//delete clear_;
 	stage_->Finalize();
 	delete stage_;
 	preGameScene_->Finalize();
@@ -54,15 +59,17 @@ void GameScene::Update()
 #pragma region シーン遷移
 	gameover_->Update();
 	loseSprite_->Update();
+	//clear_->Update();
     if (input_->TriggerKey(DIK_RETURN)) {
         if (loseSpriteState_ == LoseSpriteState::Idle) {
             loseSpriteState_ = LoseSpriteState::Entering;
             loseSpriteTimer_ = 0.0f;
             isLose_ = true;
+			//clear_->SetClear(true);
         }
     }
     // スペースキーで退場開始
-    if (input_->TriggerKey(DIK_SPACE)) {
+    if (input_->TriggerKey(DIK_RETURN)) {
         if (loseSpriteState_ == LoseSpriteState::Staying) {
             loseSpriteState_ = LoseSpriteState::Exiting;
             loseSpriteTimer_ = 0.0f;
@@ -128,11 +135,15 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
-/*	if (isLose_ == true) {
-loseSprite_->Draw();
-	}	*/	
+	if (isLose_ == true) {
+        loseSprite_->Draw();
+	}		
+	//if (clear_->GetClear()) {
+	//	gameover_->Draw();
+	//	return;
+	//}
 	stage_->Draw();
-	//gameover_->Draw();
+	gameover_->Draw();
 	preGameScene_->Draw();
     if (isLose_ && loseSprite_) {
         loseSprite_->Draw();
