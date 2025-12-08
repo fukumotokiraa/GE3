@@ -1,5 +1,7 @@
 #pragma once
 #include "BaseFighter.h"
+#include "Object3d.h"
+#include "Model.h"
 
 class Knight : public BaseFighter
 {
@@ -12,9 +14,11 @@ public:
 
 	Object3d* GetKnightObject() { return knightObject; }
 
+	Status* GetStatus() override { return &knightStatus; }
+
 private:
 	Model* knightModel = nullptr;
 	Object3d* knightObject = nullptr;
-
+	Status knightStatus;
 };
 

@@ -16,6 +16,7 @@ public:
 
 	Input* GetInput() { return input_; }
 	Knight* GetKnight() { return knight_; }
+	Knight* GetEnemyKnight() { return knightEnemy_; }
 
 	//Object3dCommon* GetObject3DCommon() { return object3dCommon_; }
 	//void SetObject3DCommon(Object3dCommon* object3dCommon) { object3dCommon_ = object3dCommon; }
@@ -24,6 +25,7 @@ private:
 	Object3dCommon* object3dCommon_ = nullptr;
 
 	Knight* knight_ = nullptr;
+	Knight* knightEnemy_ = nullptr;
 	Input* input_ = nullptr;
 
 };

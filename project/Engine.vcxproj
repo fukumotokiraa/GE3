@@ -199,6 +199,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\Scene\Phase\SetPhase.h" />
     <ClInclude Include="DirectXGame\application\Scene\Phase\PhaseCommon.h" />
     <ClInclude Include="DirectXGame\application\Fighter\Knight.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\Status.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

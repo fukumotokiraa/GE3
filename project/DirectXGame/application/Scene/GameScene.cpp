@@ -33,12 +33,22 @@ void GameScene::Initialize()
 	setPhase_ = new SetPhase();
 	setPhase_->Initialize(phaseCommon_);
 
+	// battlePhase_ は遷移まで null のまま
+	battlePhase_ = nullptr;
 }
 
 void GameScene::Finalize()
 {
-	setPhase_->Finalize();
-	delete setPhase_;
+	if (setPhase_) {
+		setPhase_->Finalize();
+		delete setPhase_;
+		setPhase_ = nullptr;
+	}
+	if (battlePhase_) {
+		battlePhase_->Finalize();
+		delete battlePhase_;
+		battlePhase_ = nullptr;
+	}
 	phaseCommon_->Finalize();
 	delete phaseCommon_;
 
@@ -123,13 +133,25 @@ void GameScene::Update()
     }
 #pragma endregion
 
-
-
 	stage_->Update();
 	preGameScene_->Update();
 
 	phaseCommon_->Update();
-	setPhase_->Update();
+
+	if (input_->TriggerKey(DIK_1) && setPhase_ && !battlePhase_) {
+		// setPhase を終了して破棄
+		setPhase_->Finalize();
+		delete setPhase_;
+		setPhase_ = nullptr;
+
+		// BattlePhase を生成して初期化
+		battlePhase_ = new BattlePhase();
+		battlePhase_->Initialize(phaseCommon_);
+	}
+
+	// フェーズの Update を呼ぶ（存在する方）
+	if (setPhase_) setPhase_->Update();
+	if (battlePhase_) battlePhase_->Update();
 
 }
 
@@ -143,12 +165,13 @@ void GameScene::Draw()
 	//	return;
 	//}
 	stage_->Draw();
-	gameover_->Draw();
+	//gameover_->Draw();
 	preGameScene_->Draw();
     if (isLose_ && loseSprite_) {
         loseSprite_->Draw();
     }
 
 	phaseCommon_->Draw();
-	setPhase_->Draw();
+	if (setPhase_) setPhase_->Draw();
+	if (battlePhase_) battlePhase_->Draw();
 }

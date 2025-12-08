@@ -31,7 +31,10 @@ void SetPhase::Update()
     }
     phaseCommon_->GetKnight()->GetKnightObject()->GetTransform().translate.x = std::clamp(phaseCommon_->GetKnight()->GetKnightObject()->GetTransform().translate.x, -4.0f, 3.0f);
     phaseCommon_->GetKnight()->GetKnightObject()->GetTransform().translate.z = std::clamp(phaseCommon_->GetKnight()->GetKnightObject()->GetTransform().translate.z, -4.0f, 3.0f);
-
+    phaseCommon_->GetKnight()->SetGridPos(
+        static_cast<int>(phaseCommon_->GetKnight()->GetKnightObject()->GetTransform().translate.x + 4.0f + 0.5f),
+        static_cast<int>(phaseCommon_->GetKnight()->GetKnightObject()->GetTransform().translate.z + 4.0f + 0.5f)
+	);
 }
 
 void SetPhase::Draw()
