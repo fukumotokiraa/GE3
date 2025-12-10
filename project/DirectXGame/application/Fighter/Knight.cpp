@@ -16,7 +16,7 @@ void Knight::Initialize()
 		100,
 		1, // moveRange（移動は現状 1 固定）
 		1, // range（攻撃距離: 隣接）
-		10 // attack
+		20 // attack
 	};
 }
 
@@ -34,4 +34,12 @@ void Knight::Update()
 void Knight::Draw()
 {
 	if (knightObject) knightObject->Draw();
+}
+
+void Knight::OnHit()
+{
+	// 点滅の長さと間隔はここで調整
+	if (knightObject) {
+		knightObject->StartBlink(0.6f, 0.08f); // 0.6秒、0.08秒間隔で点滅
+	}
 }

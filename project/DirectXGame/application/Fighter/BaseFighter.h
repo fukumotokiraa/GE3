@@ -16,6 +16,9 @@ public:
 
 	virtual Status* GetStatus() = 0;
 
+	// 被弾時のリアクション（デフォルトは何もしない）
+	virtual void OnHit() {}
+
 	void SetObject3dCommon(Object3dCommon* object3dCommon) { object3dCommon_ = object3dCommon; }
 
 	void SetGridPos(int x, int y) { stagePos_.x = x; stagePos_.y = y; }
@@ -52,6 +55,8 @@ public:
 		if (!my || !t) return;
 
 		t->hp = max(0, t->hp - my->power);
+		// 被弾リアクションを通知
+		target->OnHit();
 		// クールダウンのリセット
 		ResetAttackTimer();
 	}

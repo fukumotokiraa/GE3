@@ -16,6 +16,9 @@ public:
 
 	Status* GetStatus() override { return &knightStatus; }
 
+	// 被弾時のリアクションをオーバーライド
+	void OnHit() override;
+
 private:
 	Model* knightModel = nullptr;
 	Object3d* knightObject = nullptr;

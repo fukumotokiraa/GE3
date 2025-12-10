@@ -16,8 +16,8 @@ void GameScene::Initialize()
 	//loseSprite_->SetPosition({ 0.0f,0.0f, 100.0f });
 
 	gameover_ = new Sprite();
-	TextureManager::GetInstance()->LoadTexture("resources/gameclear.png");
-	gameover_->Initialize(spriteCommon_, "resources/gameclear.png");
+	TextureManager::GetInstance()->LoadTexture("resources/start.png");
+	gameover_->Initialize(spriteCommon_, "resources/start.png");
 
 
 	loseSprite_ = new Sprite();
@@ -138,7 +138,7 @@ void GameScene::Update()
 
 	phaseCommon_->Update();
 
-	if (input_->TriggerKey(DIK_1) && setPhase_ && !battlePhase_) {
+	if (input_->TriggerKey(DIK_Q) && setPhase_ && !battlePhase_) {
 		// setPhase を終了して破棄
 		setPhase_->Finalize();
 		delete setPhase_;
@@ -153,6 +153,20 @@ void GameScene::Update()
 	if (setPhase_) setPhase_->Update();
 	if (battlePhase_) battlePhase_->Update();
 
+	// battlePhase 中に敵が全員いなくなったらスプライト表示を開始する
+	if (battlePhase_ && phaseCommon_) {
+		// PhaseCommon::Update() ですでに死亡したファイターは除去されているため
+		// GetEnemyKnight() が nullptr なら敵は存在しないと判断できる
+		if (phaseCommon_->GetEnemyKnight() == nullptr) {
+			if (loseSpriteState_ == LoseSpriteState::Idle) {
+				loseSpriteState_ = LoseSpriteState::Entering;
+				loseSpriteTimer_ = 0.0f;
+				isLose_ = true;
+				//clear_->SetClear(true);
+			}
+		}
+	}
+
 }
 
 void GameScene::Draw()
@@ -165,7 +179,7 @@ void GameScene::Draw()
 	//	return;
 	//}
 	stage_->Draw();
-	//gameover_->Draw();
+	gameover_->Draw();
 	preGameScene_->Draw();
     if (isLose_ && loseSprite_) {
         loseSprite_->Draw();
