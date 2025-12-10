@@ -1,4 +1,6 @@
 #pragma once
+
+#include <algorithm>
 #include "Object3d.h"
 #include "Model.h"
 #include "Status.h"
@@ -25,6 +27,41 @@ public:
 		if (s) s->faction = f;
 	}
 
+	// --- 攻撃関連（共通実装） ---
+	// フレームごとに呼ぶ（BattlePhase 等から）
+	void UpdateAttackTimer(float dt) {
+		attackTimer_ -= dt;
+		if (attackTimer_ < 0.0f) attackTimer_ = 0.0f;
+	}
+
+	// 攻撃可能か（タイマーとステータスがあるか）
+	bool CanAttack() {
+		const Status* s = GetStatus();
+		if (!s) return false;
+		const float atkSp = max(0.0001f, s->attackSpeed);
+		// attackSpeed が高いほど短いクール（1/attackSpeed）
+		return attackTimer_ <= 0.0f;
+	}
+
+	// 攻撃を行う（デフォルトのダメージ適用）
+	// target の HP を減らし、自身のクールダウンをリセットする
+	void Attack(BaseFighter* target) {
+		if (!target) return;
+		Status* my = GetStatus();
+		Status* t = target->GetStatus();
+		if (!my || !t) return;
+
+		t->hp = max(0, t->hp - my->power);
+		// クールダウンのリセット
+		ResetAttackTimer();
+	}
+
+	// タイマーを攻撃速度からリセット
+	void ResetAttackTimer() {
+		const Status* s = GetStatus();
+		const float atkSp = (s && s->attackSpeed > 0.0f) ? s->attackSpeed : 1.0f;
+		attackTimer_ = 1.0f / atkSp;
+	}
 
 protected:
 	Object3dCommon* object3dCommon_ = nullptr;
@@ -32,5 +69,7 @@ protected:
 private:
 	StagePos stagePos_ = { 0,0 };
 
+	// 攻撃クールダウン管理（秒）
+	float attackTimer_ = 0.0f;
 };
 

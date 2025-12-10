@@ -104,50 +104,73 @@ void BattlePhase::Update()
 
 	auto player = phaseCommon_->GetKnight();
 	auto enemy = phaseCommon_->GetEnemyKnight();
-	if (!player || !enemy) return;
+
+	// --- 攻撃タイマー更新（片側のみでも更新） ---
+	if (player) player->UpdateAttackTimer(dt);
+	if (enemy) enemy->UpdateAttackTimer(dt);
+
+	// --- 攻撃処理（対象がいる場合のみ） ---
+	if (player && enemy) {
+		StagePos pPos = player->GetGridPos();
+		StagePos ePos = enemy->GetGridPos();
+		int dist = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+
+		// プレイヤー攻撃
+		if (dist <= player->GetStatus()->range && player->CanAttack()) {
+			player->Attack(enemy);
+		}
+
+		// 敵攻撃
+		if (dist <= enemy->GetStatus()->range && enemy->CanAttack()) {
+			enemy->Attack(player);
+		}
+	}
+	// 片側しかいない場合は攻撃対象がいないため何もしない（将来的には AI でターゲット探索などに拡張可）
 
 	// 移動処理は moveInterval ごと
 	if (movementTimer_ >= moveInterval_) {
-		// まずプレイヤーを移動（プレイヤー優先）
-		{
-			StagePos pPos = player->GetGridPos();
-			StagePos ePos = enemy->GetGridPos();
-			int range = player->GetStatus()->range;
+		// 移動は相手が存在する場合のみ行う（片方が死んでいたら移動先が無いため）
+		if (player && enemy) {
+			// まずプレイヤーを移動（プレイヤー優先）
+			{
+				StagePos pPos = player->GetGridPos();
+				StagePos ePos = enemy->GetGridPos();
+				int range = player->GetStatus()->range;
 
-			// 既に範囲内なら何もしない
-			if (Manhattan(pPos.x, pPos.y, ePos.x, ePos.y) > range) {
-				auto path = FindPathToRange(pPos, ePos, range);
-				// path[0] == start, path[1] が次のマス
-				if (path.size() > 1) {
-					StagePos next = path[1];
-					player->SetGridPos(next.x, next.y);
-					if (player->GetKnightObject()) {
-						auto w = GridToWorld(next.x, next.y);
-						player->GetKnightObject()->GetTransform().translate = w;
+				// 既に範囲内なら何もしない
+				if (Manhattan(pPos.x, pPos.y, ePos.x, ePos.y) > range) {
+					auto path = FindPathToRange(pPos, ePos, range);
+					// path[0] == start, path[1] が次のマス
+					if (path.size() > 1) {
+						StagePos next = path[1];
+						player->SetGridPos(next.x, next.y);
+						if (player->GetKnightObject()) {
+							auto w = GridToWorld(next.x, next.y);
+							player->GetKnightObject()->GetTransform().translate = w;
+						}
+					}
+				}
+			}
+
+			// 次に敵を移動
+			{
+				StagePos pPos = player->GetGridPos(); // プレイヤーが既に移動している可能性を反映
+				StagePos ePos = enemy->GetGridPos();
+				int range = enemy->GetStatus()->range;
+
+				if (Manhattan(ePos.x, ePos.y, pPos.x, pPos.y) > range) {
+					auto path = FindPathToRange(ePos, pPos, range);
+					if (path.size() > 1) {
+						StagePos next = path[1];
+						enemy->SetGridPos(next.x, next.y);
+						if (enemy->GetKnightObject()) {
+							auto w = GridToWorld(next.x, next.y);
+							enemy->GetKnightObject()->GetTransform().translate = w;
+						}
 					}
 				}
 			}
 		}
-
-		// 次に敵を移動
-		{
-			StagePos pPos = player->GetGridPos(); // プレイヤーが既に移動している可能性を反映
-			StagePos ePos = enemy->GetGridPos();
-			int range = enemy->GetStatus()->range;
-
-			if (Manhattan(ePos.x, ePos.y, pPos.x, pPos.y) > range) {
-				auto path = FindPathToRange(ePos, pPos, range);
-				if (path.size() > 1) {
-					StagePos next = path[1];
-					enemy->SetGridPos(next.x, next.y);
-					if (enemy->GetKnightObject()) {
-						auto w = GridToWorld(next.x, next.y);
-						enemy->GetKnightObject()->GetTransform().translate = w;
-					}
-				}
-			}
-		}
-
 		movementTimer_ -= moveInterval_;
 	}
 }

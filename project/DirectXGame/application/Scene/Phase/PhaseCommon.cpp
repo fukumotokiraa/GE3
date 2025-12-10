@@ -11,40 +11,91 @@ void PhaseCommon::Initialize(Object3dCommon* object3dCommon, Input* input)
 	input_ = input;
 
 	// Player Knight の生成
-	knight_ = new Knight();
-	knight_->SetObject3dCommon(object3dCommon_);
-	knight_->Initialize();
-	knight_->SetFaction(Faction::Player);
-	knight_->SetGridPos(0, 0);
-	if (knight_->GetKnightObject()) {
-		knight_->GetKnightObject()->GetTransform().translate = GridToWorld(knight_->GetGridPos().x,knight_->GetGridPos().y);
+	{
+		auto p = std::make_unique<Knight>();
+		p->SetObject3dCommon(object3dCommon_);
+		p->Initialize();
+		p->SetFaction(Faction::Player);
+		p->SetGridPos(0, 0);
+		if (auto kObj = p->GetKnightObject()) {
+			kObj->GetTransform().translate = GridToWorld(p->GetGridPos().x, p->GetGridPos().y);
+		}
+		fighters_.push_back(std::move(p));
 	}
 
-	// Enemy Knight の生成（テスト用） — グリッド (3,3) に配置
-	knightEnemy_ = new Knight();
-	knightEnemy_->SetObject3dCommon(object3dCommon_);
-	knightEnemy_->Initialize();
-	knightEnemy_->SetFaction(Faction::Enemy);
-	knightEnemy_->SetGridPos(7, 7); // <- ここを (3,3) に変更
-	if (knightEnemy_->GetKnightObject()) {
-		knightEnemy_->GetKnightObject()->GetTransform().translate = GridToWorld(knightEnemy_->GetGridPos().x,knightEnemy_->GetGridPos().y);
+	// Enemy Knight の生成（テスト用）
+	{
+		auto e = std::make_unique<Knight>();
+		e->SetObject3dCommon(object3dCommon_);
+		e->Initialize();
+		e->SetFaction(Faction::Enemy);
+		e->SetGridPos(7, 7);
+		if (auto kObj = e->GetKnightObject()) {
+			kObj->GetTransform().translate = GridToWorld(e->GetGridPos().x, e->GetGridPos().y);
+		}
+		fighters_.push_back(std::move(e));
 	}
 }
 
 void PhaseCommon::Finalize()
 {
-	delete knight_;
-	delete knightEnemy_;
+	// Finalize を呼んでからコンテナをクリア
+	for (auto& f : fighters_) {
+		if (f) f->Finalize();
+	}
+	fighters_.clear();
 }
 
 void PhaseCommon::Update()
 {
-	if (knight_) knight_->Update();
-	if (knightEnemy_) knightEnemy_->Update();
+	// 各ファイターを更新
+	for (auto& f : fighters_) {
+		if (f) f->Update();
+	}
+
+	// 死亡したファイターを除去（Finalize を呼んでから erase）
+	fighters_.erase(
+		std::remove_if(fighters_.begin(), fighters_.end(),
+			[](const std::unique_ptr<BaseFighter>& f) {
+				if (!f) return true;
+				Status* s = f->GetStatus();
+				if (!s || !s->IsAlive()) {
+					f->Finalize();
+					return true;
+				}
+				return false;
+			}),
+		fighters_.end()
+	);
 }
 
 void PhaseCommon::Draw()
 {
-	if (knight_) knight_->Draw();
-	if (knightEnemy_) knightEnemy_->Draw();
+	for (auto& f : fighters_) {
+		if (f) f->Draw();
+	}
+}
+
+Knight* PhaseCommon::GetKnight()
+{
+	for (auto& f : fighters_) {
+		if (!f) continue;
+		Status* s = f->GetStatus();
+		if (s && s->faction == Faction::Player) {
+			return dynamic_cast<Knight*>(f.get());
+		}
+	}
+	return nullptr;
+}
+
+Knight* PhaseCommon::GetEnemyKnight()
+{
+	for (auto& f : fighters_) {
+		if (!f) continue;
+		Status* s = f->GetStatus();
+		if (s && s->faction == Faction::Enemy) {
+			return dynamic_cast<Knight*>(f.get());
+		}
+	}
+	return nullptr;
 }

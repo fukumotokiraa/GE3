@@ -12,6 +12,7 @@ struct Status {
 	int move; // 移動距離
 	int range;     // 攻撃射程
 	int power;    // 攻撃力
+	float attackSpeed = 1.0f;//攻撃速度
 
 	bool IsAlive() const { return hp > 0; }
 };
