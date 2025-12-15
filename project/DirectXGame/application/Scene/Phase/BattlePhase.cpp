@@ -120,42 +120,78 @@ void BattlePhase::Update()
 	for (auto p : players) if (p) p->UpdateAttackTimer(dt);
 	for (auto e : enemies) if (e) e->UpdateAttackTimer(dt);
 
-	// --- 攻撃処理: 各プレイヤーが最寄りの敵を攻撃 ---
+	// ヘルパ: ターゲットが有効か検証（生存かつ射程内）。無効ならクリアして false を返す。
+	auto validateTarget = [&](BaseFighter* self, BaseFighter*& target) -> bool {
+		if (!target) return false;
+		Status* ts = target->GetStatus();
+		if (!ts || !ts->IsAlive()) {
+			self->ClearCurrentTarget();
+			target = nullptr;
+			return false;
+		}
+		Status* my = self->GetStatus();
+		if (!my) { self->ClearCurrentTarget(); target = nullptr; return false; }
+		StagePos sPos = self->GetGridPos();
+		StagePos tPos = target->GetGridPos();
+		if (Manhattan(sPos.x, sPos.y, tPos.x, tPos.y) > my->range) {
+			// 射程外になったらロック解除
+			self->ClearCurrentTarget();
+			target = nullptr;
+			return false;
+		}
+		return true;
+	};
+
+	// --- 攻撃処理: 各プレイヤーが現在のロックターゲット（無ければ最寄り）を攻撃 ---
 	for (auto p : players) {
 		if (!p) continue;
-		if (enemies.empty()) break;
-		// 最寄りの敵を選択
-		StagePos pPos = p->GetGridPos();
-		int bestDist = INT_MAX;
-		BaseFighter* target = nullptr;
-		for (auto e : enemies) {
-			if (!e) continue;
-			StagePos ePos = e->GetGridPos();
-			int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
-			if (d < bestDist) { bestDist = d; target = e; }
+		BaseFighter* target = p->GetCurrentTarget();
+		// 無効ならクリア済みになる
+		if (!validateTarget(p, target)) {
+			// 最寄りの敵を新たにロック（距離は問わない。攻撃は射程チェックで行う）
+			int bestDist = INT_MAX;
+			BaseFighter* best = nullptr;
+			StagePos pPos = p->GetGridPos();
+			for (auto e : enemies) {
+				if (!e) continue;
+				StagePos ePos = e->GetGridPos();
+				int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+				if (d < bestDist) { bestDist = d; best = e; }
+			}
+			if (best) { p->SetCurrentTarget(best); target = best; }
 		}
-		if (target) {
-			if (bestDist <= p->GetStatus()->range && p->CanAttack()) {
+		// 攻撃判定（ターゲットが射程内かつクールが空いていれば攻撃）
+		if (target && p->GetStatus()) {
+			StagePos pPos = p->GetGridPos();
+			StagePos tPos = target->GetGridPos();
+			int dist = Manhattan(pPos.x, pPos.y, tPos.x, tPos.y);
+			if (dist <= p->GetStatus()->range && p->CanAttack()) {
 				p->Attack(target);
 			}
 		}
 	}
 
-	// --- 敵側も同様に攻撃（各敵が最寄りのプレイヤーを攻撃） ---
+	// --- 敵側も同様にターゲットロックで攻撃 ---
 	for (auto e : enemies) {
 		if (!e) continue;
-		if (players.empty()) break;
-		StagePos ePos = e->GetGridPos();
-		int bestDist = INT_MAX;
-		BaseFighter* target = nullptr;
-		for (auto p : players) {
-			if (!p) continue;
-			StagePos pPos = p->GetGridPos();
-			int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
-			if (d < bestDist) { bestDist = d; target = p; }
+		BaseFighter* target = e->GetCurrentTarget();
+		if (!validateTarget(e, target)) {
+			int bestDist = INT_MAX;
+			BaseFighter* best = nullptr;
+			StagePos ePos = e->GetGridPos();
+			for (auto p : players) {
+				if (!p) continue;
+				StagePos pPos = p->GetGridPos();
+				int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
+				if (d < bestDist) { bestDist = d; best = p; }
+			}
+			if (best) { e->SetCurrentTarget(best); target = best; }
 		}
-		if (target) {
-			if (bestDist <= e->GetStatus()->range && e->CanAttack()) {
+		if (target && e->GetStatus()) {
+			StagePos ePos = e->GetGridPos();
+			StagePos tPos = target->GetGridPos();
+			int dist = Manhattan(ePos.x, ePos.y, tPos.x, tPos.y);
+			if (dist <= e->GetStatus()->range && e->CanAttack()) {
 				e->Attack(target);
 			}
 		}
@@ -207,21 +243,25 @@ void BattlePhase::Update()
 				if (!p) continue;
 				StagePos pPos = p->GetGridPos();
 
-				// 最寄りの敵を選択
-				int bestDist = INT_MAX;
-				BaseFighter* target = nullptr;
-				for (auto e : enemies) {
-					if (!e) continue;
-					StagePos ePos = e->GetGridPos();
-					int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
-					if (d < bestDist) { bestDist = d; target = e; }
+				// 現在のロックターゲットを確認／無ければ最寄りに設定
+				BaseFighter* target = p->GetCurrentTarget();
+				if (!validateTarget(p, target)) {
+					int bestDist = INT_MAX;
+					BaseFighter* best = nullptr;
+					for (auto e : enemies) {
+						if (!e) continue;
+						StagePos ePos = e->GetGridPos();
+						int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+						if (d < bestDist) { bestDist = d; best = e; }
+					}
+					if (best) { p->SetCurrentTarget(best); target = best; }
 				}
 				if (!target) continue;
 
 				StagePos tPos = target->GetGridPos();
-				int range = p->GetStatus()->range;
+				int range = p->GetStatus() ? p->GetStatus()->range : 0;
 				if (Manhattan(pPos.x, pPos.y, tPos.x, tPos.y) > range) {
-					// 占有マップを考慮した BFS で経路探索（長距離迂回対応)
+					// 占有マップを考慮した BFS で経路探索（長距離迂回対応）
 					auto path = FindPathToRange(pPos, tPos, range, occupied);
 					if (path.size() > 1) {
 						StagePos next = path[1];
@@ -256,18 +296,22 @@ void BattlePhase::Update()
 				if (!e) continue;
 				StagePos ePos = e->GetGridPos();
 
-				int bestDist = INT_MAX;
-				BaseFighter* target = nullptr;
-				for (auto p : players) {
-					if (!p) continue;
-					StagePos pPos = p->GetGridPos();
-					int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
-					if (d < bestDist) { bestDist = d; target = p; }
+				BaseFighter* target = e->GetCurrentTarget();
+				if (!validateTarget(e, target)) {
+					int bestDist = INT_MAX;
+					BaseFighter* best = nullptr;
+					for (auto p : players) {
+						if (!p) continue;
+						StagePos pPos = p->GetGridPos();
+						int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
+						if (d < bestDist) { bestDist = d; best = p; }
+					}
+					if (best) { e->SetCurrentTarget(best); target = best; }
 				}
 				if (!target) continue;
 
 				StagePos tPos = target->GetGridPos();
-				int range = e->GetStatus()->range;
+				int range = e->GetStatus() ? e->GetStatus()->range : 0;
 				if (Manhattan(ePos.x, ePos.y, tPos.x, tPos.y) > range) {
 					auto path = FindPathToRange(ePos, tPos, range, occupied);
 					if (path.size() > 1) {

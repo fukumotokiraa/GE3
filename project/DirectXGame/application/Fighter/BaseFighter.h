@@ -30,6 +30,11 @@ public:
 		if (s) s->faction = f;
 	}
 
+	// --- ターゲットロック関連 ---
+	void SetCurrentTarget(BaseFighter* t) { currentTarget_ = t; }
+	BaseFighter* GetCurrentTarget() const { return currentTarget_; }
+	void ClearCurrentTarget() { currentTarget_ = nullptr; }
+
 	// --- 攻撃関連（共通実装） ---
 	// フレームごとに呼ぶ（BattlePhase 等から）
 	void UpdateAttackTimer(float dt) {
@@ -76,5 +81,8 @@ private:
 
 	// 攻撃クールダウン管理（秒）
 	float attackTimer_ = 0.0f;
+
+	// 現在ロックしているターゲット（nullptr 可）
+	BaseFighter* currentTarget_ = nullptr;
 };
 
