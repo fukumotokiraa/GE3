@@ -16,7 +16,8 @@ void Knight::Initialize()
 		100,
 		1, // moveRange（移動は現状 1 固定）
 		1, // range（攻撃距離: 隣接）
-		20 // attack
+		20, // attack
+		1.0f // attackSpeed
 	};
 }
 

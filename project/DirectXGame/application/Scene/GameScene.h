@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseScene.h"
 #include "PreGameScene.h"
-#include "Stage.h"
+#include "Stage/Stage.h"
 #include "Phase/PhaseCommon.h"
 #include "Phase/SetPhase.h"
 #include "Phase/BattlePhase.h"
