@@ -41,7 +41,7 @@ void GameScene::Initialize()
 	if (auto pKnight = phaseCommon_->SpawnFighter(FighterType::Knight, Team::Player)) {
 		pKnight->SetGridPos(0, 0);
 		if (auto obj = pKnight->GetObject3d()) {
-			obj->GetTransform().translate = { kOriginX + 0 * kBlockSize, kWorldHeight, kOriginY + 0 * kBlockSize };
+			obj->GetTransform().translate = { kOriginX + pKnight->GetGridPos().x * kBlockSize, kWorldHeight, kOriginY + pKnight->GetGridPos().y * kBlockSize };
 		}
 	}
 
@@ -49,7 +49,7 @@ void GameScene::Initialize()
 	if (auto pMage = phaseCommon_->SpawnFighter(FighterType::Mage, Team::Player)) {
 		pMage->SetGridPos(7, 0);
 		if (auto obj = pMage->GetObject3d()) {
-			obj->GetTransform().translate = { kOriginX + 7 * kBlockSize, kWorldHeight, kOriginY + 0 * kBlockSize };
+			obj->GetTransform().translate = { kOriginX + pMage->GetGridPos().x * kBlockSize, kWorldHeight, kOriginY + pMage->GetGridPos().y * kBlockSize };
 		}
 	}
 
@@ -57,7 +57,7 @@ void GameScene::Initialize()
 	if (auto eKnight = phaseCommon_->SpawnFighter(FighterType::Knight, Team::Enemy)) {
 		eKnight->SetGridPos(4, 7);
 		if (auto obj = eKnight->GetObject3d()) {
-			obj->GetTransform().translate = { kOriginX + 4 * kBlockSize, kWorldHeight, kOriginY + 7 * kBlockSize };
+			obj->GetTransform().translate = { kOriginX + eKnight->GetGridPos().x * kBlockSize, kWorldHeight, kOriginY + eKnight->GetGridPos().y * kBlockSize };
 		}
 	}
 

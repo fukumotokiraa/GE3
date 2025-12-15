@@ -15,7 +15,7 @@ void Mage::Initialize()
 		80,
 		1, // moveRange
 		4, // range
-		60, // attack
+		10, // attack
 		0.6f // attackSpeed
 	};
 }

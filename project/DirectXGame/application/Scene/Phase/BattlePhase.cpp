@@ -8,6 +8,7 @@
 #include <array>
 #include <algorithm>
 #include <cmath>
+#include <climits>
 
 namespace {
 
@@ -30,8 +31,12 @@ inline Vector3 GridToWorld(int gx, int gy) {
 }
 
 // BFS で「start から探索し、相手 posTarget とのマンハッタン距離が targetRange に等しい最短セル」への経路を返す。
-// 経路は start から goal への順で StagePos を格納。到達済みならサイズ 1（start のみ）。
-std::vector<StagePos> FindPathToRange(StagePos start, StagePos posTarget, int targetRange)
+// occupied が true のセルは通行不可（ただし start は許可）。見つからなければ start のみを返す。
+std::vector<StagePos> FindPathToRange(
+	StagePos start,
+	StagePos posTarget,
+	int targetRange,
+	const std::array<std::array<bool, kStageWidth>, kStageHeight>& occupied)
 {
 	std::array<std::array<bool, kStageWidth>, kStageHeight> visited{};
 	std::array<std::array<StagePos, kStageWidth>, kStageHeight> parent{};
@@ -41,6 +46,7 @@ std::vector<StagePos> FindPathToRange(StagePos start, StagePos posTarget, int ta
 		return x >= 0 && x < kStageWidth && y >= 0 && y < kStageHeight;
 	};
 
+	// 開始セルは常に訪問済みとしてキューに入れる（自分は占有セルにいる想定）
 	q.push(start);
 	visited[start.y][start.x] = true;
 	parent[start.y][start.x] = start;
@@ -72,6 +78,8 @@ std::vector<StagePos> FindPathToRange(StagePos start, StagePos posTarget, int ta
 			int ny = cur.y + dy[i];
 			if (!inBounds(nx, ny)) continue;
 			if (visited[ny][nx]) continue;
+			// 占有セルは通行不可。ただし開始セルは既に処理済みなので別扱い不要。
+			if (occupied[ny][nx]) continue;
 
 			visited[ny][nx] = true;
 			parent[ny][nx] = cur;
@@ -155,13 +163,51 @@ void BattlePhase::Update()
 
 	// 移動処理は moveInterval ごと
 	if (movementTimer_ >= moveInterval_) {
-		// プレイヤー側を先に移動（複数ユニットにも対応）
+		// 占有マップを作成（true = そのセルは既に誰かがいる／予約済み）
+		std::array<std::array<bool, kStageWidth>, kStageHeight> occupied{};
+		for (auto &row : occupied) row.fill(false);
+
+		// 現在位置で埋める（プレイヤー＋敵）
+		for (auto p : players) {
+			if (!p) continue;
+			StagePos pos = p->GetGridPos();
+			if (pos.x >= 0 && pos.x < kStageWidth && pos.y >= 0 && pos.y < kStageHeight)
+				occupied[pos.y][pos.x] = true;
+		}
+		for (auto e : enemies) {
+			if (!e) continue;
+			StagePos pos = e->GetGridPos();
+			if (pos.x >= 0 && pos.x < kStageWidth && pos.y >= 0 && pos.y < kStageHeight)
+				occupied[pos.y][pos.x] = true;
+		}
+
+		auto findAlternative = [&](const StagePos &cur, const StagePos &target)->StagePos {
+			// 近傍の未占有セルをターゲットへの距離で選択
+			const int dx[4] = { 1, -1, 0, 0 };
+			const int dy[4] = { 0, 0, 1, -1 };
+			int bestDist = INT_MAX;
+			StagePos best = cur;
+			for (int i = 0; i < 4; ++i) {
+				int nx = cur.x + dx[i];
+				int ny = cur.y + dy[i];
+				if (nx < 0 || nx >= kStageWidth || ny < 0 || ny >= kStageHeight) continue;
+				if (occupied[ny][nx]) continue;
+				int d = Manhattan(nx, ny, target.x, target.y);
+				if (d < bestDist) {
+					bestDist = d;
+					best = { nx, ny };
+				}
+			}
+			return best;
+		};
+
+		// プレイヤー各ユニットを順に移動（移動可能なら起点を空け、移動先を予約）
 		if (!players.empty() && !enemies.empty()) {
-			// プレイヤー各ユニット
 			for (auto p : players) {
 				if (!p) continue;
-				// 最寄りの敵を選択
 				StagePos pPos = p->GetGridPos();
+
+				// 最寄りの敵を選択
 				int bestDist = INT_MAX;
 				BaseFighter* target = nullptr;
 				for (auto e : enemies) {
@@ -171,26 +217,45 @@ void BattlePhase::Update()
 					if (d < bestDist) { bestDist = d; target = e; }
 				}
 				if (!target) continue;
+
 				StagePos tPos = target->GetGridPos();
 				int range = p->GetStatus()->range;
 				if (Manhattan(pPos.x, pPos.y, tPos.x, tPos.y) > range) {
-					auto path = FindPathToRange(pPos, tPos, range);
+					// 占有マップを考慮した BFS で経路探索（長距離迂回対応)
+					auto path = FindPathToRange(pPos, tPos, range, occupied);
 					if (path.size() > 1) {
 						StagePos next = path[1];
-						p->SetGridPos(next.x, next.y);
-						if (p->GetObject3d()) {
-							auto w = GridToWorld(next.x, next.y);
-							p->GetObject3d()->GetTransform().translate = w;
+						// 次が占有されている場合は代替近傍セルを探す（保険）
+						StagePos dest = next;
+						if (!(next.x >= 0 && next.x < kStageWidth && next.y >= 0 && next.y < kStageHeight) ||
+							occupied[next.y][next.x]) {
+							dest = findAlternative(pPos, tPos);
+						}
+						// dest が現位置でなければ移動（未占有が保証されている）
+						if (!(dest.x == pPos.x && dest.y == pPos.y)) {
+							// 起点を空ける
+							if (pPos.x >= 0 && pPos.x < kStageWidth && pPos.y >= 0 && pPos.y < kStageHeight)
+								occupied[pPos.y][pPos.x] = false;
+							// 目的地を予約
+							if (dest.x >= 0 && dest.x < kStageWidth && dest.y >= 0 && dest.y < kStageHeight)
+								occupied[dest.y][dest.x] = true;
+
+							// 実際の移動
+							p->SetGridPos(dest.x, dest.y);
+							if (p->GetObject3d()) {
+								auto w = GridToWorld(dest.x, dest.y);
+								p->GetObject3d()->GetTransform().translate = w;
+							}
 						}
 					}
 				}
 			}
 
-			// 敵各ユニット（プレイヤー移動後の位置を考慮）
-			// 更新されたプレイヤー位置を反映するため、players を再取得しても良いが簡易的に現状の players を使う
+			// 敵各ユニット（プレイヤー移動後の占有状態を反映）
 			for (auto e : enemies) {
 				if (!e) continue;
 				StagePos ePos = e->GetGridPos();
+
 				int bestDist = INT_MAX;
 				BaseFighter* target = nullptr;
 				for (auto p : players) {
@@ -200,16 +265,32 @@ void BattlePhase::Update()
 					if (d < bestDist) { bestDist = d; target = p; }
 				}
 				if (!target) continue;
+
 				StagePos tPos = target->GetGridPos();
 				int range = e->GetStatus()->range;
 				if (Manhattan(ePos.x, ePos.y, tPos.x, tPos.y) > range) {
-					auto path = FindPathToRange(ePos, tPos, range);
+					auto path = FindPathToRange(ePos, tPos, range, occupied);
 					if (path.size() > 1) {
 						StagePos next = path[1];
-						e->SetGridPos(next.x, next.y);
-						if (e->GetObject3d()) {
-							auto w = GridToWorld(next.x, next.y);
-							e->GetObject3d()->GetTransform().translate = w;
+						StagePos dest = next;
+						if (!(next.x >= 0 && next.x < kStageWidth && next.y >= 0 && next.y < kStageHeight) ||
+							occupied[next.y][next.x]) {
+							dest = findAlternative(ePos, tPos);
+						}
+						if (!(dest.x == ePos.x && dest.y == ePos.y)) {
+							// 起点を空ける
+							if (ePos.x >= 0 && ePos.x < kStageWidth && ePos.y >= 0 && ePos.y < kStageHeight)
+								occupied[ePos.y][ePos.x] = false;
+							// 目的地を予約
+							if (dest.x >= 0 && dest.x < kStageWidth && dest.y >= 0 && dest.y < kStageHeight)
+								occupied[dest.y][dest.x] = true;
+
+							// 実際の移動
+							e->SetGridPos(dest.x, dest.y);
+							if (e->GetObject3d()) {
+								auto w = GridToWorld(dest.x, dest.y);
+								e->GetObject3d()->GetTransform().translate = w;
+							}
 						}
 					}
 				}
