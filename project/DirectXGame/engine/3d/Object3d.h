@@ -46,6 +46,11 @@ public:
 
 	Transform& GetTransform() { return transform_; }
 
+	// --- 点滅関連 ---
+	// durationSec: 点滅の合計時間（秒）
+	// intervalSec: 点滅の切り替え間隔（秒）
+	void StartBlink(float durationSec, float intervalSec = 0.1f);
+	void StopBlink();
 
 private:
 	Object3dCommon* object3dCommon_ = nullptr;
@@ -65,5 +70,12 @@ private:
 	DirectionalLight* directionalLightData = nullptr;
 
 	Transform transform_;
+
+	// 点滅用（フレームベース：60FPS 想定）
+	bool blinking_ = false;
+	bool visible_ = true;
+	int blinkFramesRemaining_ = 0;
+	int blinkIntervalFrames_ = 0;
+	int blinkIntervalCounter_ = 0;
 };
 

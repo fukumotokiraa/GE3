@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -108,6 +108,10 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\application\Fighter\Archer.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Clear.cpp" />
+    <ClCompile Include="DirectXGame\application\Fighter\BaseFighter.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Phase\BattlePhase.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\BaseScene.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\ParticleManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
@@ -139,13 +143,22 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\3d\ParticleEmitter.cpp" />
     <ClCompile Include="DirectXGame\application\MyGame.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Framework.cpp" />
-    <ClCompile Include="DirectXGame\application\Stage.cpp" />
+    <ClCompile Include="DirectXGame\application\Stage\Stage.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\GameScene.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\TitleScene.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\SceneManager.cpp" />
     <ClCompile Include="DirectXGame\application\Scene\PreGameScene.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Phase\SetPhase.cpp" />
+    <ClCompile Include="DirectXGame\application\Scene\Phase\PhaseCommon.cpp" />
+    <ClCompile Include="DirectXGame\application\Fighter\Knight.cpp" />
+    <ClCompile Include="DirectXGame\application\Fighter\Mage.cpp" />
+    <ClCompile Include="DirectXGame\application\Fighter\Guardian.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXGame\application\Fighter\Archer.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Clear.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\BaseFighter.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Phase\BattlePhase.h" />
     <ClInclude Include="DirectXGame\application\Scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\engine\3d\ParticleManager.h" />
     <ClInclude Include="DirectXGame\engine\base\Camera.h" />
@@ -182,11 +195,17 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\3d\ParticleEmitter.h" />
     <ClInclude Include="DirectXGame\application\MyGame.h" />
     <ClInclude Include="DirectXGame\engine\base\Framework.h" />
-    <ClInclude Include="DirectXGame\application\Stage.h" />
+    <ClInclude Include="DirectXGame\application\Stage\Stage.h" />
     <ClInclude Include="DirectXGame\application\Scene\GameScene.h" />
     <ClInclude Include="DirectXGame\application\Scene\TitleScene.h" />
     <ClInclude Include="DirectXGame\application\Scene\SceneManager.h" />
     <ClInclude Include="DirectXGame\application\Scene\PreGameScene.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Phase\SetPhase.h" />
+    <ClInclude Include="DirectXGame\application\Scene\Phase\PhaseCommon.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\Knight.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\Status.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\Mage.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\Guardian.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

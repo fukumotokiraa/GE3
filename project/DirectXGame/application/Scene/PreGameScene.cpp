@@ -68,7 +68,7 @@ void PreGameScene::Update()
 
 void PreGameScene::Draw()
 {
-	setSprite->Draw();
+	//setSprite->Draw();
 }
 
 void PreGameScene::StartSetSpriteAppear()

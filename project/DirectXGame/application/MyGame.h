@@ -4,7 +4,7 @@
 #include "Model.h"
 #include "Object3d.h"
 #include "ParticleEmitter.h"
-#include "Stage.h"
+#include "Stage/Stage.h"
 #include "Scene/GameScene.h"
 #include "Scene/TitleScene.h"
 #include "Scene/SceneManager.h"

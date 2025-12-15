@@ -117,30 +117,47 @@ void MyGame::Update()
 {
 #pragma region Update
 	input->Update();
-	if (input->PushKey(DIK_RIGHT))
-	{
-		camera->GetTranslate().x += 0.01f;
-	}
-	if (input->PushKey(DIK_LEFT))
-	{
-		camera->GetTranslate().x -= 0.01f;
-	}
-	if (input->PushKey(DIK_UP))
-	{
-		camera->GetTranslate().y += 0.01f;
-	}
-	if (input->PushKey(DIK_DOWN))
-	{
-		camera->GetTranslate().y -= 0.01f;
-	}
+	//if (input->PushKey(DIK_RIGHT))
+	//{
+	//	camera->GetTranslate().x += 0.01f;
+	//}
+	//if (input->PushKey(DIK_LEFT))
+	//{
+	//	camera->GetTranslate().x -= 0.01f;
+	//}
+	//if (input->PushKey(DIK_UP))
+	//{
+	//	camera->GetTranslate().y += 0.01f;
+	//}
+	//if (input->PushKey(DIK_DOWN))
+	//{
+	//	camera->GetTranslate().y -= 0.01f;
+	//}
+
+	//if (input->TriggerKey(DIK_SPACE) && spriteMoveState == SpriteMoveState::Idle) {
+	//	spriteMoveState = SpriteMoveState::Entering;
+	//	spriteMoveTimer = 0.0f;
+	//	swordMidState = SpriteMoveState::Idle;
+	//	swordBotState = SpriteMoveState::Idle;
+	//	swordMidTimer = 0.0f;
+	//	swordBotTimer = 0.0f;
+	//}
 
 	if (input->TriggerKey(DIK_SPACE) && spriteMoveState == SpriteMoveState::Idle) {
-		spriteMoveState = SpriteMoveState::Entering;
-		spriteMoveTimer = 0.0f;
-		swordMidState = SpriteMoveState::Idle;
-		swordBotState = SpriteMoveState::Idle;
-		swordMidTimer = 0.0f;
-		swordBotTimer = 0.0f;
+		BaseScene* current = sceneManager_->GetCurrentScene();
+		if (dynamic_cast<TitleScene*>(current)) {
+			// TitleScene→GameScene遷移時のみ演出あり
+			spriteMoveState = SpriteMoveState::Entering;
+			spriteMoveTimer = 0.0f;
+			swordMidState = SpriteMoveState::Idle;
+			swordBotState = SpriteMoveState::Idle;
+			swordMidTimer = 0.0f;
+			swordBotTimer = 0.0f;
+		}
+		else if (dynamic_cast<GameScene*>(current)) {
+			// GameScene→TitleScene遷移時は即遷移（演出なし）
+			sceneManager_->SetNextScene(new TitleScene());
+		}
 	}
 
 #pragma region MoveSprite
