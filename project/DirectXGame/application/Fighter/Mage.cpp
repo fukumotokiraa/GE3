@@ -8,14 +8,14 @@ void Mage::Initialize()
 	mageObject = new Object3d();
 	mageObject->Initialize(object3dCommon_, mageModel);
 	mageObject->SetModel("mage.gltf");
-	mageObject->GetTransform().translate = { 4.0f,1.0f,-4.0f };
+	mageObject->GetTransform().translate = { 3.0f,1.0f,-4.0f };
 	mageStatus = {
 		Faction::Player,
 		80,
 		80,
 		1, // moveRange
 		4, // range
-		60, // attack
+		10, // attack
 		0.6f // attackSpeed
 	};
 }

@@ -1,11 +1,14 @@
 #include "PhaseCommon.h"
 #include "BattlePhase.h"
+#include "Fighter/Knight.h"
+#include "Fighter/Mage.h"
 
 #include <queue>
 #include <vector>
 #include <array>
 #include <algorithm>
 #include <cmath>
+#include <climits>
 
 namespace {
 
@@ -28,8 +31,12 @@ inline Vector3 GridToWorld(int gx, int gy) {
 }
 
 // BFS で「start から探索し、相手 posTarget とのマンハッタン距離が targetRange に等しい最短セル」への経路を返す。
-// 経路は start から goal への順で StagePos を格納。到達済みならサイズ 1（start のみ）。
-std::vector<StagePos> FindPathToRange(StagePos start, StagePos posTarget, int targetRange)
+// occupied が true のセルは通行不可（ただし start は許可）。見つからなければ start のみを返す。
+std::vector<StagePos> FindPathToRange(
+	StagePos start,
+	StagePos posTarget,
+	int targetRange,
+	const std::array<std::array<bool, kStageWidth>, kStageHeight>& occupied)
 {
 	std::array<std::array<bool, kStageWidth>, kStageHeight> visited{};
 	std::array<std::array<StagePos, kStageWidth>, kStageHeight> parent{};
@@ -39,6 +46,7 @@ std::vector<StagePos> FindPathToRange(StagePos start, StagePos posTarget, int ta
 		return x >= 0 && x < kStageWidth && y >= 0 && y < kStageHeight;
 	};
 
+	// 開始セルは常に訪問済みとしてキューに入れる（自分は占有セルにいる想定）
 	q.push(start);
 	visited[start.y][start.x] = true;
 	parent[start.y][start.x] = start;
@@ -70,6 +78,8 @@ std::vector<StagePos> FindPathToRange(StagePos start, StagePos posTarget, int ta
 			int ny = cur.y + dy[i];
 			if (!inBounds(nx, ny)) continue;
 			if (visited[ny][nx]) continue;
+			// 占有セルは通行不可。ただし開始セルは既に処理済みなので別扱い不要。
+			if (occupied[ny][nx]) continue;
 
 			visited[ny][nx] = true;
 			parent[ny][nx] = cur;
@@ -102,70 +112,229 @@ void BattlePhase::Update()
 
 	if (!phaseCommon_) return;
 
-	auto player = phaseCommon_->GetMage();
-	auto enemy = phaseCommon_->GetEnemyKnight();
+	// プレイヤー側・敵側の全ユニットを取得
+	auto players = phaseCommon_->GetAllOfType<BaseFighter>(Team::Player);
+	auto enemies = phaseCommon_->GetAllOfType<BaseFighter>(Team::Enemy);
 
-	// --- 攻撃タイマー更新（片側のみでも更新） ---
-	if (player) player->UpdateAttackTimer(dt);
-	if (enemy) enemy->UpdateAttackTimer(dt);
+	// --- 攻撃タイマー更新（全ユニット） ---
+	for (auto p : players) if (p) p->UpdateAttackTimer(dt);
+	for (auto e : enemies) if (e) e->UpdateAttackTimer(dt);
 
-	// --- 攻撃処理（対象がいる場合のみ） ---
-	if (player && enemy) {
-		StagePos pPos = player->GetGridPos();
-		StagePos ePos = enemy->GetGridPos();
-		int dist = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
-
-		// プレイヤー攻撃
-		if (dist <= player->GetStatus()->range && player->CanAttack()) {
-			player->Attack(enemy);
+	// ヘルパ: ターゲットが有効か検証（生存かつ射程内）。無効ならクリアして false を返す。
+	auto validateTarget = [&](BaseFighter* self, BaseFighter*& target) -> bool {
+		if (!target) return false;
+		Status* ts = target->GetStatus();
+		if (!ts || !ts->IsAlive()) {
+			self->ClearCurrentTarget();
+			target = nullptr;
+			return false;
 		}
+		Status* my = self->GetStatus();
+		if (!my) { self->ClearCurrentTarget(); target = nullptr; return false; }
+		StagePos sPos = self->GetGridPos();
+		StagePos tPos = target->GetGridPos();
+		if (Manhattan(sPos.x, sPos.y, tPos.x, tPos.y) > my->range) {
+			// 射程外になったらロック解除
+			self->ClearCurrentTarget();
+			target = nullptr;
+			return false;
+		}
+		return true;
+	};
 
-		// 敵攻撃
-		if (dist <= enemy->GetStatus()->range && enemy->CanAttack()) {
-			enemy->Attack(player);
+	// --- 攻撃処理: 各プレイヤーが現在のロックターゲット（無ければ最寄り）を攻撃 ---
+	for (auto p : players) {
+		if (!p) continue;
+		BaseFighter* target = p->GetCurrentTarget();
+		// 無効ならクリア済みになる
+		if (!validateTarget(p, target)) {
+			// 最寄りの敵を新たにロック（距離は問わない。攻撃は射程チェックで行う）
+			int bestDist = INT_MAX;
+			BaseFighter* best = nullptr;
+			StagePos pPos = p->GetGridPos();
+			for (auto e : enemies) {
+				if (!e) continue;
+				StagePos ePos = e->GetGridPos();
+				int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+				if (d < bestDist) { bestDist = d; best = e; }
+			}
+			if (best) { p->SetCurrentTarget(best); target = best; }
+		}
+		// 攻撃判定（ターゲットが射程内かつクールが空いていれば攻撃）
+		if (target && p->GetStatus()) {
+			StagePos pPos = p->GetGridPos();
+			StagePos tPos = target->GetGridPos();
+			int dist = Manhattan(pPos.x, pPos.y, tPos.x, tPos.y);
+			if (dist <= p->GetStatus()->range && p->CanAttack()) {
+				p->Attack(target);
+			}
 		}
 	}
-	// 片側しかいない場合は攻撃対象がいないため何もしない（将来的には AI でターゲット探索などに拡張可）
+
+	// --- 敵側も同様にターゲットロックで攻撃 ---
+	for (auto e : enemies) {
+		if (!e) continue;
+		BaseFighter* target = e->GetCurrentTarget();
+		if (!validateTarget(e, target)) {
+			int bestDist = INT_MAX;
+			BaseFighter* best = nullptr;
+			StagePos ePos = e->GetGridPos();
+			for (auto p : players) {
+				if (!p) continue;
+				StagePos pPos = p->GetGridPos();
+				int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
+				if (d < bestDist) { bestDist = d; best = p; }
+			}
+			if (best) { e->SetCurrentTarget(best); target = best; }
+		}
+		if (target && e->GetStatus()) {
+			StagePos ePos = e->GetGridPos();
+			StagePos tPos = target->GetGridPos();
+			int dist = Manhattan(ePos.x, ePos.y, tPos.x, tPos.y);
+			if (dist <= e->GetStatus()->range && e->CanAttack()) {
+				e->Attack(target);
+			}
+		}
+	}
 
 	// 移動処理は moveInterval ごと
 	if (movementTimer_ >= moveInterval_) {
-		// 移動は相手が存在する場合のみ行う（片方が死んでいたら移動先が無いため）
-		if (player && enemy) {
-			// まずプレイヤーを移動（プレイヤー優先）
-			{
-				StagePos pPos = player->GetGridPos();
-				StagePos ePos = enemy->GetGridPos();
-				int range = player->GetStatus()->range;
+		// 占有マップを作成（true = そのセルは既に誰かがいる／予約済み）
+		std::array<std::array<bool, kStageWidth>, kStageHeight> occupied{};
+		for (auto &row : occupied) row.fill(false);
 
-				// 既に範囲内なら何もしない
-				if (Manhattan(pPos.x, pPos.y, ePos.x, ePos.y) > range) {
-					auto path = FindPathToRange(pPos, ePos, range);
-					// path[0] == start, path[1] が次のマス
+		// 現在位置で埋める（プレイヤー＋敵）
+		for (auto p : players) {
+			if (!p) continue;
+			StagePos pos = p->GetGridPos();
+			if (pos.x >= 0 && pos.x < kStageWidth && pos.y >= 0 && pos.y < kStageHeight)
+				occupied[pos.y][pos.x] = true;
+		}
+		for (auto e : enemies) {
+			if (!e) continue;
+			StagePos pos = e->GetGridPos();
+			if (pos.x >= 0 && pos.x < kStageWidth && pos.y >= 0 && pos.y < kStageHeight)
+				occupied[pos.y][pos.x] = true;
+		}
+
+		auto findAlternative = [&](const StagePos &cur, const StagePos &target)->StagePos {
+			// 近傍の未占有セルをターゲットへの距離で選択
+			const int dx[4] = { 1, -1, 0, 0 };
+			const int dy[4] = { 0, 0, 1, -1 };
+			int bestDist = INT_MAX;
+			StagePos best = cur;
+			for (int i = 0; i < 4; ++i) {
+				int nx = cur.x + dx[i];
+				int ny = cur.y + dy[i];
+				if (nx < 0 || nx >= kStageWidth || ny < 0 || ny >= kStageHeight) continue;
+				if (occupied[ny][nx]) continue;
+				int d = Manhattan(nx, ny, target.x, target.y);
+				if (d < bestDist) {
+					bestDist = d;
+					best = { nx, ny };
+				}
+			}
+			return best;
+		};
+
+		// プレイヤー各ユニットを順に移動（移動可能なら起点を空け、移動先を予約）
+		if (!players.empty() && !enemies.empty()) {
+			for (auto p : players) {
+				if (!p) continue;
+				StagePos pPos = p->GetGridPos();
+
+				// 現在のロックターゲットを確認／無ければ最寄りに設定
+				BaseFighter* target = p->GetCurrentTarget();
+				if (!validateTarget(p, target)) {
+					int bestDist = INT_MAX;
+					BaseFighter* best = nullptr;
+					for (auto e : enemies) {
+						if (!e) continue;
+						StagePos ePos = e->GetGridPos();
+						int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+						if (d < bestDist) { bestDist = d; best = e; }
+					}
+					if (best) { p->SetCurrentTarget(best); target = best; }
+				}
+				if (!target) continue;
+
+				StagePos tPos = target->GetGridPos();
+				int range = p->GetStatus() ? p->GetStatus()->range : 0;
+				if (Manhattan(pPos.x, pPos.y, tPos.x, tPos.y) > range) {
+					// 占有マップを考慮した BFS で経路探索（長距離迂回対応）
+					auto path = FindPathToRange(pPos, tPos, range, occupied);
 					if (path.size() > 1) {
 						StagePos next = path[1];
-						player->SetGridPos(next.x, next.y);
-						if (player->GetMageObject()) {
-							auto w = GridToWorld(next.x, next.y);
-							player->GetMageObject()->GetTransform().translate = w;
+						// 次が占有されている場合は代替近傍セルを探す（保険）
+						StagePos dest = next;
+						if (!(next.x >= 0 && next.x < kStageWidth && next.y >= 0 && next.y < kStageHeight) ||
+							occupied[next.y][next.x]) {
+							dest = findAlternative(pPos, tPos);
+						}
+						// dest が現位置でなければ移動（未占有が保証されている）
+						if (!(dest.x == pPos.x && dest.y == pPos.y)) {
+							// 起点を空ける
+							if (pPos.x >= 0 && pPos.x < kStageWidth && pPos.y >= 0 && pPos.y < kStageHeight)
+								occupied[pPos.y][pPos.x] = false;
+							// 目的地を予約
+							if (dest.x >= 0 && dest.x < kStageWidth && dest.y >= 0 && dest.y < kStageHeight)
+								occupied[dest.y][dest.x] = true;
+
+							// 実際の移動
+							p->SetGridPos(dest.x, dest.y);
+							if (p->GetObject3d()) {
+								auto w = GridToWorld(dest.x, dest.y);
+								p->GetObject3d()->GetTransform().translate = w;
+							}
 						}
 					}
 				}
 			}
 
-			// 次に敵を移動
-			{
-				StagePos pPos = player->GetGridPos(); // プレイヤーが既に移動している可能性を反映
-				StagePos ePos = enemy->GetGridPos();
-				int range = enemy->GetStatus()->range;
+			// 敵各ユニット（プレイヤー移動後の占有状態を反映）
+			for (auto e : enemies) {
+				if (!e) continue;
+				StagePos ePos = e->GetGridPos();
 
-				if (Manhattan(ePos.x, ePos.y, pPos.x, pPos.y) > range) {
-					auto path = FindPathToRange(ePos, pPos, range);
+				BaseFighter* target = e->GetCurrentTarget();
+				if (!validateTarget(e, target)) {
+					int bestDist = INT_MAX;
+					BaseFighter* best = nullptr;
+					for (auto p : players) {
+						if (!p) continue;
+						StagePos pPos = p->GetGridPos();
+						int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
+						if (d < bestDist) { bestDist = d; best = p; }
+					}
+					if (best) { e->SetCurrentTarget(best); target = best; }
+				}
+				if (!target) continue;
+
+				StagePos tPos = target->GetGridPos();
+				int range = e->GetStatus() ? e->GetStatus()->range : 0;
+				if (Manhattan(ePos.x, ePos.y, tPos.x, tPos.y) > range) {
+					auto path = FindPathToRange(ePos, tPos, range, occupied);
 					if (path.size() > 1) {
 						StagePos next = path[1];
-						enemy->SetGridPos(next.x, next.y);
-						if (enemy->GetKnightObject()) {
-							auto w = GridToWorld(next.x, next.y);
-							enemy->GetKnightObject()->GetTransform().translate = w;
+						StagePos dest = next;
+						if (!(next.x >= 0 && next.x < kStageWidth && next.y >= 0 && next.y < kStageHeight) ||
+							occupied[next.y][next.x]) {
+							dest = findAlternative(ePos, tPos);
+						}
+						if (!(dest.x == ePos.x && dest.y == ePos.y)) {
+							// 起点を空ける
+							if (ePos.x >= 0 && ePos.x < kStageWidth && ePos.y >= 0 && ePos.y < kStageHeight)
+								occupied[ePos.y][ePos.x] = false;
+							// 目的地を予約
+							if (dest.x >= 0 && dest.x < kStageWidth && dest.y >= 0 && dest.y < kStageHeight)
+								occupied[dest.y][dest.x] = true;
+
+							// 実際の移動
+							e->SetGridPos(dest.x, dest.y);
+							if (e->GetObject3d()) {
+								auto w = GridToWorld(dest.x, dest.y);
+								e->GetObject3d()->GetTransform().translate = w;
+							}
 						}
 					}
 				}

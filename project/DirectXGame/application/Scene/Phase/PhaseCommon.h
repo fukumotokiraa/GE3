@@ -1,17 +1,20 @@
 #pragma once
 
-#include <vector>
 #include <memory>
-#include <algorithm>
+#include <vector>
+#include <unordered_map>
+#include <string>
 
-#include "Model.h"
-#include "ModelManager.h"
-#include "Sprite.h"
-#include "Input.h"
 #include "Object3dCommon.h"
+#include "Input.h"
+#include "Fighter/FighterFactory.h"
 #include "Fighter/BaseFighter.h"
-#include "Fighter/Knight.h"
-#include "Fighter/Mage.h"
+
+// forward declarations for compatibility getters
+class Knight;
+class Mage;
+
+enum class Team { Player, Enemy, Neutral };
 
 class PhaseCommon
 {
@@ -23,18 +26,56 @@ public:
 
 	Input* GetInput() { return input_; }
 
-	// 互換性のため：最初の Player / Enemy を返す（存在しなければ nullptr）
-	Knight* GetKnight();
-	Knight* GetEnemyKnight();
 
-	Mage* GetMage();
 
-	// 全ファイターへの参照が必要ならこちらを使う
+	// 全ファイターへの参照
 	const std::vector<std::unique_ptr<BaseFighter>>& GetFighters() const { return fighters_; }
+
+	// 汎用スポーン / クエリ
+	BaseFighter* SpawnFighter(FighterType type, Team team);
+	std::vector<BaseFighter*> GetFightersByTeam(Team team);
+	std::vector<BaseFighter*> GetFightersByType(FighterType type);
+
+	// ---- ここから追加: テンプレートベースの汎用取得 ----
+	// 指定型の最初のインスタンスを返す（team を指定しなければ最初に見つかったもの）
+	template<typename T>
+	T* GetFirstOfType(Team team = Team::Neutral)
+	{
+		for (auto& up : fighters_) {
+			if (auto p = dynamic_cast<T*>(up.get())) {
+				if (team == Team::Neutral) return p;
+				auto it = teamMap_.find(p);
+				if (it != teamMap_.end() && it->second == team) return p;
+			}
+		}
+		return nullptr;
+	}
+
+	// 指定型の全インスタンスを返す（team を指定すると絞り込む）
+	template<typename T>
+	std::vector<T*> GetAllOfType(Team team = Team::Neutral)
+	{
+		std::vector<T*> out;
+		out.reserve(fighters_.size());
+		for (auto& up : fighters_) {
+			if (auto p = dynamic_cast<T*>(up.get())) {
+				if (team == Team::Neutral) { out.push_back(p); continue; }
+				auto it = teamMap_.find(p);
+				if (it != teamMap_.end() && it->second == team) out.push_back(p);
+			}
+		}
+		return out;
+	}
+	// ---- ここまで追加 ----
+
 
 private:
 	Object3dCommon* object3dCommon_ = nullptr;
 	std::vector<std::unique_ptr<BaseFighter>> fighters_;
 	Input* input_ = nullptr;
+
+	// メタ情報（fighters_ が所有）
+	std::unordered_map<BaseFighter*, FighterType> typeMap_;
+	std::unordered_map<BaseFighter*, Team> teamMap_;
 };
 

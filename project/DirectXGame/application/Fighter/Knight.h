@@ -14,8 +14,7 @@ public:
 	void OnHit() override;
 
 	Status* GetStatus() override { return &knightStatus; }
-
-	Object3d* GetKnightObject() { return knightObject; }
+	Object3d* GetObject3d() override { return knightObject; }
 
 
 private:

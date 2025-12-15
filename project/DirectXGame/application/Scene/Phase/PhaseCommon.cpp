@@ -1,113 +1,109 @@
 #include "PhaseCommon.h"
-
-static inline Vector3 GridToWorld(int gx, int gy)
-{
-	return { -4.0f + static_cast<float>(gx) * 1.0f, 1.0f, -4.0f + static_cast<float>(gy) * 1.0f };
-}
+#include <stdexcept>
+#include "Fighter/Knight.h"
+#include "Fighter/Mage.h"
+#include "Fighter/FighterFactory.h"
 
 void PhaseCommon::Initialize(Object3dCommon* object3dCommon, Input* input)
 {
 	object3dCommon_ = object3dCommon;
 	input_ = input;
-
-	// Player Knight の生成
-	{
-		auto p = std::make_unique<Mage>();
-		p->SetObject3dCommon(object3dCommon_);
-		p->Initialize();
-		p->SetFaction(Faction::Player);
-		p->SetGridPos(0, 0);
-		if (auto kObj = p->GetMageObject()) {
-			kObj->GetTransform().translate = GridToWorld(p->GetGridPos().x, p->GetGridPos().y);
-		}
-		fighters_.push_back(std::move(p));
-	}
-
-	// Enemy Knight の生成（テスト用）
-	{
-		auto e = std::make_unique<Knight>();
-		e->SetObject3dCommon(object3dCommon_);
-		e->Initialize();
-		e->SetFaction(Faction::Enemy);
-		e->SetGridPos(7, 7);
-		if (auto kObj = e->GetKnightObject()) {
-			kObj->GetTransform().translate = GridToWorld(e->GetGridPos().x, e->GetGridPos().y);
-		}
-		fighters_.push_back(std::move(e));
-	}
+	// 必要なら既存の fighters_ 初期化処理を追加
 }
 
 void PhaseCommon::Finalize()
 {
-	// Finalize を呼んでからコンテナをクリア
-	for (auto& f : fighters_) {
-		if (f) f->Finalize();
-	}
+	// すべてのファイターを破棄してマップをクリア
 	fighters_.clear();
+	typeMap_.clear();
+	teamMap_.clear();
+	object3dCommon_ = nullptr;
+	input_ = nullptr;
 }
 
 void PhaseCommon::Update()
 {
-	// 各ファイターを更新
+	// まず全ファイターを更新
 	for (auto& f : fighters_) {
-		if (f) f->Update();
+		if (f) { f->Update(); }
 	}
 
-	// 死亡したファイターを除去（Finalize を呼んでから erase）
-	fighters_.erase(
-		std::remove_if(fighters_.begin(), fighters_.end(),
-			[](const std::unique_ptr<BaseFighter>& f) {
-				if (!f) return true;
-				Status* s = f->GetStatus();
-				if (!s || !s->IsAlive()) {
-					f->Finalize();
-					return true;
-				}
-				return false;
-			}),
-		fighters_.end()
-	);
+	// その後、死亡したファイターを片付ける（Finalize を呼んで map からも消す）
+	for (auto it = fighters_.begin(); it != fighters_.end(); ) {
+		BaseFighter* p = it->get();
+		if (p) {
+			Status* s = p->GetStatus();
+			if (s && !s->IsAlive()) {
+				// 後片付け
+				p->Finalize();
+				typeMap_.erase(p);
+				teamMap_.erase(p);
+				it = fighters_.erase(it);
+				continue;
+			}
+		}
+		++it;
+	}
 }
 
 void PhaseCommon::Draw()
 {
 	for (auto& f : fighters_) {
-		if (f) f->Draw();
+		if (f) { f->Draw(); }
 	}
 }
 
-Knight* PhaseCommon::GetKnight()
+BaseFighter* PhaseCommon::SpawnFighter(FighterType type, Team team)
 {
-	for (auto& f : fighters_) {
-		if (!f) continue;
-		Status* s = f->GetStatus();
-		if (s && s->faction == Faction::Player) {
-			return dynamic_cast<Knight*>(f.get());
-		}
+	// Factory で生成
+	auto fighter = FighterFactory::Create(type);
+	if (!fighter) {
+		throw std::runtime_error("Failed to create fighter");
 	}
-	return nullptr;
+
+	// 所有権を保持するために vector に push
+	fighters_.push_back(std::move(fighter));
+	BaseFighter* ptr = fighters_.back().get();
+
+	// メタデータ登録
+	typeMap_[ptr] = type;
+	teamMap_[ptr] = team;
+
+	// 重要: Object3dCommon を渡してから初期化する（Mage::Initialize が依存）
+	ptr->SetObject3dCommon(object3dCommon_);
+
+	// 初期化（BaseFighter::Initialize は引数無しの想定）
+	ptr->Initialize();
+
+	return ptr;
 }
 
-Knight* PhaseCommon::GetEnemyKnight()
+std::vector<BaseFighter*> PhaseCommon::GetFightersByTeam(Team team)
 {
-	for (auto& f : fighters_) {
-		if (!f) continue;
-		Status* s = f->GetStatus();
-		if (s && s->faction == Faction::Enemy) {
-			return dynamic_cast<Knight*>(f.get());
+	std::vector<BaseFighter*> out;
+	out.reserve(fighters_.size());
+	for (auto& up : fighters_) {
+		BaseFighter* p = up.get();
+		if (!p) continue;
+		auto it = teamMap_.find(p);
+		if (it != teamMap_.end() && it->second == team) {
+			out.push_back(p);
 		}
 	}
-	return nullptr;
+	return out;
 }
 
-Mage* PhaseCommon::GetMage()
+std::vector<BaseFighter*> PhaseCommon::GetFightersByType(FighterType type)
 {
-	for (auto& f : fighters_) {
-		if (!f) continue;
-		Status* s = f->GetStatus();
-		if (s && s->faction == Faction::Player) {
-			return dynamic_cast<Mage*>(f.get());
+	std::vector<BaseFighter*> out;
+	out.reserve(fighters_.size());
+	for (auto& up : fighters_) {
+		BaseFighter* p = up.get();
+		if (!p) continue;
+		auto it = typeMap_.find(p);
+		if (it != typeMap_.end() && it->second == type) {
+			out.push_back(p);
 		}
 	}
-	return nullptr;
+	return out;
 }
