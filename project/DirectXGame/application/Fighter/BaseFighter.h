@@ -17,6 +17,7 @@ public:
 	virtual void OnHit() {}
 
 	virtual Status* GetStatus() = 0;
+	virtual Object3d* GetObject3d() { return nullptr; }
 
 	void SetObject3dCommon(Object3dCommon* object3dCommon) { object3dCommon_ = object3dCommon; }
 

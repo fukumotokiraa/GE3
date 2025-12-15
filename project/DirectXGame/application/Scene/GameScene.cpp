@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "Fighter/Knight.h"
+#include "Fighter/FighterFactory.h"
 
 void GameScene::Initialize()
 {
@@ -30,6 +31,36 @@ void GameScene::Initialize()
 
 	phaseCommon_ = new PhaseCommon();
     phaseCommon_->Initialize(object3dCommon_, input_);
+	// ここでプレイヤー用 Mage を確実に生成しておく
+	//phaseCommon_->SpawnFighter(FighterType::Mage, Team::Player);
+	const float kOriginX = -4.0f;
+	const float kOriginY = -4.0f;
+	const float kBlockSize = 1.0f;
+	const float kWorldHeight = 1.0f;
+	// プレイヤー：ナイトを左端に置く（例：グリッド (0,0)）
+	if (auto pKnight = phaseCommon_->SpawnFighter(FighterType::Knight, Team::Player)) {
+		pKnight->SetGridPos(0, 0);
+		if (auto obj = pKnight->GetObject3d()) {
+			obj->GetTransform().translate = { kOriginX + 0 * kBlockSize, kWorldHeight, kOriginY + 0 * kBlockSize };
+		}
+	}
+
+	// プレイヤー：メイジを右端に置く（例：グリッド (7,0)）
+	if (auto pMage = phaseCommon_->SpawnFighter(FighterType::Mage, Team::Player)) {
+		pMage->SetGridPos(7, 0);
+		if (auto obj = pMage->GetObject3d()) {
+			obj->GetTransform().translate = { kOriginX + 7 * kBlockSize, kWorldHeight, kOriginY + 0 * kBlockSize };
+		}
+	}
+
+	// 敵：ナイトを中央付近に置く（例：グリッド (4,7)）
+	if (auto eKnight = phaseCommon_->SpawnFighter(FighterType::Knight, Team::Enemy)) {
+		eKnight->SetGridPos(4, 7);
+		if (auto obj = eKnight->GetObject3d()) {
+			obj->GetTransform().translate = { kOriginX + 4 * kBlockSize, kWorldHeight, kOriginY + 7 * kBlockSize };
+		}
+	}
+
 	setPhase_ = new SetPhase();
 	setPhase_->Initialize(phaseCommon_);
 
@@ -157,7 +188,7 @@ void GameScene::Update()
 	if (battlePhase_ && phaseCommon_) {
 		// PhaseCommon::Update() ですでに死亡したファイターは除去されているため
 		// GetEnemyKnight() が nullptr なら敵は存在しないと判断できる
-		if (phaseCommon_->GetEnemyKnight() == nullptr) {
+		if (phaseCommon_->GetFirstOfType<Knight>(Team::Enemy) == nullptr) {
 			if (loseSpriteState_ == LoseSpriteState::Idle) {
 				loseSpriteState_ = LoseSpriteState::Entering;
 				loseSpriteTimer_ = 0.0f;

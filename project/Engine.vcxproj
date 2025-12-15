@@ -153,6 +153,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\Fighter\Knight.cpp" />
     <ClCompile Include="DirectXGame\application\Fighter\Mage.cpp" />
     <ClCompile Include="DirectXGame\application\Fighter\Guardian.cpp" />
+    <ClCompile Include="DirectXGame\application\Fighter\FighterFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXGame\application\Fighter\Archer.h" />
@@ -206,6 +207,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\Fighter\Status.h" />
     <ClInclude Include="DirectXGame\application\Fighter\Mage.h" />
     <ClInclude Include="DirectXGame\application\Fighter\Guardian.h" />
+    <ClInclude Include="DirectXGame\application\Fighter\FighterFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

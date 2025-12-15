@@ -8,7 +8,7 @@ void Mage::Initialize()
 	mageObject = new Object3d();
 	mageObject->Initialize(object3dCommon_, mageModel);
 	mageObject->SetModel("mage.gltf");
-	mageObject->GetTransform().translate = { 4.0f,1.0f,-4.0f };
+	mageObject->GetTransform().translate = { 3.0f,1.0f,-4.0f };
 	mageStatus = {
 		Faction::Player,
 		80,

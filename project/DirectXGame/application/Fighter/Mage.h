@@ -14,8 +14,7 @@ class Mage : public BaseFighter
 	void OnHit() override;
 
 	Status* GetStatus() override { return &mageStatus; }
-
-	Object3d* GetMageObject() { return mageObject; }
+	Object3d* GetObject3d() override { return mageObject; }
 	
 
 private:

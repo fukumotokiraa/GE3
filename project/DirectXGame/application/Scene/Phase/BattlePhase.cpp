@@ -1,5 +1,7 @@
 #include "PhaseCommon.h"
 #include "BattlePhase.h"
+#include "Fighter/Knight.h"
+#include "Fighter/Mage.h"
 
 #include <queue>
 #include <vector>
@@ -102,70 +104,112 @@ void BattlePhase::Update()
 
 	if (!phaseCommon_) return;
 
-	auto player = phaseCommon_->GetMage();
-	auto enemy = phaseCommon_->GetEnemyKnight();
+	// プレイヤー側・敵側の全ユニットを取得
+	auto players = phaseCommon_->GetAllOfType<BaseFighter>(Team::Player);
+	auto enemies = phaseCommon_->GetAllOfType<BaseFighter>(Team::Enemy);
 
-	// --- 攻撃タイマー更新（片側のみでも更新） ---
-	if (player) player->UpdateAttackTimer(dt);
-	if (enemy) enemy->UpdateAttackTimer(dt);
+	// --- 攻撃タイマー更新（全ユニット） ---
+	for (auto p : players) if (p) p->UpdateAttackTimer(dt);
+	for (auto e : enemies) if (e) e->UpdateAttackTimer(dt);
 
-	// --- 攻撃処理（対象がいる場合のみ） ---
-	if (player && enemy) {
-		StagePos pPos = player->GetGridPos();
-		StagePos ePos = enemy->GetGridPos();
-		int dist = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
-
-		// プレイヤー攻撃
-		if (dist <= player->GetStatus()->range && player->CanAttack()) {
-			player->Attack(enemy);
+	// --- 攻撃処理: 各プレイヤーが最寄りの敵を攻撃 ---
+	for (auto p : players) {
+		if (!p) continue;
+		if (enemies.empty()) break;
+		// 最寄りの敵を選択
+		StagePos pPos = p->GetGridPos();
+		int bestDist = INT_MAX;
+		BaseFighter* target = nullptr;
+		for (auto e : enemies) {
+			if (!e) continue;
+			StagePos ePos = e->GetGridPos();
+			int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+			if (d < bestDist) { bestDist = d; target = e; }
 		}
-
-		// 敵攻撃
-		if (dist <= enemy->GetStatus()->range && enemy->CanAttack()) {
-			enemy->Attack(player);
+		if (target) {
+			if (bestDist <= p->GetStatus()->range && p->CanAttack()) {
+				p->Attack(target);
+			}
 		}
 	}
-	// 片側しかいない場合は攻撃対象がいないため何もしない（将来的には AI でターゲット探索などに拡張可）
+
+	// --- 敵側も同様に攻撃（各敵が最寄りのプレイヤーを攻撃） ---
+	for (auto e : enemies) {
+		if (!e) continue;
+		if (players.empty()) break;
+		StagePos ePos = e->GetGridPos();
+		int bestDist = INT_MAX;
+		BaseFighter* target = nullptr;
+		for (auto p : players) {
+			if (!p) continue;
+			StagePos pPos = p->GetGridPos();
+			int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
+			if (d < bestDist) { bestDist = d; target = p; }
+		}
+		if (target) {
+			if (bestDist <= e->GetStatus()->range && e->CanAttack()) {
+				e->Attack(target);
+			}
+		}
+	}
 
 	// 移動処理は moveInterval ごと
 	if (movementTimer_ >= moveInterval_) {
-		// 移動は相手が存在する場合のみ行う（片方が死んでいたら移動先が無いため）
-		if (player && enemy) {
-			// まずプレイヤーを移動（プレイヤー優先）
-			{
-				StagePos pPos = player->GetGridPos();
-				StagePos ePos = enemy->GetGridPos();
-				int range = player->GetStatus()->range;
-
-				// 既に範囲内なら何もしない
-				if (Manhattan(pPos.x, pPos.y, ePos.x, ePos.y) > range) {
-					auto path = FindPathToRange(pPos, ePos, range);
-					// path[0] == start, path[1] が次のマス
+		// プレイヤー側を先に移動（複数ユニットにも対応）
+		if (!players.empty() && !enemies.empty()) {
+			// プレイヤー各ユニット
+			for (auto p : players) {
+				if (!p) continue;
+				// 最寄りの敵を選択
+				StagePos pPos = p->GetGridPos();
+				int bestDist = INT_MAX;
+				BaseFighter* target = nullptr;
+				for (auto e : enemies) {
+					if (!e) continue;
+					StagePos ePos = e->GetGridPos();
+					int d = Manhattan(pPos.x, pPos.y, ePos.x, ePos.y);
+					if (d < bestDist) { bestDist = d; target = e; }
+				}
+				if (!target) continue;
+				StagePos tPos = target->GetGridPos();
+				int range = p->GetStatus()->range;
+				if (Manhattan(pPos.x, pPos.y, tPos.x, tPos.y) > range) {
+					auto path = FindPathToRange(pPos, tPos, range);
 					if (path.size() > 1) {
 						StagePos next = path[1];
-						player->SetGridPos(next.x, next.y);
-						if (player->GetMageObject()) {
+						p->SetGridPos(next.x, next.y);
+						if (p->GetObject3d()) {
 							auto w = GridToWorld(next.x, next.y);
-							player->GetMageObject()->GetTransform().translate = w;
+							p->GetObject3d()->GetTransform().translate = w;
 						}
 					}
 				}
 			}
 
-			// 次に敵を移動
-			{
-				StagePos pPos = player->GetGridPos(); // プレイヤーが既に移動している可能性を反映
-				StagePos ePos = enemy->GetGridPos();
-				int range = enemy->GetStatus()->range;
-
-				if (Manhattan(ePos.x, ePos.y, pPos.x, pPos.y) > range) {
-					auto path = FindPathToRange(ePos, pPos, range);
+			// 敵各ユニット（プレイヤー移動後の位置を考慮）
+			// 更新されたプレイヤー位置を反映するため、players を再取得しても良いが簡易的に現状の players を使う
+			for (auto e : enemies) {
+				if (!e) continue;
+				StagePos ePos = e->GetGridPos();
+				int bestDist = INT_MAX;
+				BaseFighter* target = nullptr;
+				for (auto p : players) {
+					if (!p) continue;
+					StagePos pPos = p->GetGridPos();
+					int d = Manhattan(ePos.x, ePos.y, pPos.x, pPos.y);
+					if (d < bestDist) { bestDist = d; target = p; }
+				}
+				if (!target) continue;
+				StagePos tPos = target->GetGridPos();
+				int range = e->GetStatus()->range;
+				if (Manhattan(ePos.x, ePos.y, tPos.x, tPos.y) > range) {
+					auto path = FindPathToRange(ePos, tPos, range);
 					if (path.size() > 1) {
 						StagePos next = path[1];
-						enemy->SetGridPos(next.x, next.y);
-						if (enemy->GetKnightObject()) {
+						e->SetGridPos(next.x, next.y);
+						if (e->GetObject3d()) {
 							auto w = GridToWorld(next.x, next.y);
-							enemy->GetKnightObject()->GetTransform().translate = w;
+							e->GetObject3d()->GetTransform().translate = w;
 						}
 					}
 				}
