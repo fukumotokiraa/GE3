@@ -13,11 +13,10 @@ public:
 	virtual void Finalize() = 0;
 	virtual void Update() = 0;
 	virtual void Draw() = 0;
-
-	virtual Status* GetStatus() = 0;
-
 	// 被弾時のリアクション（デフォルトは何もしない）
 	virtual void OnHit() {}
+
+	virtual Status* GetStatus() = 0;
 
 	void SetObject3dCommon(Object3dCommon* object3dCommon) { object3dCommon_ = object3dCommon; }
 

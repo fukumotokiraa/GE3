@@ -12,12 +12,12 @@ void PhaseCommon::Initialize(Object3dCommon* object3dCommon, Input* input)
 
 	// Player Knight の生成
 	{
-		auto p = std::make_unique<Knight>();
+		auto p = std::make_unique<Mage>();
 		p->SetObject3dCommon(object3dCommon_);
 		p->Initialize();
 		p->SetFaction(Faction::Player);
 		p->SetGridPos(0, 0);
-		if (auto kObj = p->GetKnightObject()) {
+		if (auto kObj = p->GetMageObject()) {
 			kObj->GetTransform().translate = GridToWorld(p->GetGridPos().x, p->GetGridPos().y);
 		}
 		fighters_.push_back(std::move(p));
@@ -95,6 +95,18 @@ Knight* PhaseCommon::GetEnemyKnight()
 		Status* s = f->GetStatus();
 		if (s && s->faction == Faction::Enemy) {
 			return dynamic_cast<Knight*>(f.get());
+		}
+	}
+	return nullptr;
+}
+
+Mage* PhaseCommon::GetMage()
+{
+	for (auto& f : fighters_) {
+		if (!f) continue;
+		Status* s = f->GetStatus();
+		if (s && s->faction == Faction::Player) {
+			return dynamic_cast<Mage*>(f.get());
 		}
 	}
 	return nullptr;

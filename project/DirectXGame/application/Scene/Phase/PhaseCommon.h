@@ -11,6 +11,7 @@
 #include "Object3dCommon.h"
 #include "Fighter/BaseFighter.h"
 #include "Fighter/Knight.h"
+#include "Fighter/Mage.h"
 
 class PhaseCommon
 {
@@ -25,6 +26,8 @@ public:
 	// 互換性のため：最初の Player / Enemy を返す（存在しなければ nullptr）
 	Knight* GetKnight();
 	Knight* GetEnemyKnight();
+
+	Mage* GetMage();
 
 	// 全ファイターへの参照が必要ならこちらを使う
 	const std::vector<std::unique_ptr<BaseFighter>>& GetFighters() const { return fighters_; }

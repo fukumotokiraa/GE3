@@ -102,7 +102,7 @@ void BattlePhase::Update()
 
 	if (!phaseCommon_) return;
 
-	auto player = phaseCommon_->GetKnight();
+	auto player = phaseCommon_->GetMage();
 	auto enemy = phaseCommon_->GetEnemyKnight();
 
 	// --- 攻撃タイマー更新（片側のみでも更新） ---
@@ -144,9 +144,9 @@ void BattlePhase::Update()
 					if (path.size() > 1) {
 						StagePos next = path[1];
 						player->SetGridPos(next.x, next.y);
-						if (player->GetKnightObject()) {
+						if (player->GetMageObject()) {
 							auto w = GridToWorld(next.x, next.y);
-							player->GetKnightObject()->GetTransform().translate = w;
+							player->GetMageObject()->GetTransform().translate = w;
 						}
 					}
 				}
