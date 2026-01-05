@@ -341,6 +341,9 @@
     <ClInclude Include="DirectXGame\application\Fighter\FighterFactory.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="cpp DirectXGame\engine\3d\ModelManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

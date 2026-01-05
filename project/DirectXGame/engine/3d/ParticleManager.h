@@ -80,6 +80,8 @@ public:
 
 	void Finalize();
 
+	static void DestroyInstance();
+
 	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager,Object3dCommon*object3dCommon);
 
 	void Update();

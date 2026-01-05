@@ -46,6 +46,7 @@ void Framework::Initialize()
 void Framework::Finalize()
 {
 	ParticleManager::GetInstance()->Finalize();
+	ParticleManager::DestroyInstance();
 	delete spriteCommon;
 	delete imguiManager;
 	delete srvManager;

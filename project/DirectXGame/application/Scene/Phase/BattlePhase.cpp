@@ -48,8 +48,10 @@ std::vector<StagePos> FindPathToRange(
 
 	// 開始セルは常に訪問済みとしてキューに入れる（自分は占有セルにいる想定）
 	q.push(start);
-	visited[start.y][start.x] = true;
-	parent[start.y][start.x] = start;
+	if (inBounds(start.x, start.y)) {
+		visited[start.y][start.x] = true;
+		parent[start.y][start.x] = start;
+	}
 
 	// 4方向
 	const int dx[4] = { 1, -1, 0, 0 };
@@ -58,7 +60,6 @@ std::vector<StagePos> FindPathToRange(
 	while (!q.empty()) {
 		auto cur = q.front(); q.pop();
 
-		// 目標条件：cur のマンハッタン距離が targetRange ならこれが目的セル
 		if (Manhattan(cur.x, cur.y, posTarget.x, posTarget.y) == targetRange) {
 			// パス復元
 			std::vector<StagePos> path;
@@ -123,6 +124,20 @@ void BattlePhase::Update()
 	// ヘルパ: ターゲットが有効か検証（生存かつ射程内）。無効ならクリアして false を返す。
 	auto validateTarget = [&](BaseFighter* self, BaseFighter*& target) -> bool {
 		if (!target) return false;
+
+		// 重要: target が PhaseCommon にまだ登録された有効なポインタか確認する
+		bool managed = false;
+		const auto& all = phaseCommon_->GetFighters();
+		for (const auto& up : all) {
+			if (up.get() == target) { managed = true; break; }
+		}
+		if (!managed) {
+			// 既に削除済み（ダングリング）の可能性があるためクリアする
+			self->ClearCurrentTarget();
+			target = nullptr;
+			return false;
+		}
+
 		Status* ts = target->GetStatus();
 		if (!ts || !ts->IsAlive()) {
 			self->ClearCurrentTarget();
