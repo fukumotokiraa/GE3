@@ -150,8 +150,28 @@ ParticleManager* ParticleManager::GetInstance()
 
 void ParticleManager::Finalize()
 {
-	delete instance;
-	instance = nullptr;
+	// GPUリソースやコンテナを解放
+	particleGroups_.clear();
+
+	// ComPtr やポインタのクリア
+	materialResource_.Reset();
+	graphicsPipelineState.Reset();
+	rootSignature.Reset();
+	vertexShaderBlob.Reset();
+	pixelShaderBlob.Reset();
+	// その他参照を切る
+	dxCommon_ = nullptr;
+	srvManager_ = nullptr;
+	object3dCommon_ = nullptr;
+	model_ = nullptr;
+}
+
+void ParticleManager::DestroyInstance()
+{
+	if (instance) {
+		delete instance;
+		instance = nullptr;
+	}
 }
 
 void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager,Object3dCommon*object3dCommon)

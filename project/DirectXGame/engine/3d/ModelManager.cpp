@@ -19,6 +19,15 @@ ModelManager* ModelManager::GetInstance()
 
 void ModelManager::Finalize()
 {
+	models_.clear();
+	if (modelCommon_) {
+		delete modelCommon_;
+		modelCommon_ = nullptr;
+	}
+}
+
+void ModelManager::DestroyInstance()
+{
 	if (instance_ != nullptr) {
 		delete instance_;
 		instance_ = nullptr;

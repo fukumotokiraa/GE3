@@ -156,6 +156,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\Fighter\FighterFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cpp DirectXGame\engine\3d\ModelManager.h" />
     <ClInclude Include="DirectXGame\application\Fighter\Archer.h" />
     <ClInclude Include="DirectXGame\application\Scene\Clear.h" />
     <ClInclude Include="DirectXGame\application\Fighter\BaseFighter.h" />

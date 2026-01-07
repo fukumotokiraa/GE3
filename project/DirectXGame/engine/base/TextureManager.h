@@ -25,6 +25,7 @@ public:
 	static TextureManager* GetInstance();
 
 	void Finalize();
+	static void DestroyInstance();
 
 	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
 	//テクスチャファイルの読み込み

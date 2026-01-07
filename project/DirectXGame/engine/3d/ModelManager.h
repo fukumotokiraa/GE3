@@ -13,6 +13,7 @@ public:
 	static ModelManager* GetInstance();
 	//終了
 	void Finalize();
+	static void DestroyInstance();
 	//モデルファイルの読み込み
 	void LoadModel(const std::string& filePath);
 

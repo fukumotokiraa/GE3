@@ -90,7 +90,8 @@ void MyGame::Finalize()
 
 	imguiManager->Finalize();
 	ModelManager::GetInstance()->Finalize();
-	winApp->Finalize();
+	TextureManager::GetInstance()->Finalize();
+	//winApp->Finalize();
 
 	delete boardObject;
 	delete board;
@@ -107,6 +108,9 @@ void MyGame::Finalize()
 	delete swordBot;
 	delete sprite;
 	delete sceneManager_;
+
+	ModelManager::DestroyInstance();
+	TextureManager::DestroyInstance();
 
 #pragma endregion
 

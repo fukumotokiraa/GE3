@@ -20,8 +20,17 @@ TextureManager* TextureManager::GetInstance()
 
 void TextureManager::Finalize()
 {
-	delete instance;
-	instance = nullptr;
+	textureDatas.clear();
+	srvManager_ = nullptr;
+	dxCommon_ = nullptr;
+}
+
+void TextureManager::DestroyInstance()
+{
+	if (instance) {
+		delete instance;
+		instance = nullptr;
+	}
 }
 
 void TextureManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
