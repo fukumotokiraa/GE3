@@ -20,6 +20,11 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("resources/start.png");
 	gameover_->Initialize(spriteCommon_, "resources/start.png");
 
+	operation_ = new Sprite();
+	TextureManager::GetInstance()->LoadTexture("resources/operation.png");
+	operation_->Initialize(spriteCommon_, "resources/operation.png");
+	operation_->SetPosition({ 300.0f, 520.0f, 0.0f });
+
 
 	loseSprite_ = new Sprite();
 	TextureManager::GetInstance()->LoadTexture("resources/clear.png");
@@ -85,6 +90,8 @@ void GameScene::Finalize()
 
 	delete loseSprite_;
 
+	delete operation_;
+
 	delete gameover_;
 
 	//clear_->Finalize();
@@ -99,6 +106,7 @@ void GameScene::Update()
 {
 #pragma region シーン遷移
 	gameover_->Update();
+	operation_->Update();
 	loseSprite_->Update();
 	//clear_->Update();
     if (input_->TriggerKey(DIK_RETURN)) {
@@ -211,6 +219,7 @@ void GameScene::Draw()
 	//}
 	stage_->Draw();
 	gameover_->Draw();
+	operation_->Draw();
 	preGameScene_->Draw();
     if (isLose_ && loseSprite_) {
         loseSprite_->Draw();

@@ -158,10 +158,10 @@ void MyGame::Update()
 			swordMidTimer = 0.0f;
 			swordBotTimer = 0.0f;
 		}
-		else if (dynamic_cast<GameScene*>(current)) {
-			// GameScene→TitleScene遷移時は即遷移（演出なし）
-			sceneManager_->SetNextScene(new TitleScene());
-		}
+		//else if (dynamic_cast<GameScene*>(current)) {
+		//	// GameScene→TitleScene遷移時は即遷移（演出なし）
+		//	sceneManager_->SetNextScene(new TitleScene());
+		//}
 	}
 
 #pragma region MoveSprite
