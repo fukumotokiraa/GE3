@@ -69,6 +69,17 @@ BaseFighter* PhaseCommon::SpawnFighter(FighterType type, Team team)
 	typeMap_[ptr] = type;
 	teamMap_[ptr] = team;
 
+	// 重要: Spawn 時点で Status::faction をセットしておくことで
+	//        Initialize() 内で陣営に応じたモデル選択が可能になる
+	if (team == Team::Player) {
+		ptr->SetFaction(Faction::Player);
+	} else if (team == Team::Enemy) {
+		ptr->SetFaction(Faction::Enemy);
+	} else {
+		// Neutral の取り扱いがあればここで決める（とりあえず Player にフォールバック）
+		ptr->SetFaction(Faction::Player);
+	}
+
 	// 重要: Object3dCommon を渡してから初期化する（Mage::Initialize が依存）
 	ptr->SetObject3dCommon(object3dCommon_);
 
