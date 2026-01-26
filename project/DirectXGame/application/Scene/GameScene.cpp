@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "Fighter/Knight.h"
 #include "Fighter/FighterFactory.h"
+#include "TitleScene.h"
 
 void GameScene::Initialize()
 {
@@ -25,6 +26,10 @@ void GameScene::Initialize()
 	operation_->Initialize(spriteCommon_, "resources/operation.png");
 	operation_->SetPosition({ 300.0f, 520.0f, 0.0f });
 
+	poseSprite_ = new Sprite();
+	TextureManager::GetInstance()->LoadTexture("resources/pose.png");
+	poseSprite_->Initialize(spriteCommon_, "resources/pose.png");
+	poseSprite_->SetPosition({ 450.0f, 200.0f, 0.0f });
 
 	loseSprite_ = new Sprite();
 	TextureManager::GetInstance()->LoadTexture("resources/clear.png");
@@ -90,6 +95,8 @@ void GameScene::Finalize()
 
 	delete loseSprite_;
 
+	delete poseSprite_;
+
 	delete operation_;
 
 	delete gameover_;
@@ -108,6 +115,7 @@ void GameScene::Update()
 	gameover_->Update();
 	operation_->Update();
 	loseSprite_->Update();
+	poseSprite_->Update();
 	//clear_->Update();
     if (input_->TriggerKey(DIK_RETURN)) {
         if (loseSpriteState_ == LoseSpriteState::Idle) {
@@ -124,6 +132,22 @@ void GameScene::Update()
             loseSpriteTimer_ = 0.0f;
         }
     }
+
+	// タイトルへ戻る（Tキー）
+	if (input_->TriggerKey(DIK_T)) {
+		BaseScene* scene = new TitleScene();
+		sceneManager_->SetNextScene(scene);
+		return;
+	}
+
+	if (input_->TriggerKey(DIK_ESCAPE)) {
+		if(isPose_ == false) {
+			isPose_ = true;
+		}
+		else {
+			isPose_ = false;
+		}
+	}
 
     // スプライトアニメーション
     switch (loseSpriteState_) {
@@ -220,6 +244,9 @@ void GameScene::Draw()
 	stage_->Draw();
 	gameover_->Draw();
 	operation_->Draw();
+	if (isPose_ == true) {
+		poseSprite_->Draw();
+	}
 	preGameScene_->Draw();
     if (isLose_ && loseSprite_) {
         loseSprite_->Draw();

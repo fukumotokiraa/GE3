@@ -59,7 +59,9 @@ private:
 	Sprite* gameover_ = nullptr;
 	Sprite* loseSprite_ = nullptr;
 	Sprite* operation_ = nullptr;
+	Sprite* poseSprite_ = nullptr;
 	bool isLose_ = false;
+	bool isPose_ = false;
 
 	enum class LoseSpriteState {
 		Idle,

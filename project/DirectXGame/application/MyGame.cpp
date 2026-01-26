@@ -79,6 +79,7 @@ void MyGame::Initialize()
 	boardObject->SetModel("board.gltf");
 
 
+
 #pragma endregion
 
 
@@ -138,14 +139,7 @@ void MyGame::Update()
 	//	camera->GetTranslate().y -= 0.01f;
 	//}
 
-	//if (input->TriggerKey(DIK_SPACE) && spriteMoveState == SpriteMoveState::Idle) {
-	//	spriteMoveState = SpriteMoveState::Entering;
-	//	spriteMoveTimer = 0.0f;
-	//	swordMidState = SpriteMoveState::Idle;
-	//	swordBotState = SpriteMoveState::Idle;
-	//	swordMidTimer = 0.0f;
-	//	swordBotTimer = 0.0f;
-	//}
+
 
 	if (input->TriggerKey(DIK_SPACE) && spriteMoveState == SpriteMoveState::Idle) {
 		BaseScene* current = sceneManager_->GetCurrentScene();
@@ -323,6 +317,20 @@ void MyGame::Update()
 				if (gameScene) {
 					gameScene->GetPreGameScene()->StartSetSpriteAppear();
 				}
+
+				// 遷移スプライトが動ききったタイミングでカメライージングを開始
+				// 要件に合わせて Z を 86 -> 35 にイージング
+				cameraEasing = true;
+				cameraEasingTimer = 0.0f;
+				// 明示的に開始値を 86 に固定する（必要なら現在値から始めるように変更可）
+				cameraStartY = 86.0f;
+				cameraTargetY = 35.0f;
+				// カメラの現在位置の X/Y を維持し、Z を開始値に合わせる
+				{
+					Vector3 camPos = camera->GetTranslate();
+					camPos.y = cameraStartY;
+					camera->SetTranslate(camPos);
+				}
 			}
 		}
 		break;
@@ -346,6 +354,19 @@ void MyGame::Update()
 
 	sceneManager_->Update();
 
+	// カメライージング更新（毎フレーム）
+	if (cameraEasing) {
+		// フレームレート固定（1/60秒）に合わせた更新
+		cameraEasingTimer += 1.0f / 60.0f;
+		float t = std::clamp(cameraEasingTimer / cameraEasingDuration, 0.0f, 1.0f);
+		float easeT = easeOutCubic(t);
+		Vector3 camPos = camera->GetTranslate();
+		camPos.y = cameraStartY + (cameraTargetY - cameraStartY) * easeT;
+		camera->SetTranslate(camPos);
+		if (t >= 1.0f) {
+			cameraEasing = false;
+		}
+	}
 
 	Framework::Update();
 
