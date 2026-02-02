@@ -80,5 +80,12 @@ private:
 	Vector3 botEndPos = { 1280.0f, 480.0f ,-200.0f };    // 画面外右
 	Vector3 botCenterPos = { 0.0f, 480.0f ,-200.0f }; // 画面中央
 
+	// カメライージング（遷移スプライトが動ききったら Z を 86 -> 35 にイージング）
+	bool cameraEasing = false;
+	float cameraEasingTimer = 0.0f;
+	const float cameraEasingDuration = 1.0f; // 変化にかける時間（秒）
+	float cameraStartY = 86.0f;
+	float cameraTargetY = 35.0f;
+
 };
 

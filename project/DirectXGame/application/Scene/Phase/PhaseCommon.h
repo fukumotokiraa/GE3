@@ -26,7 +26,8 @@ public:
 
 	Input* GetInput() { return input_; }
 
-
+	// 追加: Object3dCommon の外部参照を取得可能にする（SetPhase で使用）
+	Object3dCommon* GetObject3dCommon() { return object3dCommon_; }
 
 	// 全ファイターへの参照
 	const std::vector<std::unique_ptr<BaseFighter>>& GetFighters() const { return fighters_; }

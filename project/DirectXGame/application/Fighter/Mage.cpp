@@ -3,21 +3,28 @@
 
 void Mage::Initialize()
 {
-	ModelManager::GetInstance()->LoadModel("mage.gltf");
+	// 陣営に応じて使用モデルを切り替える
+	const Status* st = GetStatus();
+	const bool isEnemy = (st && st->faction == Faction::Enemy);
+
+	const std::string modelFile = isEnemy ? "mageEnemy.gltf" : "mage.gltf";
+
+	// モデル読み込みと Object3d をセットアップ
+	ModelManager::GetInstance()->LoadModel(modelFile);
 	mageModel = new Model();
 	mageObject = new Object3d();
 	mageObject->Initialize(object3dCommon_, mageModel);
-	mageObject->SetModel("mage.gltf");
+	mageObject->SetModel(modelFile);
 	mageObject->GetTransform().translate = { 3.0f,1.0f,-4.0f };
-	mageStatus = {
-		Faction::Player,
-		80,
-		80,
-		1, // moveRange
-		4, // range
-		10, // attack
-		0.6f // attackSpeed
-	};
+
+	// 注意: SpawnFighter で既に faction をセットしている想定なので、
+	//       ここでは faction を上書きしないように他フィールドのみ代入する
+	mageStatus.hp = 80;
+	mageStatus.maxHp = 80;
+	mageStatus.move = 1; // moveRange
+	mageStatus.range = 4; // range
+	mageStatus.power = 10; // attack
+	mageStatus.attackSpeed = 0.6f; // attackSpeed
 }
 
 void Mage::Finalize()
