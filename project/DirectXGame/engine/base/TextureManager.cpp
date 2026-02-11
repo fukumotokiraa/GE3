@@ -5,6 +5,9 @@
 #include "StringUtility.h"
 #include "DirectXCommon.h"
 
+#include <filesystem>
+#include <algorithm>
+
 TextureManager* TextureManager::instance = nullptr;
 
 //ImGuiで0番から使用するため1番から使用
@@ -34,41 +37,51 @@ void TextureManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
 
 void TextureManager::LoadTexture(const std::string& filePath)
 {
-	//読み込み済みテクスチャを検索
-	//auto it = std::find_if(textureDatas.begin(), textureDatas.end(),[&](TextureData& textureData_){return textureData_.filePath_ == filePath; });
-	//if (it != textureDatas.end()) {
-	//	return;
-	//}
-
 	if(textureDatas.contains(filePath)) {
 		return;
 	}
 	assert(srvManager_->maxTextureCheck());
 
-
-	//テクスチャファイルを呼んでプログラムで扱えるようにする
+	// テクスチャファイルを呼んでプログラムで扱えるようにする
 	DirectX::ScratchImage image{};
 	std::wstring filePathW = ConvertString(filePath);
-	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-	assert(SUCCEEDED(hr));
 
-	//ミニマップの作成
+	// 拡張子判定（小文字化して比較）
+	std::filesystem::path fsPath(filePath);
+	std::string ext = fsPath.extension().string();
+	std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
+
+	HRESULT hr = S_OK;
+	if (ext == ".dds") {
+		// DDS ファイルは DirectXTex の DDS ローダを使う
+		hr = DirectX::LoadFromDDSFile(filePathW.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
+		assert(SUCCEEDED(hr));
+	} else {
+		// WIC 対応フォーマット（png, jpg, etc.）
+		hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+		assert(SUCCEEDED(hr));
+	}
+
+	// ミニマップの作成（既に mipLevels を持っている場合は生成をスキップ）
 	DirectX::ScratchImage mipImages{};
-	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-	assert(SUCCEEDED(hr));
+	const DirectX::TexMetadata& srcMeta = image.GetMetadata();
+	if (srcMeta.mipLevels > 1) {
+		// DDS に既にミップマップが含まれている（または元データが mip を持つ）場合はそのまま使う
+		mipImages = std::move(image);
+	} else {
+		hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+		assert(SUCCEEDED(hr));
+	}
 
-	//テクスチャデータを追加
-	//textureDatas.resize(textureDatas.size() + 1);
-	//追加したテクスチャデータの参照を取得する
+	// テクスチャデータを追加
 	TextureData& textureData = textureDatas[filePath];
 
-	//textureData.filePath_ = filePath;
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = dxCommon_->CreateTextureResorce(dxCommon_->GetDevice(), textureData.metadata);
 
 	dxCommon_->UploadTextureData(textureData.resource, mipImages);
 
-	//テクスチャデータの要素数番号をSRVのインデックスとする
+	// テクスチャデータの要素数番号をSRVのインデックスとする
 	uint32_t srvIndex = static_cast<uint32_t>(textureDatas.size() - 1) + kSRVIndexTop;
 
 	textureData.srvIndex = srvManager_->Allocate();

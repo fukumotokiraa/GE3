@@ -14,17 +14,17 @@ void MyGame::Initialize()
 
 #pragma region 各オブジェクトの初期化
 
-	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.dds");
 	TextureManager::GetInstance()->LoadTexture("resources/monsterBall.png");
 
 	sprite = new Sprite();
-	sprite->Initialize(spriteCommon, "resources/uvChecker.png");
+	sprite->Initialize(spriteCommon, "resources/uvChecker.dds");
 	sprite->SetPosition({ 100.0f,100.0f });
 
 	for (uint32_t i = 0; i < 5; i++) {
 		Sprite* sprite = new Sprite();
 		if (i % 2 == 0) {
-			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
+			sprite->Initialize(spriteCommon, "resources/uvChecker.dds");
 		}
 		else {
 			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
