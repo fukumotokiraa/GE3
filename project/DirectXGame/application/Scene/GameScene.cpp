@@ -126,10 +126,12 @@ void GameScene::Update()
         }
     }
     // スペースキーで退場開始
-    if (input_->TriggerKey(DIK_RETURN)) {
+    if (input_->TriggerKey(DIK_SPACE)) {
         if (loseSpriteState_ == LoseSpriteState::Staying) {
             loseSpriteState_ = LoseSpriteState::Exiting;
             loseSpriteTimer_ = 0.0f;
+			BaseScene* scene = new TitleScene();
+			sceneManager_->SetNextScene(scene);
         }
     }
 
