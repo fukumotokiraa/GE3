@@ -35,7 +35,7 @@ private:
 	float emissionInterval = 1.0f;
 	ParticleEmitter particleEmitter;
 
-	bool isSprite = false;
+	bool isSprite = true;
 	bool isModel = false;
 
 	bool endRequest_ = false;
