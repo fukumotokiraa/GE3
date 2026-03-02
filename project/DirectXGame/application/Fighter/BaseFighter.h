@@ -53,7 +53,7 @@ public:
 
 	// 攻撃を行う（デフォルトのダメージ適用）
 	// target の HP を減らし、自身のクールダウンをリセットする
-	void Attack(BaseFighter* target) {
+	virtual void Attack(BaseFighter* target) {
 		if (!target) return;
 		Status* my = GetStatus();
 		Status* t = target->GetStatus();
