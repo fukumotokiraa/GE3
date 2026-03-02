@@ -30,6 +30,11 @@ inline Vector3 GridToWorld(int gx, int gy) {
 	return { kOriginX + gx * kBlockSize, kWorldHeight, kOriginY + gy * kBlockSize };
 }
 
+// Vector3 線形補間
+inline Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {
+	return { a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t };
+}
+
 // BFS で「start から探索し、相手 posTarget とのマンハッタン距離が targetRange に等しい最短セル」への経路を返す。
 // occupied が true のセルは通行不可（ただし start は許可）。見つからなければ start のみを返す。
 std::vector<StagePos> FindPathToRange(
@@ -98,11 +103,13 @@ void BattlePhase::Initialize(PhaseCommon* phaseCommon)
 {
 	phaseCommon_ = phaseCommon;
 	movementTimer_ = 0.0f;
+	movingUnits_.clear();
 }
 
 void BattlePhase::Finalize()
 {
 	// PhaseCommon 側でメモリ管理しているため特になし
+	movingUnits_.clear();
 }
 
 void BattlePhase::Update()
@@ -110,6 +117,31 @@ void BattlePhase::Update()
 	// 固定フレーム想定（既存コードに合わせて 1/60 秒刻み）
 	const float dt = 1.0f / 60.0f;
 	movementTimer_ += dt;
+
+	// --- 補間更新（表示のみ）: 毎フレーム実行 ---
+	if (!movingUnits_.empty()) {
+		for (auto &me : movingUnits_) {
+			if (!me.fighter) continue;
+			me.elapsed += dt;
+			float t = me.duration > 0.0f ? (me.elapsed / me.duration) : 1.0f;
+			if (t < 0.0f) t = 0.0f;
+			if (t > 1.0f) t = 1.0f;
+
+			// 安全に object3d を取得して補間
+			if (me.fighter->GetObject3d()) {
+				Vector3 startW = GridToWorld(me.startGrid.x, me.startGrid.y);
+				Vector3 endW = GridToWorld(me.endGrid.x, me.endGrid.y);
+				Vector3 cur = Lerp(startW, endW, t);
+				me.fighter->GetObject3d()->GetTransform().translate = cur;
+			}
+		}
+		// 完了したエントリを削除
+		movingUnits_.erase(
+			std::remove_if(movingUnits_.begin(), movingUnits_.end(),
+				[](const MovementEntry& me) { return me.elapsed >= me.duration || !me.fighter; }),
+			movingUnits_.end()
+		);
+	}
 
 	if (!phaseCommon_) return;
 
@@ -295,12 +327,20 @@ void BattlePhase::Update()
 							if (dest.x >= 0 && dest.x < kStageWidth && dest.y >= 0 && dest.y < kStageHeight)
 								occupied[dest.y][dest.x] = true;
 
-							// 実際の移動
+							// 論理座標を即時更新（pathfinding の一貫性を保つ）
 							p->SetGridPos(dest.x, dest.y);
-							if (p->GetObject3d()) {
-								auto w = GridToWorld(dest.x, dest.y);
-								p->GetObject3d()->GetTransform().translate = w;
-							}
+
+							// 表示は補間：start = pPos, end = dest
+							BattlePhase::MovementEntry me;
+							me.fighter = p;
+							me.startGrid = pPos;
+							me.endGrid = dest;
+							me.elapsed = 0.0f;
+							me.duration = moveInterval_;
+							// 初期位置を明示的にワールド位置にセット（念のため）
+							if (p->GetObject3d())
+								p->GetObject3d()->GetTransform().translate = GridToWorld(me.startGrid.x, me.startGrid.y);
+							movingUnits_.push_back(me);
 						}
 					}
 				}
@@ -344,12 +384,19 @@ void BattlePhase::Update()
 							if (dest.x >= 0 && dest.x < kStageWidth && dest.y >= 0 && dest.y < kStageHeight)
 								occupied[dest.y][dest.x] = true;
 
-							// 実際の移動
+							// 論理座標を即時更新
 							e->SetGridPos(dest.x, dest.y);
-							if (e->GetObject3d()) {
-								auto w = GridToWorld(dest.x, dest.y);
-								e->GetObject3d()->GetTransform().translate = w;
-							}
+
+							// 表示は補間
+							BattlePhase::MovementEntry me;
+							me.fighter = e;
+							me.startGrid = ePos;
+							me.endGrid = dest;
+							me.elapsed = 0.0f;
+							me.duration = moveInterval_;
+							if (e->GetObject3d())
+								e->GetObject3d()->GetTransform().translate = GridToWorld(me.startGrid.x, me.startGrid.y);
+							movingUnits_.push_back(me);
 						}
 					}
 				}
