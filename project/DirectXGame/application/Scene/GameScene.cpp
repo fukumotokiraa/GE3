@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "Fighter/Knight.h"
 #include "Fighter/FighterFactory.h"
+#include "Fighter/BaseFighter.h"
 #include "TitleScene.h"
 
 void GameScene::Initialize()
@@ -12,32 +13,37 @@ void GameScene::Initialize()
 	//clear_ = new Clear();
 	//clear_->Initialize(spriteCommon_);
 
-	//loseSprite_ = new Sprite();
-	//TextureManager::GetInstance()->LoadTexture("resources/lose.png");
-	//loseSprite_->Initialize(spriteCommon_, "resources/lose.png");
-	//loseSprite_->SetPosition({ 0.0f,0.0f, 100.0f });
+	// loseSprite を初期化（clearSprite と同様の挙動）
+	loseSprite_ = new Sprite();
+	TextureManager::GetInstance()->LoadTexture("resources/lose.png");
+	loseSprite_->Initialize(spriteCommon_, "resources/lose.png");
+	loseSprite_->SetPosition(startPos_);
+	loseSpriteState_ = clearSpriteState::Idle;
+	loseSpriteTimer_ = 0.0f;
+	islose_ = false;
 
 	gameover_ = new Sprite();
 	TextureManager::GetInstance()->LoadTexture("resources/start.png");
 	gameover_->Initialize(spriteCommon_, "resources/start.png");
+	gameover_->SetPosition({ 0.0f, 0.0f, 20.0f });
 
 	operation_ = new Sprite();
 	TextureManager::GetInstance()->LoadTexture("resources/operation.png");
 	operation_->Initialize(spriteCommon_, "resources/operation.png");
-	operation_->SetPosition({ 300.0f, 520.0f, 0.0f });
+	operation_->SetPosition({ 300.0f, 520.0f, 20.0f });
 
 	poseSprite_ = new Sprite();
 	TextureManager::GetInstance()->LoadTexture("resources/pose.png");
 	poseSprite_->Initialize(spriteCommon_, "resources/pose.png");
 	poseSprite_->SetPosition({ 450.0f, 200.0f, 0.0f });
 
-	loseSprite_ = new Sprite();
+	clearSprite_ = new Sprite();
 	TextureManager::GetInstance()->LoadTexture("resources/clear.png");
-	loseSprite_->Initialize(spriteCommon_, "resources/clear.png");
-	loseSprite_->SetPosition(startPos_);
-	loseSpriteState_ = LoseSpriteState::Idle;
-	loseSpriteTimer_ = 0.0f;
-	isLose_ = false;
+	clearSprite_->Initialize(spriteCommon_, "resources/clear.png");
+	clearSprite_->SetPosition(startPos_);
+	clearSpriteState_ = clearSpriteState::Idle;
+	clearSpriteTimer_ = 0.0f;
+	isclear_ = false;
 
 	phaseCommon_ = new PhaseCommon();
     phaseCommon_->Initialize(object3dCommon_, input_);
@@ -71,6 +77,13 @@ void GameScene::Initialize()
 		}
 	}
 
+	if (auto eGuardian = phaseCommon_->SpawnFighter(FighterType::Guardian, Team::Enemy)) {
+		eGuardian->SetGridPos(0, 7);
+		if (auto obj = eGuardian->GetObject3d()) {
+			obj->GetTransform().translate = { kOriginX + eGuardian->GetGridPos().x * kBlockSize, kWorldHeight, kOriginY + eGuardian->GetGridPos().y * kBlockSize };
+		}
+	}
+
 	setPhase_ = new SetPhase();
 	setPhase_->Initialize(phaseCommon_);
 
@@ -93,12 +106,10 @@ void GameScene::Finalize()
 	phaseCommon_->Finalize();
 	delete phaseCommon_;
 
+	delete clearSprite_;
 	delete loseSprite_;
-
 	delete poseSprite_;
-
 	delete operation_;
-
 	delete gameover_;
 
 	//clear_->Finalize();
@@ -114,21 +125,28 @@ void GameScene::Update()
 #pragma region シーン遷移
 	gameover_->Update();
 	operation_->Update();
+	clearSprite_->Update();
 	loseSprite_->Update();
 	poseSprite_->Update();
 	//clear_->Update();
     if (input_->TriggerKey(DIK_RETURN)) {
-        if (loseSpriteState_ == LoseSpriteState::Idle) {
-            loseSpriteState_ = LoseSpriteState::Entering;
-            loseSpriteTimer_ = 0.0f;
-            isLose_ = true;
+        if (clearSpriteState_ == clearSpriteState::Idle) {
+            clearSpriteState_ = clearSpriteState::Entering;
+            clearSpriteTimer_ = 0.0f;
+            isclear_ = true;
 			//clear_->SetClear(true);
         }
     }
     // スペースキーで退場開始
     if (input_->TriggerKey(DIK_SPACE)) {
-        if (loseSpriteState_ == LoseSpriteState::Staying) {
-            loseSpriteState_ = LoseSpriteState::Exiting;
+        if (clearSpriteState_ == clearSpriteState::Staying) {
+            clearSpriteState_ = clearSpriteState::Exiting;
+            clearSpriteTimer_ = 0.0f;
+			BaseScene* scene = new TitleScene();
+			sceneManager_->SetNextScene(scene);
+        }
+        if (loseSpriteState_ == clearSpriteState::Staying) {
+            loseSpriteState_ = clearSpriteState::Exiting;
             loseSpriteTimer_ = 0.0f;
 			BaseScene* scene = new TitleScene();
 			sceneManager_->SetNextScene(scene);
@@ -151,51 +169,97 @@ void GameScene::Update()
 		}
 	}
 
-    // スプライトアニメーション
-    switch (loseSpriteState_) {
-    case LoseSpriteState::Idle:
-        loseSprite_->SetPosition(startPos_);
-        isLose_ = false;
+    // スプライトアニメーション（clear）
+    switch (clearSpriteState_) {
+    case clearSpriteState::Idle:
+        clearSprite_->SetPosition(startPos_);
+        isclear_ = false;
         break;
-    case LoseSpriteState::Entering: {
-        loseSpriteTimer_ += 1.0f / 60.0f;
-        float t = std::min(loseSpriteTimer_ / enterDuration_, 1.0f);
+    case clearSpriteState::Entering: {
+        clearSpriteTimer_ += 1.0f / 60.0f;
+        float t = std::min(clearSpriteTimer_ / enterDuration_, 1.0f);
         float eased = easeOutBounce(t);
         Vector3 pos;
         pos.x = startPos_.x + (centerPos_.x - startPos_.x) * eased;
         pos.y = startPos_.y + (centerPos_.y - startPos_.y) * eased;
         pos.z = startPos_.z;
-        loseSprite_->SetPosition(pos);
+        clearSprite_->SetPosition(pos);
         if (t >= 1.0f) {
-            loseSpriteState_ = LoseSpriteState::Staying;
-            loseSpriteTimer_ = 0.0f;
+            clearSpriteState_ = clearSpriteState::Staying;
+            clearSpriteTimer_ = 0.0f;
         }
         break;
     }
-    case LoseSpriteState::Staying:
-        loseSprite_->SetPosition(centerPos_);
-        loseSpriteTimer_ += 1.0f / 60.0f;
-        if (loseSpriteTimer_ >= stayDuration_) {
+    case clearSpriteState::Staying:
+        clearSprite_->SetPosition(centerPos_);
+        clearSpriteTimer_ += 1.0f / 60.0f;
+        if (clearSpriteTimer_ >= stayDuration_) {
             // 何もしない（エンターキーでExitingへ）
         }
         break;
-    case LoseSpriteState::Exiting: {
-        loseSpriteTimer_ += 1.0f / 60.0f;
-        float t = std::min(loseSpriteTimer_ / exitDuration_, 1.0f);
+    case clearSpriteState::Exiting: {
+        clearSpriteTimer_ += 1.0f / 60.0f;
+        float t = std::min(clearSpriteTimer_ / exitDuration_, 1.0f);
         float eased = easeInBack(t);
         Vector3 pos;
         pos.x = centerPos_.x + (endPos_.x - centerPos_.x) * eased;
         pos.y = centerPos_.y + (endPos_.y - centerPos_.y) * eased;
         pos.z = centerPos_.z;
-        loseSprite_->SetPosition(pos);
+        clearSprite_->SetPosition(pos);
         if (t >= 1.0f) {
-            loseSpriteState_ = LoseSpriteState::Idle;
-            loseSpriteTimer_ = 0.0f;
-            isLose_ = false;
+            clearSpriteState_ = clearSpriteState::Idle;
+            clearSpriteTimer_ = 0.0f;
+            isclear_ = false;
         }
         break;
     }
     }
+
+	// スプライトアニメーション（lose - clear と同様の挙動）
+	switch (loseSpriteState_) {
+	case clearSpriteState::Idle:
+		loseSprite_->SetPosition(startPos_);
+		islose_ = false;
+		break;
+	case clearSpriteState::Entering: {
+		loseSpriteTimer_ += 1.0f / 60.0f;
+		float t = std::min(loseSpriteTimer_ / enterDuration_, 1.0f);
+		float eased = easeOutBounce(t);
+		Vector3 pos;
+		pos.x = startPos_.x + (centerPos_.x - startPos_.x) * eased;
+		pos.y = startPos_.y + (centerPos_.y - startPos_.y) * eased;
+		pos.z = startPos_.z;
+		loseSprite_->SetPosition(pos);
+		if (t >= 1.0f) {
+			loseSpriteState_ = clearSpriteState::Staying;
+			loseSpriteTimer_ = 0.0f;
+		}
+		break;
+	}
+	case clearSpriteState::Staying:
+		loseSprite_->SetPosition(centerPos_);
+		loseSpriteTimer_ += 1.0f / 60.0f;
+		if (loseSpriteTimer_ >= stayDuration_) {
+			// 何もしない（スペースキーでExitingへ、clear と同様）
+		}
+		break;
+	case clearSpriteState::Exiting: {
+		loseSpriteTimer_ += 1.0f / 60.0f;
+		float t = std::min(loseSpriteTimer_ / exitDuration_, 1.0f);
+		float eased = easeInBack(t);
+		Vector3 pos;
+		pos.x = centerPos_.x + (endPos_.x - centerPos_.x) * eased;
+		pos.y = centerPos_.y + (endPos_.y - centerPos_.y) * eased;
+		pos.z = centerPos_.z;
+		loseSprite_->SetPosition(pos);
+		if (t >= 1.0f) {
+			loseSpriteState_ = clearSpriteState::Idle;
+			loseSpriteTimer_ = 0.0f;
+			islose_ = false;
+		}
+		break;
+	}
+	}
 #pragma endregion
 
 	stage_->Update();
@@ -218,16 +282,29 @@ void GameScene::Update()
 	if (setPhase_) setPhase_->Update();
 	if (battlePhase_) battlePhase_->Update();
 
-	// battlePhase 中に敵が全員いなくなったらスプライト表示を開始する
+	// battlePhase 中に敵が全員いなくなったらスプライト表示を開始する（既存）
 	if (battlePhase_ && phaseCommon_) {
 		// PhaseCommon::Update() ですでに死亡したファイターは除去されているため
-		// GetEnemyKnight() が nullptr なら敵は存在しないと判断できる
+		// GetFirstOfType<Knight> が nullptr なら敵は存在しないと判断できる
 		if (phaseCommon_->GetFirstOfType<Knight>(Team::Enemy) == nullptr) {
-			if (loseSpriteState_ == LoseSpriteState::Idle) {
-				loseSpriteState_ = LoseSpriteState::Entering;
-				loseSpriteTimer_ = 0.0f;
-				isLose_ = true;
+			if (clearSpriteState_ == clearSpriteState::Idle) {
+				clearSpriteState_ = clearSpriteState::Entering;
+				clearSpriteTimer_ = 0.0f;
+				isclear_ = true;
 				//clear_->SetClear(true);
+			}
+		}
+		// 逆にプレイヤー側が全員いなくなったら lose を表示する
+		auto players = phaseCommon_->GetAllOfType<BaseFighter>(Team::Player);
+		bool anyPlayerAlive = false;
+		for (auto p : players) {
+			if (p && p->GetStatus() && p->GetStatus()->IsAlive()) { anyPlayerAlive = true; break; }
+		}
+		if (!anyPlayerAlive) {
+			if (loseSpriteState_ == clearSpriteState::Idle) {
+				loseSpriteState_ = clearSpriteState::Entering;
+				loseSpriteTimer_ = 0.0f;
+				islose_ = true;
 			}
 		}
 	}
@@ -236,9 +313,14 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
-	if (isLose_ == true) {
-        loseSprite_->Draw();
-	}		
+	// 先に勝利／敗北のスプライトを描画（どちらかが起動していれば中央に表示）
+	if (isclear_ && clearSprite_) {
+        clearSprite_->Draw();
+    }
+	if (islose_ && loseSprite_) {
+		loseSprite_->Draw();
+	}
+
 	//if (clear_->GetClear()) {
 	//	gameover_->Draw();
 	//	return;
@@ -250,9 +332,6 @@ void GameScene::Draw()
 		poseSprite_->Draw();
 	}
 	preGameScene_->Draw();
-    if (isLose_ && loseSprite_) {
-        loseSprite_->Draw();
-    }
 
 	phaseCommon_->Draw();
 	if (setPhase_) setPhase_->Draw();

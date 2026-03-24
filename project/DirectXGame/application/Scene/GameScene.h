@@ -57,27 +57,33 @@ private:
 	Clear* clear_ = nullptr;
 
 	Sprite* gameover_ = nullptr;
+	Sprite* clearSprite_ = nullptr;
 	Sprite* loseSprite_ = nullptr;
 	Sprite* operation_ = nullptr;
 	Sprite* poseSprite_ = nullptr;
-	bool isLose_ = false;
+	bool isclear_ = false;
+	bool islose_ = false;
 	bool isPose_ = false;
 
-	enum class LoseSpriteState {
+	enum class clearSpriteState {
 		Idle,
 		Entering,
 		Staying,
 		Exiting
 	};
-	LoseSpriteState loseSpriteState_ = LoseSpriteState::Idle;
+	clearSpriteState clearSpriteState_ = clearSpriteState::Idle;
+	float clearSpriteTimer_ = 0.0f;
+
+	clearSpriteState loseSpriteState_ = clearSpriteState::Idle;
 	float loseSpriteTimer_ = 0.0f;
+
 	const float enterDuration_ = 1.0f;
 	const float stayDuration_ = 0.5f;
 	const float exitDuration_ = 1.0f;
 
 	// スプライトの移動座標
-	Vector3 startPos_ = { 0.0f, -720.0f, 0.0f };   // 画面外上
-	Vector3 centerPos_ = { 0.0f, 0.0f, 0.0f };   // 画面中央
-	Vector3 endPos_ = { 0.0f, 720.0f, 0.0f };
+	Vector3 startPos_ = { 0.0f, -720.0f, -10.0f };   // 画面外上
+	Vector3 centerPos_ = { 0.0f, 0.0f, -10.0f };   // 画面中央
+	Vector3 endPos_ = { 0.0f, 720.0f, -10.0f };
 };
 
