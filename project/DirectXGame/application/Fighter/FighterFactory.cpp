@@ -3,6 +3,8 @@
 #include "Mage.h"
 #include <stdexcept>
 
+#include "Guardian.h"
+
 std::unordered_map<FighterType, FighterFactory::Creator>& FighterFactory::Registry() {
 	static std::unordered_map<FighterType, Creator> registry;
 	return registry;
@@ -16,6 +18,7 @@ void FighterFactory::Register(FighterType type, Creator creator) {
 static bool RegisterBuiltins() {
 	FighterFactory::Register(FighterType::Knight, [](){ return std::make_unique<Knight>(); });
 	FighterFactory::Register(FighterType::Mage,   [](){ return std::make_unique<Mage>(); });
+	FighterFactory::Register(FighterType::Guardian, []() { return std::make_unique<Guardian>(); });
 	return true;
 }
 static bool registered = RegisterBuiltins();

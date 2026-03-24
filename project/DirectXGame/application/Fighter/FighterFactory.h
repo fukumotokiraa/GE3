@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include "BaseFighter.h"
 
-enum class FighterType { Knight, Mage /* ... */ };
+enum class FighterType { Knight, Mage, Guardian /* ... */ };
 
 class FighterFactory {
 public:
