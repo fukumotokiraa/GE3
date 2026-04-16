@@ -285,8 +285,12 @@ void GameScene::Update()
 	// battlePhase 中に敵が全員いなくなったらスプライト表示を開始する（既存）
 	if (battlePhase_ && phaseCommon_) {
 		// PhaseCommon::Update() ですでに死亡したファイターは除去されているため
-		// GetFirstOfType<Knight> が nullptr なら敵は存在しないと判断できる
-		if (phaseCommon_->GetFirstOfType<Knight>(Team::Enemy) == nullptr) {
+		auto enemies = phaseCommon_->GetAllOfType<BaseFighter>(Team::Enemy);
+		bool anyEnemyAlive = false;
+		for (auto e : enemies) {
+			if (e && e->GetStatus() && e->GetStatus()->IsAlive()) { anyEnemyAlive = true; break; }
+		}
+		if (!anyEnemyAlive) {
 			if (clearSpriteState_ == clearSpriteState::Idle) {
 				clearSpriteState_ = clearSpriteState::Entering;
 				clearSpriteTimer_ = 0.0f;

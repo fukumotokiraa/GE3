@@ -23,7 +23,7 @@ void Mage::Initialize()
 	mageStatus.maxHp = 80;
 	mageStatus.move = 1; // moveRange
 	mageStatus.range = 4; // range
-	mageStatus.power = 10; // attack
+	mageStatus.power = 20; // attack
 	mageStatus.attackSpeed = 0.6f; // attackSpeed
 }
 
