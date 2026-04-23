@@ -1,5 +1,6 @@
 #include "Mage.h"
 #include "ModelManager.h"
+#include "externals/imgui/imgui.h"
 #include <cmath>
 
 void Mage::Initialize()
@@ -104,7 +105,7 @@ void Mage::Draw()
 	if (mageObject) mageObject->Draw();
 
 	// 弾描画
-	if (bulletActive && bulletObject) bulletObject->Draw();
+	//if (bulletActive && bulletObject) bulletObject->Draw();
 }
 
 void Mage::OnHit()
@@ -128,16 +129,28 @@ void Mage::Attack(BaseFighter* target)
 	// 弾モデル読み込みと生成
 	const std::string bulletFile = "mageBullet.gltf";
 	ModelManager::GetInstance()->LoadModel(bulletFile);
-	bulletModel = new Model();
+	// ModelManager のモデルを使い、未初期化の Model を渡さない
+	Model* modelPtr = ModelManager::GetInstance()->FindModel(bulletFile);
+	bulletModel = nullptr;
 	bulletObject = new Object3d();
-	bulletObject->Initialize(object3dCommon_, bulletModel);
-	bulletObject->SetModel(bulletFile);
-
+	// Model が見つかればそれを渡す（見つからなければ nullptr で初期化してから SetModel する）
+	if (modelPtr) {
+		bulletObject->Initialize(object3dCommon_, modelPtr);
+		bulletObject->SetModel(bulletFile);
+	} else {
+		bulletObject->Initialize(object3dCommon_, nullptr);
+		bulletObject->SetModel(bulletFile);
+	}
 	// 開始位置は自分のオブジェクト位置、終端は対象のオブジェクト位置（存在しない場合はその場で消える）
 	Vector3 start = {0.0f,0.0f,0.0f};
 	Vector3 end = {0.0f,0.0f,0.0f};
 	if (mageObject) start = mageObject->GetTransform().translate;
 	if (target && target->GetObject3d()) end = target->GetObject3d()->GetTransform().translate;
+
+	// 初期 transform を確実に設定（巨大表示や未初期化値対策）
+	bulletObject->GetTransform().translate = start;
+	bulletObject->GetTransform().scale = { 1.0f, 1.0f, 1.0f };
+	bulletObject->GetTransform().rotate = { 0.0f, 0.0f, 0.0f };
 
 	bulletStart = start;
 	bulletEnd = end;
@@ -157,3 +170,31 @@ void Mage::Attack(BaseFighter* target)
 	// クールダウンは発射時にリセット（実際のダメージは着弾時）
 	ResetAttackTimer();
 }
+
+void Mage::MageImGui()
+{
+	if (ImGui::Begin("Mage Debug")) {
+		ImGui::Text("bulletActive: %s", bulletActive ? "true" : "false");
+		ImGui::Text("bulletElapsed: %.3f / %.3f", bulletElapsed, bulletDuration);
+		ImGui::Separator();
+		ImGui::Text("Start:  x=%.3f  y=%.3f  z=%.3f", bulletStart.x, bulletStart.y, bulletStart.z);
+		ImGui::Text("End:    x=%.3f  y=%.3f  z=%.3f", bulletEnd.x, bulletEnd.y, bulletEnd.z);
+		if (bulletObject) {
+			auto& t = bulletObject->GetTransform();
+			ImGui::Separator();
+			ImGui::Text("Object3d Transform:");
+			ImGui::Text("  Translate: x=%.3f  y=%.3f  z=%.3f", t.translate.x, t.translate.y, t.translate.z);
+			ImGui::Text("  Scale:     x=%.3f  y=%.3f  z=%.3f", t.scale.x, t.scale.y, t.scale.z);
+			ImGui::Text("  Rotate:    x=%.3f  y=%.3f  z=%.3f", t.rotate.x, t.rotate.y, t.rotate.z);
+		}
+		else {
+			ImGui::Text("bulletObject: nullptr");
+		}
+		if (bulletTarget) {
+			Status* ts = bulletTarget->GetStatus();
+			if (ts) ImGui::Text("Target HP: %d / %d", ts->hp, ts->maxHp);
+		}
+		ImGui::End();
+	}
+}
+

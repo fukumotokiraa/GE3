@@ -424,6 +424,21 @@ void MyGame::Update()
 	ImGui::End();
 #endif
 
+	//{
+	//	BaseScene* cur = sceneManager_->GetCurrentScene();
+	//	GameScene* gs = dynamic_cast<GameScene*>(cur);
+	//	if (gs) {
+	//		PhaseCommon* pc = gs->GetPhaseCommon();
+	//		if (pc) {
+	//			// GetAllOfType<Mage>() のデフォルト team=Neutral で全インスタンスを返す
+	//			auto mages = pc->GetAllOfType<Mage>();
+	//			for (auto m : mages) {
+	//				if (m) m->MageImGui();
+	//			}
+	//		}
+	//	}
+	//}
+
 	imguiManager->End();
 #pragma endregion
 }

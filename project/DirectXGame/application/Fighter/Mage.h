@@ -18,7 +18,8 @@ class Mage : public BaseFighter
 
 	Status* GetStatus() override { return &mageStatus; }
 	Object3d* GetObject3d() override { return mageObject; }
-	
+
+	void MageImGui();
 
 private:
 	Model* mageModel = nullptr;

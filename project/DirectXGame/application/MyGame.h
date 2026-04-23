@@ -8,6 +8,7 @@
 #include "Scene/GameScene.h"
 #include "Scene/TitleScene.h"
 #include "Scene/SceneManager.h"
+#include "application/Fighter/Mage.h"
 
 inline float easeOutCubic(float t) {
 return 1 - powf(1 - t, 3);

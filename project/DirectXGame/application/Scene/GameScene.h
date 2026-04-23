@@ -23,6 +23,8 @@ public:
 	PreGameScene* GetPreGameScene() { return preGameScene_; }
 	Stage* GetStage() { return stage_; }
 
+	PhaseCommon* GetPhaseCommon() { return phaseCommon_; }
+
 	float easeOutBounce(float x) {
 		const float n1 = 7.5625f;
 		const float d1 = 2.75f;
