@@ -1,18 +1,24 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
 #include "Object3d.h"
 #include "Model.h"
 #include "Status.h"
+#include "FighterState.h"
 
 class BaseFighter
 {
 public:
 	virtual ~BaseFighter() = default;
+
 	virtual void Initialize() = 0;
 	virtual void Finalize() = 0;
-	virtual void Update() = 0;
+
+	virtual void Update();
+
 	virtual void Draw() = 0;
+
 	// 被弾時のリアクション（デフォルトは何もしない）
 	virtual void OnHit() {}
 
@@ -73,7 +79,15 @@ public:
 		attackTimer_ = 1.0f / atkSp;
 	}
 
+	// --- State 管理 API ---
+	void ChangeState(std::unique_ptr<FighterState> newState);
+	const FighterState* GetState() const { return state_.get(); }
+	const char* GetStateName() const { return state_ ? state_->Name() : "None"; }
+
 protected:
+	// 状態の更新を行う。派生は必要に応じて override してから Base を呼ぶ。
+	virtual void UpdateState(float dt);
+
 	Object3dCommon* object3dCommon_ = nullptr;
 
 private:
@@ -84,5 +98,8 @@ private:
 
 	// 現在ロックしているターゲット（nullptr 可）
 	BaseFighter* currentTarget_ = nullptr;
+
+	// State パターン用
+	std::unique_ptr<FighterState> state_;
 };
 
